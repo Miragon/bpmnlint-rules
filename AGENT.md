@@ -25,12 +25,15 @@ npm run typecheck && npm run lint && npm run format:check && npm run knip \
 
 ## Guardrails (easy to break, load-bearing)
 
-- **New rules ship `off` in `miragonRecommended`, `error` in `miragonAll`** (both in
-  `src/rules/miragon/index.ts`) — adopting the Miragon layer must never change a consumer's findings.
-- **Preset-aware Conventional Commits.** Adding a rule to `recommended` or raising a severity turns a
-  green build red → `feat!:`. Adding only to `all`, or lowering a severity → not breaking.
+- **New rules ship `error` in `miragonAll` and `miragonRecommendedForAutomation`; in
+  `miragonRecommendedForModeling` a rule is `off` unless it is a non-blocking layout hint, which
+  ships at `warn`** (all in `src/rules/miragon/index.ts`). The modeling layer must stay usable on
+  hand-drawn diagrams — never block a modeler on execution-only conventions.
+- **Preset-aware Conventional Commits.** Adding a rule to a `recommended-for-*` layer or raising a
+  severity turns a green build red → `feat!:`. Adding only to `all`, or lowering a severity → not
+  breaking.
 - **Exact dependency versions.** No `^`, no `~` (`.npmrc` `save-exact=true`, CI-verified).
 - **`src/lib/` is a leaf and a rule never imports another rule** — enforced by `npm run lint:deps`.
   Shared logic goes in `src/lib/`; `npm run knip` catches exports imported nowhere.
 - **Rules must be deterministic and free of false positives.** When in doubt keep a rule out of
-  `recommended` or ship it at `warn`. Layout rules decide on DI coordinates, never on guesswork.
+  the `recommended-for-*` layers or ship it at `warn`. Layout rules decide on DI coordinates, never on guesswork.

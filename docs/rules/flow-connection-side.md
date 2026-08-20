@@ -1,6 +1,6 @@
 # `@miragon/rules/flow-connection-side`
 
-> In `plugin:@miragon/rules/recommended` this rule is present but **off** (so adopting the Miragon layer changes nothing). Turn it on with `plugin:@miragon/rules/all`, or set it to `warn`/`error` yourself.
+> In `plugin:@miragon/rules/recommended-for-modeling` this rule is a `warn` (a non-blocking layout hint); in `plugin:@miragon/rules/recommended-for-automation` and `plugin:@miragon/rules/all` it is an `error`. Override it to `warn`/`error`/`off` yourself.
 
 Reports a sequence flow that docks onto a shape at the **wrong side** — an event entered from the
 top, an activity exited to the left, or a gateway connected on a diagonal flank instead of one of

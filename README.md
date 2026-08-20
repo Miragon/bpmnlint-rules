@@ -39,16 +39,19 @@ Add the plugin to your `.bpmnlintrc` and extend one of its configs, like any oth
 {
   "extends": [
     "bpmnlint:recommended", // standard structural rules
-    "plugin:@miragon/rules/recommended", // the Miragon layer
+    "plugin:@miragon/rules/recommended-for-modeling", // the Miragon layer
   ],
 }
 ```
 
-It ships two configs:
+It ships three configs — pick one by intent:
 
-- `plugin:@miragon/rules/recommended` — bpmnlint's `standard-size` at `warn`; the Miragon rules
-  present but **off**, so adding it to an existing project changes nothing until you opt in.
-- `plugin:@miragon/rules/all` — every Miragon rule at `error`.
+- `plugin:@miragon/rules/recommended-for-modeling` — for hand-drawn, human-facing diagrams:
+  bpmnlint's `standard-size` and the layout rules at `warn` (non-blocking hints), the naming/id
+  rules **off**.
+- `plugin:@miragon/rules/recommended-for-automation` — for executable processes: every Miragon rule
+  at `error` (`standard-size` stays `warn`).
+- `plugin:@miragon/rules/all` — every Miragon rule at `error`, engine-agnostic.
 
 Then lint a diagram:
 
@@ -72,7 +75,7 @@ Turn any of them on individually, the usual way:
 
 ```jsonc
 {
-  "extends": ["bpmnlint:recommended", "plugin:@miragon/rules/recommended"],
+  "extends": ["bpmnlint:recommended", "plugin:@miragon/rules/recommended-for-modeling"],
   "rules": {
     "@miragon/rules/no-generated-ids": "error",
     "@miragon/rules/element-id-naming": "warn",

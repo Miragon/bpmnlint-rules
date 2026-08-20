@@ -1,6 +1,6 @@
 /**
  * The bpmnlint-plugin contract: `rules` + `configs` on the package root, so a workspace can use it
- * the classic way — install it, add `plugin:@miragon/rules/recommended` to `.bpmnlintrc`, run
+ * the classic way — install it, add `plugin:@miragon/rules/recommended-for-modeling` to `.bpmnlintrc`, run
  * `bpmnlint`. bpmnlint's `NodeResolver` reads `require('@miragon/bpmnlint-plugin-rules').rules[name]`
  * (a require-path string) and `.configs[name]`.
  *
@@ -14,13 +14,19 @@
  */
 import type { BpmnlintConfig } from './lib/bpmnlint-config';
 
-import { miragonAll, miragonRecommended, miragonRuleFactories } from './rules/miragon';
+import {
+  miragonAll,
+  miragonRecommendedForAutomation,
+  miragonRecommendedForModeling,
+  miragonRuleFactories,
+} from './rules/miragon';
 
 export const rules: Record<string, string> = Object.fromEntries(
   Object.keys(miragonRuleFactories).map((name) => [name, `./rules/miragon/${name}.cjs`]),
 );
 
 export const configs: Record<string, BpmnlintConfig> = {
-  recommended: miragonRecommended,
+  'recommended-for-modeling': miragonRecommendedForModeling,
+  'recommended-for-automation': miragonRecommendedForAutomation,
   all: miragonAll,
 };

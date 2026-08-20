@@ -3,7 +3,7 @@
  * Miragon rule layers behind one resolver.
  *
  * Two ways in. Classic: the root {@link rules} + {@link configs} make `require(pkg)` a valid bpmnlint
- * plugin, so a `.bpmnlintrc` can `extends: ["plugin:@miragon/rules/recommended"]`. Programmatic:
+ * plugin, so a `.bpmnlintrc` can `extends: ["plugin:@miragon/rules/recommended-for-modeling"]`. Programmatic:
  * {@link createBundledResolver} + {@link getDefaultLintConfig} hand a host one resolver over every
  * bundled rule and a layered config chosen per engine — no `bpmnlint` install, works offline. Every
  * rule, helper and rule-set is exported too, for consumers assembling a config by hand.
@@ -18,7 +18,7 @@ export { getDefaultLintConfig, getRulesForEngine } from './config/engineConfig';
 export type { Engine, DefaultLintConfigOptions } from './config/engineConfig';
 
 // Ready-to-use presets (structural base + Miragon layer).
-export { recommended } from './presets/recommended';
+export { recommendedForModeling, recommendedForAutomation } from './presets/recommended';
 export { all } from './presets/all';
 
 // The classic bpmnlint-plugin surface — `rules` (path strings) + `configs` — so `require(pkg)` is a
@@ -29,7 +29,8 @@ export { rules, configs } from './plugin';
 // Miragon rule-sets and the individual rule factories.
 export {
   MIRAGON_PLUGIN,
-  miragonRecommended,
+  miragonRecommendedForModeling,
+  miragonRecommendedForAutomation,
   miragonAll,
   miragonRuleFactories,
   visualRules,

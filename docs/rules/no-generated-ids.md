@@ -1,6 +1,6 @@
 # `@miragon/rules/no-generated-ids`
 
-> In `plugin:@miragon/rules/recommended` this rule is present but **off** (so adopting the Miragon layer changes nothing). Turn it on with `plugin:@miragon/rules/all`, or set it to `warn`/`error` yourself.
+> In `plugin:@miragon/rules/recommended-for-modeling` this rule is **off** (id conventions matter once a process is executable, not while modeling); in `plugin:@miragon/rules/recommended-for-automation` and `plugin:@miragon/rules/all` it is an `error`. Turn it on with either, or set it to `warn`/`error` yourself.
 
 Reports IDs that were generated rather than chosen.
 
