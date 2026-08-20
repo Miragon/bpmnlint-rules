@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.4.0...v0.5.0) (2026-08-20)
+
+
+### Features
+
+* split recommended into recommended-for-modeling and -for-automation ([#13](https://github.com/Miragon/bpmnlint-rules/issues/13)) ([494c8bf](https://github.com/Miragon/bpmnlint-rules/commit/494c8bf86868cba614aeda184e2b7c730a8a7c4a))
+
 ## [0.4.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.3.0...v0.4.0) (2026-08-20)
 
 
