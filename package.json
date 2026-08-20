@@ -67,7 +67,7 @@
     "bpmnlint-plugin-camunda-compat": "2.59.2",
     "bpmnlint-utils": "1.1.1",
     "camunda-bpmn-moddle": "7.0.1",
-    "zeebe-bpmn-moddle": "1.15.0"
+    "zeebe-bpmn-moddle": "1.17.0"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
@@ -79,7 +79,7 @@
     "globals": "17.11.0",
     "knip": "6.32.2",
     "prettier": "3.9.6",
-    "tsup": "8.5.0",
+    "tsup": "8.5.1",
     "typescript": "5.9.3",
     "typescript-eslint": "8.67.0",
     "vitest": "4.1.10"
