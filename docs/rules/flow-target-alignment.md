@@ -1,6 +1,6 @@
 # `@miragon/rules/flow-target-alignment`
 
-> In `plugin:@miragon/rules/recommended` this rule is present but **off** (so adopting the Miragon layer changes nothing). Turn it on with `plugin:@miragon/rules/all`, or set it to `warn`/`error` yourself.
+> This rule is a non-blocking `warn` in both `plugin:@miragon/rules/recommended-for-modeling` and `plugin:@miragon/rules/recommended-for-automation`; in `plugin:@miragon/rules/all` it is an `error`. Override it to `warn`/`error`/`off` yourself.
 
 Reports an outgoing sequence flow whose **target sits at a different height than its source**, so the
 main path slopes up or down instead of reading as a straight horizontal line — **except** when a

@@ -2,7 +2,8 @@
  * The Miragon rule-set — the only folder whose rule source we author.
  *
  * It bundles the DI/naming/visual rules ported from `bpmnlint-plugin-agentic`, plus the thin,
- * non-engine Miragon opinion layer exposed as `plugin:@miragon/rules/recommended`.
+ * non-engine Miragon opinion layers exposed as `plugin:@miragon/rules/recommended-for-modeling`
+ * and `plugin:@miragon/rules/recommended-for-automation`.
  *
  * The npm package is `@miragon/bpmnlint-plugin-rules`; in a `.bpmnlintrc` bpmnlint expands the short
  * form `@miragon/rules` to it. So config rule references use the short {@link MIRAGON_NAME}
@@ -36,7 +37,7 @@ export const miragonRuleFactories: Record<string, RuleFactory> = {
 /**
  * The visual/layout subset — a category *tag* over the same folder, not a separate one. Handy for
  * a consumer that wants only the geometry rules on. (Element sizing is covered by bpmnlint's own
- * `standard-size`, which the Miragon layer already enables — see {@link miragonRecommended}.)
+ * `standard-size`, which the Miragon layers already enable — see {@link miragonRecommendedForModeling}.)
  */
 export const visualRules: RuleSet = {
   [`${MIRAGON_NAME}/flow-through-element`]: 'error',
@@ -51,21 +52,42 @@ export const namingRules: RuleSet = {
 };
 
 /**
- * The Miragon opinion layer exposed as `plugin:@miragon/rules/recommended`.
+ * The Miragon opinion layer for **modeling**, exposed as
+ * `plugin:@miragon/rules/recommended-for-modeling`.
  *
- * It enables bpmnlint's own `standard-size` at `warn` and lists every Miragon rule *present but
- * `off`*, so adopting the layer changes nothing until a consumer opts a rule in.
+ * Tuned for hand-drawn, human-facing diagrams: bpmnlint's own `standard-size` at `warn`, the layout
+ * rules at `warn` (non-blocking layout hints), and the naming/id rules `off` — a modeler shouldn't
+ * be blocked on id conventions that only matter once a process is wired up for execution.
  */
-export const miragonRecommended: BpmnlintConfig = {
+export const miragonRecommendedForModeling: BpmnlintConfig = {
   rules: {
     // Element sizing is bpmnlint's own `standard-size` (a superset of what a custom rule would do,
     // kept in sync with bpmn-js upstream) — enabled here at `warn`.
     'bpmnlint/standard-size': 'warn',
     [`${MIRAGON_NAME}/no-generated-ids`]: 'off',
     [`${MIRAGON_NAME}/element-id-naming`]: 'off',
-    [`${MIRAGON_NAME}/flow-through-element`]: 'off',
-    [`${MIRAGON_NAME}/flow-connection-side`]: 'off',
-    [`${MIRAGON_NAME}/flow-target-alignment`]: 'off',
+    [`${MIRAGON_NAME}/flow-through-element`]: 'warn',
+    [`${MIRAGON_NAME}/flow-connection-side`]: 'warn',
+    [`${MIRAGON_NAME}/flow-target-alignment`]: 'warn',
+  },
+};
+
+/**
+ * The Miragon opinion layer for **automation**, exposed as
+ * `plugin:@miragon/rules/recommended-for-automation`.
+ *
+ * Tuned for executable processes: every Miragon rule on, but as a non-blocking `warn` (clean ids and
+ * layout matter once a diagram is deployed and diffed, without failing the build), alongside
+ * `standard-size` at `warn`.
+ */
+export const miragonRecommendedForAutomation: BpmnlintConfig = {
+  rules: {
+    'bpmnlint/standard-size': 'warn',
+    [`${MIRAGON_NAME}/no-generated-ids`]: 'warn',
+    [`${MIRAGON_NAME}/element-id-naming`]: 'warn',
+    [`${MIRAGON_NAME}/flow-through-element`]: 'warn',
+    [`${MIRAGON_NAME}/flow-connection-side`]: 'warn',
+    [`${MIRAGON_NAME}/flow-target-alignment`]: 'warn',
   },
 };
 
@@ -82,7 +104,8 @@ export const miragonAll: BpmnlintConfig = {
 
 /** This folder's fragment of the bundled StaticResolver cache. */
 export const resolverEntries: ResolverEntries = {
-  [`config:${MIRAGON_PLUGIN}/recommended`]: miragonRecommended,
+  [`config:${MIRAGON_PLUGIN}/recommended-for-modeling`]: miragonRecommendedForModeling,
+  [`config:${MIRAGON_PLUGIN}/recommended-for-automation`]: miragonRecommendedForAutomation,
   [`config:${MIRAGON_PLUGIN}/all`]: miragonAll,
   ...Object.fromEntries(
     Object.entries(miragonRuleFactories).map(([name, factory]) => [

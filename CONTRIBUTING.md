@@ -41,7 +41,7 @@ src/rules/miragon/      the ONLY folder whose rule source we author (one file pe
 src/lib/                shared helpers — a leaf layer, pure functions over moddle data / geometry
 src/resolver/           createBundledResolver: merges every folder's resolver entries
 src/config/             engineConfig: getDefaultLintConfig / getRulesForEngine
-src/presets/            ready-to-use recommended / all configs
+src/presets/            ready-to-use recommended-for-modeling / -for-automation / all configs
 test/                   RuleTester specs, the resolver integration + sync specs, and fixtures
 test/fixtures/rules/    valid.bpmn / invalid.bpmn pairs per rule (rendered to the docs SVGs)
 docs/rules/             one documentation page per rule
@@ -81,15 +81,18 @@ dependencies in `package.json`.
 4. **Wire it in.** Import the factory in `src/rules/miragon/index.ts` and add it to
    `miragonRuleFactories` — `resolverEntries` picks it up automatically, and the bundled resolver
    with it.
-5. **Severity.** List it in `miragonAll` at `error`, and in `miragonRecommended` at `off` (both in
-   `src/rules/miragon/index.ts`). It ships off so adopting the Miragon layer never changes a
-   consumer's findings; consumers opt in via `plugin:@miragon/rules/all` or per rule.
+5. **Severity.** List it in `miragonAll` at `error` and in `miragonRecommendedForAutomation` at
+   `warn`. In `miragonRecommendedForModeling` ship it `off`, unless it is a non-blocking layout hint
+   safe on hand-drawn diagrams — those ship at `warn` (all in `src/rules/miragon/index.ts`). The two
+   `recommended-for-*` layers stay non-blocking (only `all` is `error`), and the modeling layer must
+   never block a modeler on execution-only conventions; consumers opt in via
+   `plugin:@miragon/rules/all`, the automation layer, or per rule.
 
 ### The bar for a new rule
 
 - **Deterministic.** Decidable from the moddle tree or the DI coordinates. If it needs judgment,
   it is not a lint rule.
-- **No false positives.** When in doubt, ship it as `warn`, or leave it out of `recommended`.
+- **No false positives.** When in doubt, ship it as `warn`, or leave it out of the `recommended-for-*` layers.
 - **Not already covered.** Check core bpmnlint and
   [`bpmnlint-plugin-camunda-compat`](https://github.com/camunda/bpmnlint-plugin-camunda-compat)
   first. Engine-compatibility rules are not this plugin's job.
@@ -100,9 +103,10 @@ dependencies in `package.json`.
   [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `docs:`,
   `refactor:`, `test:`, `chore:`). Releases and the changelog are generated from them via
   [release-please](https://github.com/googleapis/release-please). For a lint preset "breaking" is
-  not the same as for a library: adding a rule to `recommended` or raising a severity turns a
-  consumer's green build red, so it is a breaking change (`feat!:`); adding a rule only to `all`,
-  or lowering a severity, is not.
+  not the same as for a library: only a change that can turn a consumer's green build red — one that
+  introduces or raises an `error`-level finding — is breaking (`feat!:`). The `recommended-for-*`
+  layers emit only `warn`, so adding a rule there is not breaking; raising a rule to `error` (in
+  `all`, or a consumer's config) is. Adding a rule at `warn`, or lowering a severity, is not.
 - **Exact dependency versions.** No `^`, no `~`. `.npmrc` sets `save-exact=true` and CI verifies
   it — a floating transitive bump must never be able to change what the rules catch.
 

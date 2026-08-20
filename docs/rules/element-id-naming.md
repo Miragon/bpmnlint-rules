@@ -1,6 +1,6 @@
 # `@miragon/rules/element-id-naming`
 
-> In `plugin:@miragon/rules/recommended` this rule is present but **off** (so adopting the Miragon layer changes nothing). Turn it on with `plugin:@miragon/rules/all`, or set it to `warn`/`error` yourself.
+> This rule is **off** in `plugin:@miragon/rules/recommended-for-modeling` (id conventions matter once a process is executable, not while modeling), a non-blocking `warn` in `plugin:@miragon/rules/recommended-for-automation`, and an `error` in `plugin:@miragon/rules/all`. Set it to `warn`/`error`/`off` yourself to override.
 
 Reports an element whose ID does not follow the project's naming convention.
 

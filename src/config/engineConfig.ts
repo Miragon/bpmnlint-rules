@@ -4,9 +4,11 @@
  *
  * The zero-config default is layered, mirroring Camunda's `@camunda/linting`:
  *  - `bpmnlint:recommended` — shared generic BPMN correctness, identical for every engine;
- *  - `plugin:@miragon/rules/recommended` — the thin Miragon opinion layer (see `rules/miragon`);
+ *  - the Miragon opinion layer (see `rules/miragon`), chosen by context: an engine-less document is
+ *    a *modeling* diagram (`recommended-for-modeling`), an engine-bound one is *automation*
+ *    (`recommended-for-automation`, every Miragon rule at `error`);
  *  - `plugin:camunda-compat/<platform-version>` — the engine deployability matrix, added **only**
- *    when an engine is given. An engine-less document gets the structural base alone.
+ *    when an engine is given. An engine-less document gets the structural + modeling base alone.
  *
  * The engine layer's moddle descriptor is embedded directly (not referenced by module path) so a
  * config-less host can still parse the typed `zeebe:`/`camunda:` properties those rules inspect.
@@ -21,10 +23,15 @@ import * as camunda8 from '../rules/camunda-8';
 /** A supported execution platform. `undefined` selects the structural base only. */
 export type Engine = 'c7' | 'c8';
 
-/** The Miragon opinion layer, referenced by name (resolved from the bundled resolver). */
-const MIRAGON_LAYER = `plugin:${MIRAGON_NAME}/recommended`;
+/** The Miragon opinion layers, referenced by name (resolved from the bundled resolver). */
+const MIRAGON_LAYER_MODELING = `plugin:${MIRAGON_NAME}/recommended-for-modeling`;
+const MIRAGON_LAYER_AUTOMATION = `plugin:${MIRAGON_NAME}/recommended-for-automation`;
 
-const BASE_EXTENDS = [structuralLayer, MIRAGON_LAYER];
+/** The structural base + the modeling Miragon layer — the default for an engine-less document. */
+const MODELING_EXTENDS = [structuralLayer, MIRAGON_LAYER_MODELING];
+
+/** The structural base + the automation Miragon layer — the base for any engine-bound document. */
+const AUTOMATION_EXTENDS = [structuralLayer, MIRAGON_LAYER_AUTOMATION];
 
 export interface DefaultLintConfigOptions {
   engine?: Engine;
@@ -38,20 +45,20 @@ export function getDefaultLintConfig(options: DefaultLintConfigOptions = {}): Bp
   switch (options.engine) {
     case 'c7':
       return {
-        extends: [...BASE_EXTENDS, camunda7.extendsLayer],
+        extends: [...AUTOMATION_EXTENDS, camunda7.extendsLayer],
         moddleExtensions: {
           [camunda7.moddleExtension.prefix]: camunda7.moddleExtension.descriptor,
         },
       };
     case 'c8':
       return {
-        extends: [...BASE_EXTENDS, camunda8.extendsLayer],
+        extends: [...AUTOMATION_EXTENDS, camunda8.extendsLayer],
         moddleExtensions: {
           [camunda8.moddleExtension.prefix]: camunda8.moddleExtension.descriptor,
         },
       };
     default:
-      return { extends: [...BASE_EXTENDS] };
+      return { extends: [...MODELING_EXTENDS] };
   }
 }
 
