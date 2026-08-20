@@ -1,5 +1,6 @@
 # @miragon/bpmnlint-plugin-rules
 
+[![npm version](https://img.shields.io/npm/v/@miragon/bpmnlint-plugin-rules.svg)](https://www.npmjs.com/package/@miragon/bpmnlint-plugin-rules)
 [![CI](https://github.com/Miragon/bpmnlint-rules/actions/workflows/ci.yml/badge.svg)](https://github.com/Miragon/bpmnlint-rules/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
