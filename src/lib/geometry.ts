@@ -151,6 +151,18 @@ export function attachSide(point: Point, rect: Rect, tolerance = 5): Side | null
   return sides.length === 1 ? sides[0]! : null;
 }
 
+/** The vertical centre (mid-height) of a rectangle — the row a shape is drawn on. */
+const verticalCenter = (rect: Rect): number => rect.y + rect.height / 2;
+
+/**
+ * Do two rectangles sit on the same horizontal row — their vertical centres within `tolerance`?
+ *
+ * Used to check that an outgoing flow's source and target are drawn at the same height, so the main
+ * path reads as a straight horizontal line rather than sloping up or down.
+ */
+export const sameRow = (first: Rect, second: Rect, tolerance = 10): boolean =>
+  Math.abs(verticalCenter(first) - verticalCenter(second)) <= tolerance;
+
 /**
  * A gateway is drawn as a diamond inscribed in `rect`, so the only clean connection points are its
  * four tips — the midpoints of the rectangle's sides. Returns the side whose tip `point` matches

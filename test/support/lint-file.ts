@@ -10,12 +10,14 @@ import noGeneratedIds from '../../src/rules/miragon/no-generated-ids';
 import elementIdNaming from '../../src/rules/miragon/element-id-naming';
 import flowThroughElement from '../../src/rules/miragon/flow-through-element';
 import flowConnectionSide from '../../src/rules/miragon/flow-connection-side';
+import flowTargetAlignment from '../../src/rules/miragon/flow-target-alignment';
 
 const RULES: Record<string, RuleFactory> = {
   'no-generated-ids': noGeneratedIds,
   'element-id-naming': elementIdNaming,
   'flow-through-element': flowThroughElement,
   'flow-connection-side': flowConnectionSide,
+  'flow-target-alignment': flowTargetAlignment,
 };
 
 const EXAMPLES_DIR = fileURLToPath(new URL('../fixtures/rules', import.meta.url));
