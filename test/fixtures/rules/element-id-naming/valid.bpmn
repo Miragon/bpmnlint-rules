@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_NamingConvention" targetNamespace="http://bpmn.io/schema/bpmn">
   <bpmn:process id="orderReview" isExecutable="true">
-    <bpmn:startEvent id="startEvent_OrderReceived" name="Order received">
-      <bpmn:outgoing>flow_OrderReceived</bpmn:outgoing>
+    <bpmn:startEvent id="startEvent_orderReceived" name="Order received">
+      <bpmn:outgoing>flow_orderReceived</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:serviceTask id="serviceTask_ReviewOrder" name="Review order">
-      <bpmn:incoming>flow_OrderReceived</bpmn:incoming>
-      <bpmn:outgoing>flow_OrderReviewed</bpmn:outgoing>
+    <bpmn:serviceTask id="serviceTask_reviewOrder" name="Review order">
+      <bpmn:incoming>flow_orderReceived</bpmn:incoming>
+      <bpmn:outgoing>flow_orderReviewed</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:endEvent id="endEvent_OrderReviewed" name="Order reviewed">
-      <bpmn:incoming>flow_OrderReviewed</bpmn:incoming>
+    <bpmn:endEvent id="endEvent_orderReviewed" name="Order reviewed">
+      <bpmn:incoming>flow_orderReviewed</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="flow_OrderReceived" sourceRef="startEvent_OrderReceived" targetRef="serviceTask_ReviewOrder" />
-    <bpmn:sequenceFlow id="flow_OrderReviewed" sourceRef="serviceTask_ReviewOrder" targetRef="endEvent_OrderReviewed" />
+    <bpmn:sequenceFlow id="flow_orderReceived" sourceRef="startEvent_orderReceived" targetRef="serviceTask_reviewOrder" />
+    <bpmn:sequenceFlow id="flow_orderReviewed" sourceRef="serviceTask_reviewOrder" targetRef="endEvent_orderReviewed" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="orderReview">
-      <bpmndi:BPMNShape id="startEvent_OrderReceived_di" bpmnElement="startEvent_OrderReceived">
+      <bpmndi:BPMNShape id="startEvent_orderReceived_di" bpmnElement="startEvent_orderReceived">
         <dc:Bounds x="160" y="102" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="serviceTask_ReviewOrder_di" bpmnElement="serviceTask_ReviewOrder">
+      <bpmndi:BPMNShape id="serviceTask_reviewOrder_di" bpmnElement="serviceTask_reviewOrder">
         <dc:Bounds x="250" y="80" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="endEvent_OrderReviewed_di" bpmnElement="endEvent_OrderReviewed">
+      <bpmndi:BPMNShape id="endEvent_orderReviewed_di" bpmnElement="endEvent_orderReviewed">
         <dc:Bounds x="412" y="102" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="flow_OrderReceived_di" bpmnElement="flow_OrderReceived">
+      <bpmndi:BPMNEdge id="flow_orderReceived_di" bpmnElement="flow_orderReceived">
         <di:waypoint x="196" y="120" />
         <di:waypoint x="250" y="120" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="flow_OrderReviewed_di" bpmnElement="flow_OrderReviewed">
+      <bpmndi:BPMNEdge id="flow_orderReviewed_di" bpmnElement="flow_orderReviewed">
         <di:waypoint x="350" y="120" />
         <di:waypoint x="412" y="120" />
       </bpmndi:BPMNEdge>

@@ -12,7 +12,7 @@ export interface ElementIdNamingConfig {
  *
  * An element ID is not an implementation detail. It is what the generated code references, what
  * a reviewer reads in a diff, and what the next agent uses to talk about the model. A
- * convention makes all three legible: `serviceTask_ClaimMembership` says what the element is
+ * convention makes all three legible: `serviceTask_claimMembership` says what the element is
  * and what it does; `Activity_0049ryx` says neither.
  *
  * Configuration (all optional):
@@ -23,13 +23,13 @@ export interface ElementIdNamingConfig {
  *     } ]
  *
  * `prefixes` is merged over the defaults, so you only state what differs. `false` switches a
- * type off. `case` is one of `PascalCase` (default), `camelCase`, `snake_case` or `any`.
+ * type off. `case` is one of `camelCase` (default), `PascalCase`, `snake_case` or `any`.
  *
  * Element types that are not configured are not checked — an exotic BPMN type nobody thought
  * about must not produce a report.
  */
 export default function elementIdNaming(config?: ElementIdNamingConfig): Rule {
-  const { prefixes: overrides = {}, case: caseName = 'PascalCase' } = config ?? {};
+  const { prefixes: overrides = {}, case: caseName = 'camelCase' } = config ?? {};
 
   const prefixes = { ...DEFAULT_PREFIXES, ...overrides };
   const { pattern, label: caseLabel } = resolveCase(caseName);
