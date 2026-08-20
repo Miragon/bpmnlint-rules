@@ -35,6 +35,7 @@ export {
   visualRules,
   namingRules,
   elementIdNaming,
+  flowConnectionSide,
   flowThroughElement,
   noGeneratedIds,
 } from './rules/miragon';

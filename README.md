@@ -65,6 +65,7 @@ The Miragon conventions this plugin adds — each with a docs page and a good/ba
 | [`@miragon/rules/no-generated-ids`](docs/rules/no-generated-ids.md)         | IDs generated rather than chosen (`Activity_0049ryx`, `StartEvent_1`) |
 | [`@miragon/rules/element-id-naming`](docs/rules/element-id-naming.md)       | IDs that don't follow the type-prefix + case convention               |
 | [`@miragon/rules/flow-through-element`](docs/rules/flow-through-element.md) | A sequence flow routed through an unrelated shape's body              |
+| [`@miragon/rules/flow-connection-side`](docs/rules/flow-connection-side.md) | A sequence flow docked onto the wrong side of a shape                 |
 
 Turn any of them on individually, the usual way:
 

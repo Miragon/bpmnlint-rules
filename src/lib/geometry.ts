@@ -113,3 +113,70 @@ export const bboxDisjoint = (first: Bbox, second: Bbox): boolean =>
   second.maxX < first.minX ||
   first.maxY < second.minY ||
   second.maxY < first.minY;
+
+/** The four sides of an axis-aligned rectangle — where a flow docks onto a shape. */
+export type Side = 'top' | 'right' | 'bottom' | 'left';
+
+const near = (first: number, second: number, tolerance: number): boolean =>
+  Math.abs(first - second) <= tolerance;
+
+const withinSpan = (value: number, low: number, high: number, tolerance: number): boolean =>
+  value >= low - tolerance && value <= high + tolerance;
+
+/**
+ * Which side of the rectangle does `point` sit on (within `tolerance`)?
+ *
+ * `null` when the point is not clearly on exactly one edge — off the border, or on a corner where
+ * two edges meet — so the caller skips it rather than guess. Used for box-shaped elements (events,
+ * activities); gateways use {@link gatewayTipSide}.
+ */
+export function attachSide(point: Point, rect: Rect, tolerance = 5): Side | null {
+  const right = rect.x + rect.width;
+  const bottom = rect.y + rect.height;
+
+  const sides: Side[] = [];
+  if (near(point.x, rect.x, tolerance) && withinSpan(point.y, rect.y, bottom, tolerance)) {
+    sides.push('left');
+  }
+  if (near(point.x, right, tolerance) && withinSpan(point.y, rect.y, bottom, tolerance)) {
+    sides.push('right');
+  }
+  if (near(point.y, rect.y, tolerance) && withinSpan(point.x, rect.x, right, tolerance)) {
+    sides.push('top');
+  }
+  if (near(point.y, bottom, tolerance) && withinSpan(point.x, rect.x, right, tolerance)) {
+    sides.push('bottom');
+  }
+
+  return sides.length === 1 ? sides[0]! : null;
+}
+
+/**
+ * A gateway is drawn as a diamond inscribed in `rect`, so the only clean connection points are its
+ * four tips — the midpoints of the rectangle's sides. Returns the side whose tip `point` matches
+ * (within `tolerance`), or `null` when it sits on a diagonal flank instead ("seitlich").
+ */
+export function gatewayTipSide(point: Point, rect: Rect, tolerance = 5): Side | null {
+  const centerX = rect.x + rect.width / 2;
+  const centerY = rect.y + rect.height / 2;
+
+  const tips: Record<Side, Point> = {
+    top: { x: centerX, y: rect.y },
+    right: { x: rect.x + rect.width, y: centerY },
+    bottom: { x: centerX, y: rect.y + rect.height },
+    left: { x: rect.x, y: centerY },
+  };
+
+  let best: Side | null = null;
+  let bestDist = Infinity;
+  for (const side of Object.keys(tips) as Side[]) {
+    const tip = tips[side];
+    const dist = Math.hypot(point.x - tip.x, point.y - tip.y);
+    if (dist < bestDist) {
+      bestDist = dist;
+      best = side;
+    }
+  }
+
+  return bestDist <= tolerance ? best : null;
+}

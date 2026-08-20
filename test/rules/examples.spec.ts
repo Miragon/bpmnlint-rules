@@ -10,6 +10,7 @@ const EXAMPLES = [
   { rule: 'no-generated-ids', offender: 'Activity_0049ryx' },
   { rule: 'element-id-naming', offender: 'ReviewOrder' },
   { rule: 'flow-through-element', offender: 'flow_Reopen' },
+  { rule: 'flow-connection-side', offender: 'flow_ToDecision' },
 ];
 
 describe('example models', () => {
