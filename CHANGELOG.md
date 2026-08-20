@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.4.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.3.0...v0.4.0) (2026-08-20)
+
+
+### ⚠ BREAKING CHANGES
+
+* the default naming convention now expects a camelCase body after the type prefix. Consumers that enable the rule without an explicit `case` (e.g. via plugin:@miragon/rules/all) will see IDs with a PascalCase body reported. Set `"case": "PascalCase"` to keep the old behaviour.
+
+### Features
+
+* default element-id-naming case to camelCase ([#14](https://github.com/Miragon/bpmnlint-rules/issues/14)) ([0979480](https://github.com/Miragon/bpmnlint-rules/commit/0979480223e001eff4ebe8f7f62871387e618aca))
+
 ## [0.3.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.2.0...v0.3.0) (2026-08-20)
 
 
