@@ -1,0 +1,10 @@
+"$schema" = "https://conductor.build/schemas/settings.repo.schema.json"
+
+[scripts]
+setup = "npm ci"
+run_mode = "concurrent"
+
+# Rule specs in watch mode (Vitest).
+[scripts.run.test]
+command = "npm run test:watch"
+icon = "test-tube"

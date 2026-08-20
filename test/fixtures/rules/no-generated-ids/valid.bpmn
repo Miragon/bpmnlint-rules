@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_ReadableIds" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:process id="orderReview" isExecutable="true">
+    <bpmn:startEvent id="startEvent_OrderReceived" name="Order received">
+      <bpmn:outgoing>flow_OrderReceived</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="serviceTask_ReviewOrder" name="Review order">
+      <bpmn:incoming>flow_OrderReceived</bpmn:incoming>
+      <bpmn:outgoing>flow_OrderReviewed</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="endEvent_OrderReviewed" name="Order reviewed">
+      <bpmn:incoming>flow_OrderReviewed</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="flow_OrderReceived" sourceRef="startEvent_OrderReceived" targetRef="serviceTask_ReviewOrder" />
+    <bpmn:sequenceFlow id="flow_OrderReviewed" sourceRef="serviceTask_ReviewOrder" targetRef="endEvent_OrderReviewed" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="orderReview">
+      <bpmndi:BPMNShape id="startEvent_OrderReceived_di" bpmnElement="startEvent_OrderReceived">
+        <dc:Bounds x="160" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="serviceTask_ReviewOrder_di" bpmnElement="serviceTask_ReviewOrder">
+        <dc:Bounds x="250" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endEvent_OrderReviewed_di" bpmnElement="endEvent_OrderReviewed">
+        <dc:Bounds x="412" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="flow_OrderReceived_di" bpmnElement="flow_OrderReceived">
+        <di:waypoint x="196" y="120" />
+        <di:waypoint x="250" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_OrderReviewed_di" bpmnElement="flow_OrderReviewed">
+        <di:waypoint x="350" y="120" />
+        <di:waypoint x="412" y="120" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

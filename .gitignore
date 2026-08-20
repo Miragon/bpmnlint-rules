@@ -1,0 +1,15 @@
+.claude/logs/
+
+# dependencies
+node_modules/
+
+# build / tooling output
+dist/
+coverage/
+*.tsbuildinfo
+*.tgz
+
+# editor / os
+.DS_Store
+*.log
+.gstack/

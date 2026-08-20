@@ -1,0 +1,5 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": ["src/rules/miragon/*.ts!", "test/**/*.spec.ts", "scripts/*.mjs", "test/distro/*.cjs"],
+  "project": ["src/**/*.ts", "test/**/*.{ts,cjs}", "scripts/*.mjs"]
+}

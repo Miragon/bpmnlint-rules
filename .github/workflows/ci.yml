@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pin-check:
+    name: Pin check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Verify exact-pinned dependencies
+        uses: Miragon/pin-npm-dependencies@58fe24377aef66748a1444ff69ab05e3f938a798 # v1.2.1
+
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Unused files/deps/exports (knip)
+        run: npm run knip
+
+      - name: Architecture check (dependency-cruiser)
+        run: npm run lint:deps
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      # Packs + installs the tarball into a throwaway consumer, then drives the real
+      # bpmnlint CLI (classic path) + the resolver (programmatic) — catching packaging
+      # gaps the src-based unit tests can't see.
+      - name: Distro smoke test
+        run: npm run test:distro

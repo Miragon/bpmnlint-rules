@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_FlowRouting" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:process id="ticketHandling" isExecutable="true">
+    <bpmn:startEvent id="startEvent_Start" name="Ticket raised">
+      <bpmn:outgoing>flow_StartToReceive</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="serviceTask_Receive" name="Receive ticket">
+      <bpmn:incoming>flow_StartToReceive</bpmn:incoming>
+      <bpmn:incoming>flow_Reopen</bpmn:incoming>
+      <bpmn:outgoing>flow_ReceiveToAssess</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="serviceTask_Assess" name="Assess ticket">
+      <bpmn:incoming>flow_ReceiveToAssess</bpmn:incoming>
+      <bpmn:outgoing>flow_AssessToResolve</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="serviceTask_Resolve" name="Resolve ticket">
+      <bpmn:incoming>flow_AssessToResolve</bpmn:incoming>
+      <bpmn:outgoing>flow_ResolveToDone</bpmn:outgoing>
+      <bpmn:outgoing>flow_Reopen</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="endEvent_Done" name="Ticket closed">
+      <bpmn:incoming>flow_ResolveToDone</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="flow_StartToReceive" sourceRef="startEvent_Start" targetRef="serviceTask_Receive" />
+    <bpmn:sequenceFlow id="flow_ReceiveToAssess" sourceRef="serviceTask_Receive" targetRef="serviceTask_Assess" />
+    <bpmn:sequenceFlow id="flow_AssessToResolve" sourceRef="serviceTask_Assess" targetRef="serviceTask_Resolve" />
+    <bpmn:sequenceFlow id="flow_ResolveToDone" sourceRef="serviceTask_Resolve" targetRef="endEvent_Done" />
+    <bpmn:sequenceFlow id="flow_Reopen" name="Reopen" sourceRef="serviceTask_Resolve" targetRef="serviceTask_Receive" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="ticketHandling">
+      <bpmndi:BPMNShape id="startEvent_Start_di" bpmnElement="startEvent_Start">
+        <dc:Bounds x="160" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="serviceTask_Receive_di" bpmnElement="serviceTask_Receive">
+        <dc:Bounds x="240" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="serviceTask_Assess_di" bpmnElement="serviceTask_Assess">
+        <dc:Bounds x="420" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="serviceTask_Resolve_di" bpmnElement="serviceTask_Resolve">
+        <dc:Bounds x="600" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endEvent_Done_di" bpmnElement="endEvent_Done">
+        <dc:Bounds x="780" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="flow_StartToReceive_di" bpmnElement="flow_StartToReceive">
+        <di:waypoint x="196" y="120" />
+        <di:waypoint x="240" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_ReceiveToAssess_di" bpmnElement="flow_ReceiveToAssess">
+        <di:waypoint x="340" y="120" />
+        <di:waypoint x="420" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_AssessToResolve_di" bpmnElement="flow_AssessToResolve">
+        <di:waypoint x="520" y="120" />
+        <di:waypoint x="600" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_ResolveToDone_di" bpmnElement="flow_ResolveToDone">
+        <di:waypoint x="700" y="120" />
+        <di:waypoint x="780" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_Reopen_di" bpmnElement="flow_Reopen">
+        <di:waypoint x="600" y="140" />
+        <di:waypoint x="340" y="140" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
