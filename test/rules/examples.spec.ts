@@ -11,6 +11,7 @@ const EXAMPLES = [
   { rule: 'element-id-naming', offender: 'ReviewOrder' },
   { rule: 'flow-through-element', offender: 'flow_Reopen' },
   { rule: 'flow-connection-side', offender: 'flow_ToDecision' },
+  { rule: 'flow-target-alignment', offender: 'flow_Archived' },
 ];
 
 describe('example models', () => {

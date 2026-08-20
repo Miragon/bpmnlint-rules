@@ -14,6 +14,7 @@ import type { RuleFactory } from '../../lib/moddle';
 
 import elementIdNaming from './element-id-naming';
 import flowConnectionSide from './flow-connection-side';
+import flowTargetAlignment from './flow-target-alignment';
 import flowThroughElement from './flow-through-element';
 import noGeneratedIds from './no-generated-ids';
 
@@ -29,6 +30,7 @@ export const miragonRuleFactories: Record<string, RuleFactory> = {
   'element-id-naming': elementIdNaming,
   'flow-through-element': flowThroughElement,
   'flow-connection-side': flowConnectionSide,
+  'flow-target-alignment': flowTargetAlignment,
 };
 
 /**
@@ -39,6 +41,7 @@ export const miragonRuleFactories: Record<string, RuleFactory> = {
 export const visualRules: RuleSet = {
   [`${MIRAGON_NAME}/flow-through-element`]: 'error',
   [`${MIRAGON_NAME}/flow-connection-side`]: 'error',
+  [`${MIRAGON_NAME}/flow-target-alignment`]: 'error',
 };
 
 /** The naming/id subset. */
@@ -62,6 +65,7 @@ export const miragonRecommended: BpmnlintConfig = {
     [`${MIRAGON_NAME}/element-id-naming`]: 'off',
     [`${MIRAGON_NAME}/flow-through-element`]: 'off',
     [`${MIRAGON_NAME}/flow-connection-side`]: 'off',
+    [`${MIRAGON_NAME}/flow-target-alignment`]: 'off',
   },
 };
 
@@ -72,6 +76,7 @@ export const miragonAll: BpmnlintConfig = {
     [`${MIRAGON_NAME}/element-id-naming`]: 'error',
     [`${MIRAGON_NAME}/flow-through-element`]: 'error',
     [`${MIRAGON_NAME}/flow-connection-side`]: 'error',
+    [`${MIRAGON_NAME}/flow-target-alignment`]: 'error',
   },
 };
 
@@ -87,4 +92,10 @@ export const resolverEntries: ResolverEntries = {
   ),
 };
 
-export { elementIdNaming, flowConnectionSide, flowThroughElement, noGeneratedIds };
+export {
+  elementIdNaming,
+  flowConnectionSide,
+  flowTargetAlignment,
+  flowThroughElement,
+  noGeneratedIds,
+};
