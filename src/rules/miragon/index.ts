@@ -82,16 +82,22 @@ export const miragonRecommendedForModeling: BpmnlintConfig = {
 export const miragonRecommendedForAutomation: BpmnlintConfig = {
   rules: {
     'bpmnlint/standard-size': 'warn',
-    ...namingRules,
-    ...visualRules,
+    [`${MIRAGON_NAME}/no-generated-ids`]: 'error',
+    [`${MIRAGON_NAME}/element-id-naming`]: 'error',
+    [`${MIRAGON_NAME}/flow-through-element`]: 'error',
+    [`${MIRAGON_NAME}/flow-connection-side`]: 'error',
+    [`${MIRAGON_NAME}/flow-target-alignment`]: 'error',
   },
 };
 
 /** Every Miragon rule at `error` — the opt-in `plugin:@miragon/rules/all`. */
 export const miragonAll: BpmnlintConfig = {
   rules: {
-    ...namingRules,
-    ...visualRules,
+    [`${MIRAGON_NAME}/no-generated-ids`]: 'error',
+    [`${MIRAGON_NAME}/element-id-naming`]: 'error',
+    [`${MIRAGON_NAME}/flow-through-element`]: 'error',
+    [`${MIRAGON_NAME}/flow-connection-side`]: 'error',
+    [`${MIRAGON_NAME}/flow-target-alignment`]: 'error',
   },
 };
 

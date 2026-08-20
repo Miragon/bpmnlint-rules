@@ -59,12 +59,12 @@ file. Make four edits:
 
 1. `import <camelName> from './<name>';`
 2. Add to `miragonRuleFactories`: `'<name>': <camelName>,`
-3. Add to the matching tag set (`visualRules` for layout/geometry, `namingRules` for id/naming) at
-   `'error'` — `miragonAll` and `miragonRecommendedForAutomation` spread these, so both pick the rule
-   up automatically. Then in `miragonRecommendedForModeling` add it `'off'`, unless it is a
-   non-blocking layout hint safe on hand-drawn diagrams (those ship at `'warn'`), keyed
-   `` `${MIRAGON_NAME}/<name>` ``.
-4. Re-export the factory in the trailing `export { ... }`.
+3. Add it at `'error'` to `miragonAll` **and** `miragonRecommendedForAutomation`. In
+   `miragonRecommendedForModeling` add it `'off'`, unless it is a non-blocking layout hint safe on
+   hand-drawn diagrams (those ship at `'warn'`). All keyed `` `${MIRAGON_NAME}/<name>` ``. Each
+   config lists its rules explicitly — no shared spread — so severities stay obvious per config.
+4. Add to the matching tag set (`visualRules` for layout/geometry, `namingRules` for id/naming), and
+   re-export the factory in the trailing `export { ... }`.
 
 ## 3. Spec — `test/rules/<name>.spec.ts`
 
