@@ -95,8 +95,7 @@ tasks and an end event. The invalid model mis-docks one flow on **each** element
 </bpmndi:BPMNEdge>
 <bpmndi:BPMNEdge bpmnElement="flow_Done">
   <di:waypoint x="740" y="200" />
-  <di:waypoint x="740" y="250" />
-  <di:waypoint x="772" y="250" />
+  <di:waypoint x="772" y="200" />
 </bpmndi:BPMNEdge>
 ```
 

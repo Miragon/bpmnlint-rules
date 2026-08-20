@@ -61,9 +61,9 @@
         <dc:Bounds x="520" y="90" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="event_Done_di" bpmnElement="event_Done">
-        <dc:Bounds x="772" y="232" width="36" height="36" />
+        <dc:Bounds x="772" y="182" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="754" y="283" width="71" height="14" />
+          <dc:Bounds x="754" y="233" width="71" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="flow_Received_di" bpmnElement="flow_Received">
@@ -102,8 +102,7 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="flow_Done_di" bpmnElement="flow_Done">
         <di:waypoint x="740" y="200" />
-        <di:waypoint x="740" y="250" />
-        <di:waypoint x="772" y="250" />
+        <di:waypoint x="772" y="200" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
