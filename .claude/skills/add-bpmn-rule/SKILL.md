@@ -59,7 +59,7 @@ file. Make four edits:
 
 1. `import <camelName> from './<name>';`
 2. Add to `miragonRuleFactories`: `'<name>': <camelName>,`
-3. Add it at `'error'` to `miragonAll` **and** `miragonRecommendedForAutomation`. In
+3. Add it at `'error'` to `miragonAll` and at `'warn'` to `miragonRecommendedForAutomation`. In
    `miragonRecommendedForModeling` add it `'off'`, unless it is a non-blocking layout hint safe on
    hand-drawn diagrams (those ship at `'warn'`). All keyed `` `${MIRAGON_NAME}/<name>` ``. Each
    config lists its rules explicitly — no shared spread — so severities stay obvious per config.

@@ -50,7 +50,8 @@ It ships three configs — pick one by intent:
   bpmnlint's `standard-size` and the layout rules at `warn` (non-blocking hints), the naming/id
   rules **off**.
 - `plugin:@miragon/rules/recommended-for-automation` — for executable processes: every Miragon rule
-  at `error` (`standard-size` stays `warn`).
+  on but as a non-blocking `warn` (`standard-size` too), so ids and layout get flagged without
+  failing the build.
 - `plugin:@miragon/rules/all` — every Miragon rule at `error`, engine-agnostic.
 
 Then lint a diagram:

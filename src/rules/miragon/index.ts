@@ -76,17 +76,18 @@ export const miragonRecommendedForModeling: BpmnlintConfig = {
  * The Miragon opinion layer for **automation**, exposed as
  * `plugin:@miragon/rules/recommended-for-automation`.
  *
- * Tuned for executable processes: every Miragon rule at `error` (clean ids and layout are load-
- * bearing once a diagram is deployed and diffed), plus `standard-size` at `warn`.
+ * Tuned for executable processes: every Miragon rule on, but as a non-blocking `warn` (clean ids and
+ * layout matter once a diagram is deployed and diffed, without failing the build), alongside
+ * `standard-size` at `warn`.
  */
 export const miragonRecommendedForAutomation: BpmnlintConfig = {
   rules: {
     'bpmnlint/standard-size': 'warn',
-    [`${MIRAGON_NAME}/no-generated-ids`]: 'error',
-    [`${MIRAGON_NAME}/element-id-naming`]: 'error',
-    [`${MIRAGON_NAME}/flow-through-element`]: 'error',
-    [`${MIRAGON_NAME}/flow-connection-side`]: 'error',
-    [`${MIRAGON_NAME}/flow-target-alignment`]: 'error',
+    [`${MIRAGON_NAME}/no-generated-ids`]: 'warn',
+    [`${MIRAGON_NAME}/element-id-naming`]: 'warn',
+    [`${MIRAGON_NAME}/flow-through-element`]: 'warn',
+    [`${MIRAGON_NAME}/flow-connection-side`]: 'warn',
+    [`${MIRAGON_NAME}/flow-target-alignment`]: 'warn',
   },
 };
 

@@ -81,10 +81,11 @@ dependencies in `package.json`.
 4. **Wire it in.** Import the factory in `src/rules/miragon/index.ts` and add it to
    `miragonRuleFactories` — `resolverEntries` picks it up automatically, and the bundled resolver
    with it.
-5. **Severity.** List it in `miragonAll` and `miragonRecommendedForAutomation` at `error`. In
-   `miragonRecommendedForModeling` ship it `off`, unless it is a non-blocking layout hint safe on
-   hand-drawn diagrams — those ship at `warn` (all in `src/rules/miragon/index.ts`). The modeling
-   layer must never block a modeler on execution-only conventions; consumers opt in via
+5. **Severity.** List it in `miragonAll` at `error` and in `miragonRecommendedForAutomation` at
+   `warn`. In `miragonRecommendedForModeling` ship it `off`, unless it is a non-blocking layout hint
+   safe on hand-drawn diagrams — those ship at `warn` (all in `src/rules/miragon/index.ts`). The two
+   `recommended-for-*` layers stay non-blocking (only `all` is `error`), and the modeling layer must
+   never block a modeler on execution-only conventions; consumers opt in via
    `plugin:@miragon/rules/all`, the automation layer, or per rule.
 
 ### The bar for a new rule
@@ -102,9 +103,10 @@ dependencies in `package.json`.
   [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `docs:`,
   `refactor:`, `test:`, `chore:`). Releases and the changelog are generated from them via
   [release-please](https://github.com/googleapis/release-please). For a lint preset "breaking" is
-  not the same as for a library: adding a rule to a `recommended-for-*` layer or raising a severity turns a
-  consumer's green build red, so it is a breaking change (`feat!:`); adding a rule only to `all`,
-  or lowering a severity, is not.
+  not the same as for a library: only a change that can turn a consumer's green build red — one that
+  introduces or raises an `error`-level finding — is breaking (`feat!:`). The `recommended-for-*`
+  layers emit only `warn`, so adding a rule there is not breaking; raising a rule to `error` (in
+  `all`, or a consumer's config) is. Adding a rule at `warn`, or lowering a severity, is not.
 - **Exact dependency versions.** No `^`, no `~`. `.npmrc` sets `save-exact=true` and CI verifies
   it — a floating transitive bump must never be able to change what the rules catch.
 

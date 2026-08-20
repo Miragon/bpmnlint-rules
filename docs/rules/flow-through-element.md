@@ -1,6 +1,6 @@
 # `@miragon/rules/flow-through-element`
 
-> In `plugin:@miragon/rules/recommended-for-modeling` this rule is a `warn` (a non-blocking layout hint); in `plugin:@miragon/rules/recommended-for-automation` and `plugin:@miragon/rules/all` it is an `error`. Override it to `warn`/`error`/`off` yourself.
+> This rule is a non-blocking `warn` in both `plugin:@miragon/rules/recommended-for-modeling` and `plugin:@miragon/rules/recommended-for-automation`; in `plugin:@miragon/rules/all` it is an `error`. Override it to `warn`/`error`/`off` yourself.
 
 Reports a sequence flow whose drawn path is routed **through the body** of a shape it does not
 connect to.
