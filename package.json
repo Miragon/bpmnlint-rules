@@ -1,0 +1,95 @@
+{
+  "name": "@miragon/bpmnlint-plugin-rules",
+  "version": "0.1.0",
+  "description": "A bpmnlint plugin bundling the standard structural rules, Camunda 7/8 deployability rules and Miragon BPMN conventions behind one resolver.",
+  "type": "module",
+  "sideEffects": false,
+  "license": "MIT",
+  "author": "Miragon GmbH (https://miragon.io)",
+  "keywords": [
+    "bpmnlint",
+    "bpmnlint-plugin",
+    "bpmn",
+    "bpmn.io",
+    "camunda",
+    "linter",
+    "lint-rules",
+    "miragon",
+    "ai"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./rules/*": {
+      "types": "./dist/rules/miragon/*.d.ts",
+      "import": "./dist/rules/miragon/*.js",
+      "require": "./dist/rules/miragon/*.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsup",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:distro": "node test/distro/smoke.cjs",
+    "lint": "eslint .",
+    "lint:deps": "depcruise src --config .dependency-cruiser.cjs --output-type err",
+    "lint:bpmn": "bpmnlint \"test/fixtures/valid/*.bpmn\"",
+    "knip": "knip",
+    "knip:production": "knip --production --strict",
+    "knip:fix": "knip --fix",
+    "docs:examples": "node scripts/render-examples.mjs",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prepublishOnly": "npm run build"
+  },
+  "peerDependencies": {
+    "bpmnlint": ">=11"
+  },
+  "dependencies": {
+    "bpmnlint-plugin-camunda-compat": "2.59.2",
+    "bpmnlint-utils": "1.1.1",
+    "camunda-bpmn-moddle": "7.0.1",
+    "zeebe-bpmn-moddle": "1.15.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/node": "26.2.0",
+    "bpmnlint": "11.13.0",
+    "dependency-cruiser": "18.2.0",
+    "eslint": "10.8.1",
+    "eslint-config-prettier": "10.1.8",
+    "globals": "17.11.0",
+    "knip": "6.32.2",
+    "prettier": "3.9.6",
+    "tsup": "8.5.0",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.67.0",
+    "vitest": "4.1.10"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Miragon/bpmnlint-rules.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Miragon/bpmnlint-rules/issues"
+  },
+  "homepage": "https://github.com/Miragon/bpmnlint-rules#readme"
+}

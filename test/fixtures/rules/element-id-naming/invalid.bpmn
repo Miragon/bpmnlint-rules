@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_NamingConvention" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:process id="orderReview" isExecutable="true">
+    <bpmn:startEvent id="OrderReceived" name="Order received">
+      <bpmn:outgoing>ReceivedToReview</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="ReviewOrder" name="Review order">
+      <bpmn:incoming>ReceivedToReview</bpmn:incoming>
+      <bpmn:outgoing>ReviewToReviewed</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="OrderReviewed" name="Order reviewed">
+      <bpmn:incoming>ReviewToReviewed</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="ReceivedToReview" sourceRef="OrderReceived" targetRef="ReviewOrder" />
+    <bpmn:sequenceFlow id="ReviewToReviewed" sourceRef="ReviewOrder" targetRef="OrderReviewed" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="orderReview">
+      <bpmndi:BPMNShape id="OrderReceived_di" bpmnElement="OrderReceived">
+        <dc:Bounds x="160" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ReviewOrder_di" bpmnElement="ReviewOrder">
+        <dc:Bounds x="250" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="OrderReviewed_di" bpmnElement="OrderReviewed">
+        <dc:Bounds x="412" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="ReceivedToReview_di" bpmnElement="ReceivedToReview">
+        <di:waypoint x="196" y="120" />
+        <di:waypoint x="250" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="ReviewToReviewed_di" bpmnElement="ReviewToReviewed">
+        <di:waypoint x="350" y="120" />
+        <di:waypoint x="412" y="120" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
