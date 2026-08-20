@@ -11,7 +11,7 @@ reviewer reads in a diff, and what the next agent uses to talk about the model. 
 makes all three legible at a glance:
 
 ```
-serviceTask_ClaimMembership     what it is, and what it does
+serviceTask_claimMembership     what it is, and what it does
 Activity_0049ryx                neither
 ```
 
@@ -31,7 +31,7 @@ unambiguously.
 
 ## Default convention
 
-A camelCase element-type prefix plus a PascalCase name.
+A camelCase element-type prefix plus a camelCase name.
 
 | Element type                                                                       | Prefix              |
 | ---------------------------------------------------------------------------------- | ------------------- |
@@ -76,12 +76,12 @@ must not produce a report.
 
 - `prefixes` — merged over the defaults, so you only state what differs. `false` switches a type
   off entirely.
-- `case` — the shape of the part after the prefix: `PascalCase` (default), `camelCase`,
+- `case` — the shape of the part after the prefix: `camelCase` (default), `PascalCase`,
   `snake_case` or `any`.
 
 ## Examples
 
-👎 Invalid — readable labels, but IDs with no type prefix (`ReviewOrder`, not `serviceTask_ReviewOrder`)
+👎 Invalid — readable labels, but IDs with no type prefix (`ReviewOrder`, not `serviceTask_reviewOrder`)
 
 ![Invalid model — IDs off the naming convention](./assets/element-id-naming-invalid.svg)
 
@@ -93,14 +93,14 @@ The same, as XML — 👎 wrong:
 
 ```xml
 <bpmn:serviceTask id="Activity_0049ryx" name="Claim membership" />
-<bpmn:serviceTask id="serviceTask_claimMembership" name="Claim membership" />
-<bpmn:serviceTask id="task_ClaimMembership" name="Claim membership" />
+<bpmn:serviceTask id="serviceTask_ClaimMembership" name="Claim membership" />
+<bpmn:serviceTask id="task_claimMembership" name="Claim membership" />
 ```
 
 👍 Right
 
 ```xml
-<bpmn:serviceTask id="serviceTask_ClaimMembership" name="Claim membership" />
+<bpmn:serviceTask id="serviceTask_claimMembership" name="Claim membership" />
 ```
 
 ## Further reading

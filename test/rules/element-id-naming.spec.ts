@@ -9,24 +9,24 @@ verify('element-id-naming', rule, {
       name: 'every element type follows the shipped convention',
       moddleElement: model({
         shapes: [
-          { id: 'startEvent_MembershipRequested', tag: 'startEvent' },
-          { id: 'serviceTask_ClaimMembership', tag: 'serviceTask' },
-          { id: 'userTask_ConfirmMembership', tag: 'userTask' },
-          { id: 'gateway_HasEmptySpots', tag: 'exclusiveGateway' },
-          { id: 'subProcess_ConfirmMembership', tag: 'subProcess' },
-          { id: 'callActivity_Billing', tag: 'callActivity' },
+          { id: 'startEvent_membershipRequested', tag: 'startEvent' },
+          { id: 'serviceTask_claimMembership', tag: 'serviceTask' },
+          { id: 'userTask_confirmMembership', tag: 'userTask' },
+          { id: 'gateway_hasEmptySpots', tag: 'exclusiveGateway' },
+          { id: 'subProcess_confirmMembership', tag: 'subProcess' },
+          { id: 'callActivity_billing', tag: 'callActivity' },
           {
-            id: 'event_ReminderDue',
+            id: 'event_reminderDue',
             tag: 'boundaryEvent',
-            attachedTo: 'serviceTask_ClaimMembership',
+            attachedTo: 'serviceTask_claimMembership',
           },
-          { id: 'endEvent_MembershipActivated', tag: 'endEvent' },
+          { id: 'endEvent_membershipActivated', tag: 'endEvent' },
         ],
         edges: [
           {
-            id: 'flow_StartToClaim',
-            source: 'startEvent_MembershipRequested',
-            target: 'serviceTask_ClaimMembership',
+            id: 'flow_startToClaim',
+            source: 'startEvent_membershipRequested',
+            target: 'serviceTask_claimMembership',
           },
         ],
       }),
@@ -37,8 +37,8 @@ verify('element-id-naming', rule, {
       name: 'subtypes inherit their base type convention',
       moddleElement: model({
         shapes: [
-          { id: 'subProcess_Payment', tag: 'transaction' },
-          { id: 'subProcess_Research', tag: 'adHocSubProcess' },
+          { id: 'subProcess_payment', tag: 'transaction' },
+          { id: 'subProcess_research', tag: 'adHocSubProcess' },
         ],
       }),
     },
@@ -58,27 +58,27 @@ verify('element-id-naming', rule, {
       name: 'a custom prefix map is merged over the defaults',
       config: { prefixes: { 'bpmn:SequenceFlow': 'Flow_' } },
       moddleElement: model({
-        shapes: [{ id: 'serviceTask_ClaimMembership', tag: 'serviceTask' }],
+        shapes: [{ id: 'serviceTask_claimMembership', tag: 'serviceTask' }],
         edges: [
           {
-            id: 'Flow_ClaimToGateway',
-            source: 'serviceTask_ClaimMembership',
-            target: 'serviceTask_ClaimMembership',
+            id: 'Flow_claimToGateway',
+            source: 'serviceTask_claimMembership',
+            target: 'serviceTask_claimMembership',
           },
         ],
       }),
     },
     {
-      // The easy-zeebe convention: `Flow_` plus a snake_case body.
+      // A PascalCase body can still be opted into per project.
       name: 'a different body case can be configured',
-      config: { case: 'snake_case', prefixes: { 'bpmn:SequenceFlow': 'Flow_' } },
+      config: { case: 'PascalCase' },
       moddleElement: model({
-        shapes: [{ id: 'serviceTask_claim_membership', tag: 'serviceTask' }],
+        shapes: [{ id: 'serviceTask_ClaimMembership', tag: 'serviceTask' }],
         edges: [
           {
-            id: 'Flow_claim_to_gateway',
-            source: 'serviceTask_claim_membership',
-            target: 'serviceTask_claim_membership',
+            id: 'flow_ClaimToGateway',
+            source: 'serviceTask_ClaimMembership',
+            target: 'serviceTask_ClaimMembership',
           },
         ],
       }),
@@ -100,27 +100,27 @@ verify('element-id-naming', rule, {
       }),
       report: {
         id: 'Activity_0049ryx',
-        message: 'Element id must match the naming convention <serviceTask_PascalCase>',
+        message: 'Element id must match the naming convention <serviceTask_camelCase>',
       },
     },
     {
       name: 'right prefix, wrong case',
       moddleElement: model({
-        shapes: [{ id: 'serviceTask_claimMembership', tag: 'serviceTask' }],
+        shapes: [{ id: 'serviceTask_ClaimMembership', tag: 'serviceTask' }],
       }),
       report: {
-        id: 'serviceTask_claimMembership',
-        message: 'Element id must match the naming convention <serviceTask_PascalCase>',
+        id: 'serviceTask_ClaimMembership',
+        message: 'Element id must match the naming convention <serviceTask_camelCase>',
       },
     },
     {
       name: 'right case, no prefix',
       moddleElement: model({
-        shapes: [{ id: 'ClaimMembership', tag: 'serviceTask' }],
+        shapes: [{ id: 'claimMembership', tag: 'serviceTask' }],
       }),
       report: {
-        id: 'ClaimMembership',
-        message: 'Element id must match the naming convention <serviceTask_PascalCase>',
+        id: 'claimMembership',
+        message: 'Element id must match the naming convention <serviceTask_camelCase>',
       },
     },
     {
@@ -128,28 +128,28 @@ verify('element-id-naming', rule, {
       // of element it is, which is half the value of the convention.
       name: 'a specific type may not use the generic task prefix',
       moddleElement: model({
-        shapes: [{ id: 'task_ClaimMembership', tag: 'serviceTask' }],
+        shapes: [{ id: 'task_claimMembership', tag: 'serviceTask' }],
       }),
       report: {
-        id: 'task_ClaimMembership',
-        message: 'Element id must match the naming convention <serviceTask_PascalCase>',
+        id: 'task_claimMembership',
+        message: 'Element id must match the naming convention <serviceTask_camelCase>',
       },
     },
     {
       name: 'a sequence flow is held to the convention too',
       moddleElement: model({
-        shapes: [{ id: 'serviceTask_ClaimMembership', tag: 'serviceTask' }],
+        shapes: [{ id: 'serviceTask_claimMembership', tag: 'serviceTask' }],
         edges: [
           {
             id: 'Flow_1sy6h9p',
-            source: 'serviceTask_ClaimMembership',
-            target: 'serviceTask_ClaimMembership',
+            source: 'serviceTask_claimMembership',
+            target: 'serviceTask_claimMembership',
           },
         ],
       }),
       report: {
         id: 'Flow_1sy6h9p',
-        message: 'Element id must match the naming convention <flow_PascalCase>',
+        message: 'Element id must match the naming convention <flow_camelCase>',
       },
     },
   ],

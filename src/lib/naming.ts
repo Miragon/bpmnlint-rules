@@ -9,8 +9,8 @@ import type { ModdleElement } from './moddle';
 export type PrefixMap = Record<string, string | false | null>;
 
 /**
- * The shipped convention: a camelCase element-type prefix plus a PascalCase name, e.g.
- * `serviceTask_ClaimMembership`, `gateway_HasEmptySpots`, `flow_ClaimToGateway`.
+ * The shipped convention: a camelCase element-type prefix plus a camelCase name, e.g.
+ * `serviceTask_claimMembership`, `gateway_hasEmptySpots`, `flow_claimToGateway`.
  *
  * `bpmn:Process` is deliberately absent. A process ID is a public contract — the deployment
  * key, and what a call activity references — not a diagram-internal identifier, so projects
