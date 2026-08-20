@@ -148,6 +148,19 @@ if (errors.length) process.exit(1);
 
 Every rule factory, rule-set and helper is exported from the package root as well.
 
+## Alternatives
+
+bpmnlint lints one model at a time, so it is the right fit for anything stylistic or about the
+correctness of a single diagram. It checks naming conventions, layout, structural soundness, and
+whether a construct is deployable to a given engine.
+
+However, it cannot answer engine- and automation-specific questions that span a running process, because those
+depend on more than the diagram in front of it. Whether a call activity passes every variable its
+child process needs, or whether the technical wiring is correct, is something a model-in-isolation
+linter simply cannot see. For those cases, and when you want to keep such tests alongside your model
+in the same build (for example a Gradle task), [Miragon/bpmn-to-code](https://github.com/Miragon/bpmn-to-code)
+and its [process testing](https://github.com/Miragon/bpmn-to-code/pull/79) are the better tool.
+
 ## Where it is used
 
 - **[Miragon BPMN Modeler](https://github.com/Miragon/bpmn-modeler)** — in-editor linting via the
