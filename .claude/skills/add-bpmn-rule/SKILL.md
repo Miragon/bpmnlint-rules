@@ -109,10 +109,17 @@ helpers added to `src/lib/` get their own direct unit `verify`/`expect` cases.
     new rule (on the element the doc points at) and nothing may be flagged on any other element.
 - Register the pair in `test/rules/examples.spec.ts`: add `{ rule: '<name>', offender: '<id>' }` to
   `EXAMPLES` (the offender id the `invalid` model reports).
-- `docs/rules/<name>.md` — copy an existing page's structure: H1 `` `@miragon/rules/<name>` ``, a
-  blockquote noting it's `off` in recommended, **Why**, **Why this matters for agentic BPMN**, a
-  scope section, **## Examples** embedding `./assets/<name>-invalid.svg` and `-valid.svg` (👎 / 👍)
-  with wrong/right snippets, **Further reading**.
+- `docs/rules/<name>.md` — **copy the template** at
+  [`docs/assets/rule-doc-template.md`](../../../docs/assets/rule-doc-template.md), fill the
+  placeholders, and delete its guidance block. The template is the single source of truth for a
+  rule page: the section order (H1 `` `@miragon/rules/<name>` ``, severity blockquote, one-line
+  summary, **Why**, **Why this matters for agentic BPMN**, a scope section, optional
+  **Configuration**, **## Examples** embedding `./assets/<name>-invalid.svg` and `-valid.svg`
+  (👎 / 👍) with wrong/right snippets, **Further reading**, optional **Related**) and the wording
+  rules every page follows. Match those rules exactly — above all, **no dash as punctuation** (no
+  `—`, `–` or spaced `-` breaking a sentence; use a comma, colon, parentheses or two sentences),
+  so pages don't read as machine-written. Every existing page under `docs/rules/` already conforms,
+  so any of them doubles as a worked example.
 - README: add a row to the **## Rules** table linking `docs/rules/<name>.md`.
 - Render the SVGs: `npm run docs:examples` (needs network + Chromium). If unavailable, land the
   `.bpmn` fixtures + docs now and regenerate the assets later — `examples.spec.ts` only needs the
