@@ -10,11 +10,12 @@
  * (`@miragon/rules`), while the resolver cache keys use the expanded {@link MIRAGON_PLUGIN}
  * (`@miragon/bpmnlint-plugin-rules`) that bpmnlint normalises to before calling the resolver.
  */
-import type { BpmnlintConfig, ResolverEntries, RuleSet } from '../../lib/bpmnlint-config';
+import type { BpmnlintConfig, ResolverEntries } from '../../lib/bpmnlint-config';
 import type { RuleFactory } from '../../lib/moddle';
 
 import elementIdNaming from './element-id-naming';
 import flowConnectionSide from './flow-connection-side';
+import flowCrossing from './flow-crossing';
 import flowTargetAlignment from './flow-target-alignment';
 import flowThroughElement from './flow-through-element';
 import noGeneratedIds from './no-generated-ids';
@@ -32,23 +33,7 @@ export const miragonRuleFactories: Record<string, RuleFactory> = {
   'flow-through-element': flowThroughElement,
   'flow-connection-side': flowConnectionSide,
   'flow-target-alignment': flowTargetAlignment,
-};
-
-/**
- * The visual/layout subset — a category *tag* over the same folder, not a separate one. Handy for
- * a consumer that wants only the geometry rules on. (Element sizing is covered by bpmnlint's own
- * `standard-size`, which the Miragon layers already enable — see {@link miragonRecommendedForModeling}.)
- */
-export const visualRules: RuleSet = {
-  [`${MIRAGON_NAME}/flow-through-element`]: 'error',
-  [`${MIRAGON_NAME}/flow-connection-side`]: 'error',
-  [`${MIRAGON_NAME}/flow-target-alignment`]: 'error',
-};
-
-/** The naming/id subset. */
-export const namingRules: RuleSet = {
-  [`${MIRAGON_NAME}/no-generated-ids`]: 'error',
-  [`${MIRAGON_NAME}/element-id-naming`]: 'error',
+  'flow-crossing': flowCrossing,
 };
 
 /**
@@ -69,6 +54,7 @@ export const miragonRecommendedForModeling: BpmnlintConfig = {
     [`${MIRAGON_NAME}/flow-through-element`]: 'warn',
     [`${MIRAGON_NAME}/flow-connection-side`]: 'warn',
     [`${MIRAGON_NAME}/flow-target-alignment`]: 'warn',
+    [`${MIRAGON_NAME}/flow-crossing`]: 'warn',
   },
 };
 
@@ -88,6 +74,7 @@ export const miragonRecommendedForAutomation: BpmnlintConfig = {
     [`${MIRAGON_NAME}/flow-through-element`]: 'warn',
     [`${MIRAGON_NAME}/flow-connection-side`]: 'warn',
     [`${MIRAGON_NAME}/flow-target-alignment`]: 'warn',
+    [`${MIRAGON_NAME}/flow-crossing`]: 'warn',
   },
 };
 
@@ -99,6 +86,7 @@ export const miragonAll: BpmnlintConfig = {
     [`${MIRAGON_NAME}/flow-through-element`]: 'error',
     [`${MIRAGON_NAME}/flow-connection-side`]: 'error',
     [`${MIRAGON_NAME}/flow-target-alignment`]: 'error',
+    [`${MIRAGON_NAME}/flow-crossing`]: 'error',
   },
 };
 
@@ -118,6 +106,7 @@ export const resolverEntries: ResolverEntries = {
 export {
   elementIdNaming,
   flowConnectionSide,
+  flowCrossing,
   flowTargetAlignment,
   flowThroughElement,
   noGeneratedIds,
