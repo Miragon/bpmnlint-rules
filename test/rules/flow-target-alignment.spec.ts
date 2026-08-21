@@ -11,6 +11,9 @@ import { model } from '../support/model';
 //   task @ (_,100) 100×80  → centre y=140
 //   event @ (_,122) 36×36  → centre y=140
 //   gateway @ (_,115) 50×50 → centre y=140
+//
+// Which element types are left alone is configurable via `exemptTypes` (default gateways + boundary
+// events). A case may pass a `config` to change it — see the sub-process cases below.
 
 verify('flow-target-alignment', rule, {
   valid: [
@@ -80,6 +83,27 @@ verify('flow-target-alignment', rule, {
         edges: [{ id: 'flow_StartToDo', source: 'event_Start', target: 'task_Do' }],
       }),
     },
+    {
+      // Adding bpmn:SubProcess to the exempt list clears the false positive: the same tall expanded
+      // sub-process from the invalid case is now left alone, since its box centre is not the row the
+      // flow actually attaches to.
+      name: 'an expanded sub-process is left alone once its type is exempt',
+      config: { exemptTypes: ['bpmn:Gateway', 'bpmn:BoundaryEvent', 'bpmn:SubProcess'] },
+      moddleElement: model({
+        shapes: [
+          { id: 'event_Start', tag: 'startEvent', x: 100, y: 162, width: 36, height: 36 },
+          {
+            id: 'subProcess_Handle',
+            tag: 'subProcess',
+            x: 200,
+            y: 80,
+            height: 650,
+            isExpanded: true,
+          },
+        ],
+        edges: [{ id: 'flow_StartToHandle', source: 'event_Start', target: 'subProcess_Handle' }],
+      }),
+    },
   ],
 
   invalid: [
@@ -134,6 +158,31 @@ verify('flow-target-alignment', rule, {
         id: 'flow_ReviewToArchive',
         message:
           "Sequence flow connects <task_Review> to <task_Archive> at a different height; an outgoing flow's target should sit at the same height as its source",
+      },
+    },
+    {
+      // Default behaviour is unchanged: a sub-process is not exempt out of the box, so its tall box
+      // centre (405) far off the start event's row (180) is still reported. The 'exempt once its
+      // type is added' valid case above shows how a consumer opts out.
+      name: 'a tall expanded sub-process is still reported by default',
+      moddleElement: model({
+        shapes: [
+          { id: 'event_Start', tag: 'startEvent', x: 100, y: 162, width: 36, height: 36 },
+          {
+            id: 'subProcess_Handle',
+            tag: 'subProcess',
+            x: 200,
+            y: 80,
+            height: 650,
+            isExpanded: true,
+          },
+        ],
+        edges: [{ id: 'flow_StartToHandle', source: 'event_Start', target: 'subProcess_Handle' }],
+      }),
+      report: {
+        id: 'flow_StartToHandle',
+        message:
+          "Sequence flow connects <event_Start> to <subProcess_Handle> at a different height; an outgoing flow's target should sit at the same height as its source",
       },
     },
   ],
