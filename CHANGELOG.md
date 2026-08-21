@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.6.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.5.0...v0.6.0) (2026-08-21)
+
+
+### Features
+
+* allow return flows in flow-connection-side rule ([#17](https://github.com/Miragon/bpmnlint-rules/issues/17)) ([9cb254c](https://github.com/Miragon/bpmnlint-rules/commit/9cb254c9d69bba4fa4accd808e2a41457bf48b84))
+* **flow-target-alignment:** make exempt element types configurable ([#20](https://github.com/Miragon/bpmnlint-rules/issues/20)) ([9aa177b](https://github.com/Miragon/bpmnlint-rules/commit/9aa177bc7ef55d87a9ac8cdf2e28f330a7039209))
+
 ## [0.5.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.4.0...v0.5.0) (2026-08-20)
 
 
