@@ -39,20 +39,22 @@ Add the plugin to your `.bpmnlintrc` and extend one of its configs, like any oth
 {
   "extends": [
     "bpmnlint:recommended", // standard structural rules
-    "plugin:@miragon/rules/recommended-for-modeling", // the Miragon layer
+    "plugin:@miragon/rules/recommended-for-<scope>", // the Miragon layer — pick a scope below
   ],
 }
 ```
 
-It ships three configs — pick one by intent:
+It ships three configs — pick one by who's modeling and why:
 
-- `plugin:@miragon/rules/recommended-for-modeling` — for hand-drawn, human-facing diagrams:
-  bpmnlint's `standard-size` and the layout rules at `warn` (non-blocking hints), the naming/id
-  rules **off**.
-- `plugin:@miragon/rules/recommended-for-automation` — for executable processes: every Miragon rule
-  on but as a non-blocking `warn` (`standard-size` too), so ids and layout get flagged without
-  failing the build.
-- `plugin:@miragon/rules/all` — every Miragon rule at `error`, engine-agnostic.
+- `plugin:@miragon/rules/recommended-for-modeling` — for **purely business/technical models**, and for
+  **modeler applications that surface linting** to their users. Layout hints only: bpmnlint's
+  `standard-size` and the layout rules at `warn`, the naming/id rules **off** — a modeler is never
+  blocked on execution-only conventions.
+- `plugin:@miragon/rules/recommended-for-automation` — for **developers automating processes**, locally
+  and in CI, on models wired up to a Camunda engine. Every Miragon rule on but as a non-blocking `warn`
+  (`standard-size` too), so ids and layout get flagged without failing the build.
+- `plugin:@miragon/rules/all` — every Miragon rule at `error`, engine-agnostic. The strict gate to opt
+  into when you want findings to fail the build.
 
 Then lint a diagram:
 
