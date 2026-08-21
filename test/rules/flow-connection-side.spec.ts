@@ -102,8 +102,9 @@ verify('flow-connection-side', rule, {
             target: 'gateway_Join',
             waypoints: [
               { x: 400, y: 60 },
-              { x: 400, y: 100 },
-              { x: 350, y: 100 },
+              { x: 440, y: 60 },
+              { x: 440, y: 110 },
+              { x: 350, y: 110 },
               { x: 350, y: 140 },
             ],
           },
@@ -135,7 +136,9 @@ verify('flow-connection-side', rule, {
             target: 'task_Handle',
             waypoints: [
               { x: 300, y: 178 },
-              { x: 300, y: 340 },
+              { x: 300, y: 260 },
+              { x: 200, y: 260 },
+              { x: 200, y: 340 },
               { x: 260, y: 340 },
             ],
           },
@@ -272,23 +275,52 @@ verify('flow-connection-side', rule, {
       }),
     },
     {
-      // A return flow — its target drawn clearly left of its source — reads right-to-left, so its
-      // docking policy is mirrored: the source activity leaves to the left and the target activity
-      // is entered from the right. Clean, so nothing is reported.
-      name: 'a return flow leaves the source left and enters the target from the right',
+      // A return flow whose source *initiates* the loop-back (nothing points back to it) exits on
+      // its normal forward side — the activity leaves to the right and wraps around into an upstream
+      // gateway's tip. The reported real-world shape.
+      name: 'a return flow initiator leaves the source right and wraps back into a gateway',
       moddleElement: model({
         shapes: [
-          { id: 'task_To', x: 200, y: 100 },
-          { id: 'task_From', x: 400, y: 100 },
+          { id: 'gateway_Back', tag: 'exclusiveGateway', x: 100, y: 115, width: 50, height: 50 },
+          { id: 'task_Init', x: 300, y: 100 },
         ],
         edges: [
           {
-            id: 'flow_FromToTo',
-            source: 'task_From',
-            target: 'task_To',
+            id: 'flow_InitToBack',
+            source: 'task_Init',
+            target: 'gateway_Back',
             waypoints: [
               { x: 400, y: 140 },
-              { x: 300, y: 140 },
+              { x: 440, y: 140 },
+              { x: 440, y: 40 },
+              { x: 125, y: 40 },
+              { x: 125, y: 115 },
+            ],
+          },
+        ],
+      }),
+    },
+    {
+      // The same initiator shape between two activities: the source activity leaves to the right,
+      // wraps up and over, and re-enters the target activity from the mirrored right side.
+      name: 'a return flow initiator wraps from the right into an activity',
+      moddleElement: model({
+        shapes: [
+          { id: 'task_Dest', x: 100, y: 100 },
+          { id: 'task_Exit', x: 300, y: 100 },
+        ],
+        edges: [
+          {
+            id: 'flow_ExitToDest',
+            source: 'task_Exit',
+            target: 'task_Dest',
+            waypoints: [
+              { x: 400, y: 140 },
+              { x: 440, y: 140 },
+              { x: 440, y: 40 },
+              { x: 240, y: 40 },
+              { x: 240, y: 140 },
+              { x: 200, y: 140 },
             ],
           },
         ],
@@ -332,6 +364,32 @@ verify('flow-connection-side', rule, {
               { x: 300, y: 38 },
               { x: 225, y: 38 },
               { x: 225, y: 115 },
+            ],
+          },
+        ],
+      }),
+    },
+    {
+      // With `minStubLength: 0` the stub check is off: an edge may dock on the correct side and turn
+      // immediately (0px stub) without being reported. The sides are still judged.
+      name: 'a 0px stub is allowed when minStubLength is 0',
+      config: { minStubLength: 0 },
+      moddleElement: model({
+        shapes: [
+          { id: 'task_A', x: 100, y: 100 },
+          { id: 'task_B', x: 300, y: 100 },
+        ],
+        edges: [
+          {
+            id: 'flow_AToB',
+            source: 'task_A',
+            target: 'task_B',
+            waypoints: [
+              { x: 200, y: 140 },
+              { x: 200, y: 80 },
+              { x: 280, y: 80 },
+              { x: 280, y: 140 },
+              { x: 300, y: 140 },
             ],
           },
         ],
@@ -382,7 +440,8 @@ verify('flow-connection-side', rule, {
             target: 'task_B',
             waypoints: [
               { x: 200, y: 140 },
-              { x: 200, y: 60 },
+              { x: 230, y: 140 },
+              { x: 230, y: 60 },
               { x: 450, y: 60 },
               { x: 450, y: 140 },
               { x: 400, y: 140 },
@@ -504,9 +563,9 @@ verify('flow-connection-side', rule, {
       },
     },
     {
-      // 👎 A return flow (target drawn left of its source) whose policy is mirrored, but that still
-      // docks into the wrong face: it enters the activity from the left instead of the mirrored
-      // right. The source end leaves cleanly to the left, so only the target end is reported.
+      // 👎 A return flow whose target is entered on the wrong face: it enters the activity from the
+      // left instead of the mirrored right. The source is an initiator, so it leaves cleanly to the
+      // right and wraps around — only the target end is reported.
       name: 'a return flow entering an activity from the left',
       moddleElement: model({
         shapes: [
@@ -519,8 +578,9 @@ verify('flow-connection-side', rule, {
             source: 'task_From',
             target: 'task_To',
             waypoints: [
-              { x: 400, y: 140 },
-              { x: 400, y: 60 },
+              { x: 500, y: 140 },
+              { x: 530, y: 140 },
+              { x: 530, y: 60 },
               { x: 160, y: 60 },
               { x: 160, y: 140 },
               { x: 200, y: 140 },
@@ -535,34 +595,110 @@ verify('flow-connection-side', rule, {
       },
     },
     {
-      // 👎 A return flow that leaves the source activity to the right instead of the mirrored left.
-      name: 'a return flow leaving an activity to the right',
+      // 👎 A return flow initiator (nothing points back to it) must exit its forward side. This one
+      // leaves the activity to the left — a short direct return — so it is reported: it should exit
+      // right and wrap around instead.
+      name: 'a return flow initiator leaving an activity to the left',
       moddleElement: model({
         shapes: [
-          { id: 'task_Exit', x: 300, y: 100 },
-          { id: 'task_Dest', x: 100, y: 100 },
+          { id: 'task_To', x: 200, y: 100 },
+          { id: 'task_From', x: 400, y: 100 },
         ],
         edges: [
           {
-            id: 'flow_ExitToDest',
-            source: 'task_Exit',
-            target: 'task_Dest',
+            id: 'flow_FromToTo',
+            source: 'task_From',
+            target: 'task_To',
             waypoints: [
               { x: 400, y: 140 },
-              { x: 400, y: 40 },
-              { x: 200, y: 40 },
+              { x: 300, y: 140 },
+            ],
+          },
+        ],
+      }),
+      report: {
+        id: 'flow_FromToTo',
+        message: 'Sequence flow leaves <task_From> to the left; an activity must exit to the right',
+      },
+    },
+    {
+      // 👎 A return chain member — an activity that is itself the target of a return flow, so it sits
+      // in the return lane — must exit on the mirrored (left) side. flow_BToA leaves task_B to the
+      // right instead. flow_CToB is a clean initiator wrap-around, so only flow_BToA is reported.
+      name: 'a return chain member leaving an activity to the right',
+      moddleElement: model({
+        shapes: [
+          { id: 'task_A', x: 100, y: 100 },
+          { id: 'task_B', x: 250, y: 100 },
+          { id: 'task_C', x: 400, y: 100 },
+        ],
+        edges: [
+          {
+            id: 'flow_CToB',
+            source: 'task_C',
+            target: 'task_B',
+            waypoints: [
+              { x: 500, y: 140 },
+              { x: 530, y: 140 },
+              { x: 530, y: 40 },
+              { x: 390, y: 40 },
+              { x: 390, y: 140 },
+              { x: 350, y: 140 },
+            ],
+          },
+          {
+            id: 'flow_BToA',
+            source: 'task_B',
+            target: 'task_A',
+            waypoints: [
+              { x: 350, y: 140 },
+              { x: 350, y: 220 },
+              { x: 240, y: 220 },
+              { x: 240, y: 140 },
               { x: 200, y: 140 },
             ],
           },
         ],
       }),
       report: {
-        id: 'flow_ExitToDest',
-        message: 'Sequence flow leaves <task_Exit> to the right; an activity must exit to the left',
+        id: 'flow_BToA',
+        message: 'Sequence flow leaves <task_B> to the right; an activity must exit to the left',
       },
     },
     {
-      // 👎 A return flow entering an event from the left instead of the mirrored right.
+      // 👎 A return flow initiator whose loopback exits the activity's bottom. An activity's only
+      // forward exit is the right, so a bottom exit is reported (it should leave right and wrap).
+      name: 'a return flow initiator leaving an activity to the bottom',
+      moddleElement: model({
+        shapes: [
+          { id: 'task_Dst', x: 100, y: 100 },
+          { id: 'task_Src', x: 300, y: 100 },
+        ],
+        edges: [
+          {
+            id: 'flow_SrcToDst',
+            source: 'task_Src',
+            target: 'task_Dst',
+            waypoints: [
+              { x: 350, y: 180 },
+              { x: 350, y: 240 },
+              { x: 260, y: 240 },
+              { x: 260, y: 140 },
+              { x: 200, y: 140 },
+            ],
+          },
+        ],
+      }),
+      report: {
+        id: 'flow_SrcToDst',
+        message:
+          'Sequence flow leaves <task_Src> to the bottom; an activity must exit to the right',
+      },
+    },
+    {
+      // 👎 A return flow entering an event from the left instead of the mirrored right. The source
+      // is an initiator, so it leaves cleanly to the right and wraps around — only the target end is
+      // reported.
       name: 'a return flow entering an event from the left',
       moddleElement: model({
         shapes: [
@@ -575,8 +711,9 @@ verify('flow-connection-side', rule, {
             source: 'task_From',
             target: 'event_End',
             waypoints: [
-              { x: 300, y: 140 },
-              { x: 300, y: 60 },
+              { x: 400, y: 140 },
+              { x: 430, y: 140 },
+              { x: 430, y: 60 },
               { x: 80, y: 60 },
               { x: 80, y: 140 },
               { x: 120, y: 140 },
@@ -731,6 +868,37 @@ verify('flow-connection-side', rule, {
             'Sequence flow enters <task_To> from the right; an activity must be entered from the left',
         },
       ],
+    },
+    {
+      // 👎 Docks on the right side (allowed) but immediately turns up — a 0px stub, so the arrow
+      // leaves the corner with no visible direction. The target end is entered from the left with a
+      // proper stub, so only the source stub is reported.
+      name: 'a flow that docks on the correct side but immediately turns',
+      moddleElement: model({
+        shapes: [
+          { id: 'task_A', x: 100, y: 100 },
+          { id: 'task_B', x: 300, y: 100 },
+        ],
+        edges: [
+          {
+            id: 'flow_AToB',
+            source: 'task_A',
+            target: 'task_B',
+            waypoints: [
+              { x: 200, y: 140 },
+              { x: 200, y: 80 },
+              { x: 280, y: 80 },
+              { x: 280, y: 140 },
+              { x: 300, y: 140 },
+            ],
+          },
+        ],
+      }),
+      report: {
+        id: 'flow_AToB',
+        message:
+          'Sequence flow leaves <task_A> to the right with only a 0px stub; it must run at least 20px straight out before turning',
+      },
     },
   ],
 });

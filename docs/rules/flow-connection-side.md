@@ -46,13 +46,46 @@ point on a diagonal flank is reported as a diagonal connection.
 
 ### Return flows
 
-A **return flow** is a loop-back edge whose target is drawn clearly left of its source (decided from
-the two shapes' horizontal centres). It reads right-to-left, so its policy is **mirrored left ↔
-right**: it may be entered from the **right** and leave to the **left**. The table above is applied
-with `left` and `right` swapped, `top`/`bottom` unchanged. The docking is still checked, so a return
-flow that wraps into the wrong face (e.g. enters an activity from the left) is still reported. A
-near-vertical loop whose target sits in roughly the same column as its source is not treated as a
-return flow, so it keeps the strict left-to-right policy.
+A **return flow** is a loop-back edge whose target is drawn clearly left of its source — decided from
+the two shapes' horizontal centres, with a small tolerance so a near-vertical loop (target in
+roughly the same column as its source) is **not** treated as a return flow and keeps the strict
+left-to-right policy above.
+
+A return flow reads right-to-left, so its docking is judged against a mirrored form of the policy
+(`left` and `right` swapped, `top`/`bottom` unchanged). Which end is mirrored depends on the
+element's **role in the return path**, so each of the three endpoints below is decided
+independently:
+
+| Element      | Target — entered _(mirrored)_ | Source, **initiator** — exits _(forward)_ | Source, **chain member** — exits _(mirrored)_ |
+| ------------ | ----------------------------- | ----------------------------------------- | --------------------------------------------- |
+| **Event**    | right                         | top, right or bottom                      | top, left or bottom                           |
+| **Activity** | right                         | right                                     | left                                          |
+| **Gateway**  | any of its 4 tips             | top, right or bottom tip                  | top, left or bottom tip                       |
+
+- **Target (entered).** Always mirrored — an activity is re-entered from the right, an event from the
+  right, a gateway at any tip. A return flow that wraps into the wrong face (e.g. enters an activity
+  from the left, its forward-input side) is still reported.
+- **Source that _initiates_ the loop-back** — a forward-lane element that is **not** itself the
+  target of a return flow. It exits on its normal **forward** side and wraps around (an activity to
+  the right; an event or gateway to top/right/bottom). A short direct return that leaves an activity
+  to the left is reported: it should exit right and wrap.
+- **Source that is a _chain member_** — an element that **is** already the target of a return flow,
+  so it sits inside the return lane. It exits on the **mirrored** side (an activity to the left; an
+  event or gateway to top/left/bottom), continuing the leftward chain.
+
+The role is read from the graph, not guessed from coordinates: an element counts as a chain member
+exactly when some other return flow targets it.
+
+### Stub length
+
+On top of the side, a flow must leave (and enter) with a **stub**: its first segment has to run at
+least `minStubLength` px straight out of the docked side before it turns. Otherwise an edge can dock
+on the correct side and immediately bend away — which renders as an arrow leaving a corner with no
+visible direction. The stub is measured along the docked side's **outward normal** (`right → +x`,
+`left → −x`, `top → −y`, `bottom → +y`), so it is the same check for an activity edge, an event edge
+and a gateway tip; boundary events are left alone here too. `minStubLength` defaults to **20**; set
+it to `0` to switch the stub check off. The side is judged first — a wrong-side connection is
+reported as such, not as a short stub.
 
 Comparison is scoped per `BPMNPlane`. Left alone: shapes with no category (pools, lanes, data
 objects), **boundary events** (they sit on their host's border, so a flow leaving one may dock at any
@@ -62,61 +95,63 @@ guessed, to avoid false positives.
 ## Configuration
 
 ```jsonc
-"@miragon/rules/flow-connection-side": ["error", { "allowBackwardsFlow": false }]
+"@miragon/rules/flow-connection-side": ["error", { "allowBackwardsFlow": false, "minStubLength": 20 }]
 ```
 
-| Option               | Default | Effect                                                                                                                                                                                                      |
-| -------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `allowBackwardsFlow` | `true`  | Mirror the policy for return flows (see above). Set to `false` to hold **every** flow to the strict left-to-right policy, so a return flow's docking is then reported like any other wrong-side connection. |
+| Option               | Default | Effect                                                                                                                                                                                              |
+| -------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `allowBackwardsFlow` | `true`  | Apply the return-flow policy (see above). Set to `false` to hold **every** flow to the strict left-to-right policy — a return flow's docking is then reported like any other wrong-side connection. |
+| `minStubLength`      | `20`    | Minimum px a flow must run straight out of (and into) its docked side before turning. Set to `0` to switch the stub check off.                                                                      |
 
 ## Examples
 
-An order-approval process: start event, a review task, a split/merge gateway pair, two branch
-tasks and an end event. The invalid model mis-docks one flow on **each** element type at once:
+An order-approval process with a **rework loop**: an intake gateway, a review task, an "Approved?"
+decision, a finalize task and an end event on the main lane, and — when the order is not approved —
+a rework path back to the intake gateway. The `Approved?` gateway **initiates** the return flow: its
+`no` branch runs down-and-left (a backward flow), so it exits on one of the gateway's forward tips
+and _Revise order_ is re-entered on its **mirrored (right)** side. _Revise order_ is then a **chain
+member** — already inside the return lane — so it exits on the **mirrored (left)** side and runs on
+into the intake gateway (the return flow's **target**, re-entered at a tip). All three return-flow
+roles from the table above appear in one loop.
 
-- **Gateway**: `flow_toDecision` lands on the diagonal flank of `gateway_approved` instead of a tip.
-- **Activity**: `flow_approve` enters `userTask_approveOrder` from the top instead of the left.
-- **Event**: `flow_done` enters `endEvent_orderHandled` from the top instead of the left.
+The invalid model mis-docks two flows:
 
-👎 Invalid: three flows docked on the wrong side, one per element type
+- **Forward (gateway):** `flow_toDecision` lands on the diagonal flank of `gateway_approved`
+  instead of a tip.
+- **Return target:** the `no` branch (`flow_revise`) enters `userTask_reviseOrder` from the
+  **left**, but the target of a return flow must be entered on the mirrored **right** side.
 
-![Invalid model: flows docked on the wrong side of a gateway, a task and an event](./assets/flow-connection-side-invalid.svg)
+👎 Invalid: a forward flow on a gateway diagonal and a return flow entering the wrong face
 
-👍 Valid: every flow docked on the right side, the whole process reading left to right
+![Invalid model: a flow on a gateway diagonal and a return flow entering the target's left](./assets/flow-connection-side-invalid.svg)
+
+👍 Valid: the gateway initiates the return flow, re-entering the rework task from the right
 
 ![Valid model: every flow docked on the correct side](./assets/flow-connection-side-valid.svg)
 
 ```xml
-<!-- 👎 into the gateway's slanted edge, the task's top, the event's top -->
+<!-- 👎 onto the gateway's slanted flank; the return target is entered from its left -->
 <bpmndi:BPMNEdge bpmnElement="flow_toDecision">
-  <di:waypoint x="350" y="200" />
-  <di:waypoint x="423" y="188" />
+  <di:waypoint x="460" y="200" />
+  <di:waypoint x="552" y="187" />
 </bpmndi:BPMNEdge>
-<bpmndi:BPMNEdge bpmnElement="flow_approve">
-  <di:waypoint x="435" y="175" />
-  <di:waypoint x="435" y="30" />
-  <di:waypoint x="570" y="30" />
-  <di:waypoint x="570" y="90" />
-</bpmndi:BPMNEdge>
-<bpmndi:BPMNEdge bpmnElement="flow_done">
-  <di:waypoint x="740" y="200" />
-  <di:waypoint x="790" y="200" />
-  <di:waypoint x="790" y="232" />
+<bpmndi:BPMNEdge bpmnElement="flow_revise">
+  <di:waypoint x="565" y="225" />
+  <di:waypoint x="565" y="280" />
+  <di:waypoint x="360" y="280" />
+  <di:waypoint x="360" y="360" />
+  <di:waypoint x="400" y="360" />
 </bpmndi:BPMNEdge>
 
-<!-- 👍 into the gateway's left tip, the task's left edge, the event's left edge -->
+<!-- 👍 into the gateway's left tip; the gateway initiates the return flow into the task's right -->
 <bpmndi:BPMNEdge bpmnElement="flow_toDecision">
-  <di:waypoint x="350" y="200" />
-  <di:waypoint x="410" y="200" />
+  <di:waypoint x="460" y="200" />
+  <di:waypoint x="540" y="200" />
 </bpmndi:BPMNEdge>
-<bpmndi:BPMNEdge bpmnElement="flow_approve">
-  <di:waypoint x="435" y="175" />
-  <di:waypoint x="435" y="130" />
-  <di:waypoint x="520" y="130" />
-</bpmndi:BPMNEdge>
-<bpmndi:BPMNEdge bpmnElement="flow_done">
-  <di:waypoint x="740" y="200" />
-  <di:waypoint x="772" y="200" />
+<bpmndi:BPMNEdge bpmnElement="flow_revise">
+  <di:waypoint x="565" y="225" />
+  <di:waypoint x="565" y="360" />
+  <di:waypoint x="500" y="360" />
 </bpmndi:BPMNEdge>
 ```
 
