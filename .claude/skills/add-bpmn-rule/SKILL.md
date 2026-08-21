@@ -98,10 +98,17 @@ helpers added to `src/lib/` get their own direct unit `verify`/`expect` cases.
 
 ## 4. Fixtures + docs
 
-- `test/fixtures/rules/<name>/valid.bpmn` and `invalid.bpmn` — real BPMN with DI. The `invalid` one
-  must report the element the doc points at; the `valid` one must be clean.
+- `test/fixtures/rules/<name>/valid.bpmn` and `invalid.bpmn` — real BPMN with DI. These are held to
+  the plugin's strictest bar by `test/rules/fixtures-self-lint.spec.ts` (self-enrolling from the
+  folder — no wiring), which lints each through `bpmnlint:recommended` + `plugin:@miragon/rules/all`:
+  - `valid.bpmn` must be **clean against every rule** — a complete, labeled process (start/end
+    events, nothing disconnected, labels on tasks/events/forking gateways and conditional flows),
+    with ids on the `<typePrefix>_<camelCase>` convention (`src/lib/naming.ts`). Not just clean w.r.t.
+    the new rule.
+  - `invalid.bpmn` is the same clean model with **exactly one intentional defect**: it must trip the
+    new rule (on the element the doc points at) and nothing may be flagged on any other element.
 - Register the pair in `test/rules/examples.spec.ts`: add `{ rule: '<name>', offender: '<id>' }` to
-  `EXAMPLES`.
+  `EXAMPLES` (the offender id the `invalid` model reports).
 - `docs/rules/<name>.md` — copy an existing page's structure: H1 `` `@miragon/rules/<name>` ``, a
   blockquote noting it's `off` in recommended, **Why**, **Why this matters for agentic BPMN**, a
   scope section, **## Examples** embedding `./assets/<name>-invalid.svg` and `-valid.svg` (👎 / 👍)

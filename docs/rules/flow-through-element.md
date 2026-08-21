@@ -46,7 +46,7 @@ Left to visual review: a flow drawn over a text _label_, and message-flow / asso
 
 ## Examples
 
-👎 Invalid — the `Reopen` loop-back is drawn straight through `serviceTask_Assess`, which it does not connect to
+👎 Invalid — the `Reopen` loop-back is drawn straight through `serviceTask_assessTicket`, which it does not connect to
 
 ![Invalid model — a flow routed through an unrelated task](./assets/flow-through-element-invalid.svg)
 

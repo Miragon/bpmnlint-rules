@@ -1,117 +1,117 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_TargetAlignment" targetNamespace="http://bpmn.io/schema/bpmn">
   <bpmn:process id="orderApproval" isExecutable="true">
-    <bpmn:startEvent id="event_Start" name="Order received">
-      <bpmn:outgoing>flow_Received</bpmn:outgoing>
+    <bpmn:startEvent id="startEvent_orderReceived" name="Order received">
+      <bpmn:outgoing>flow_orderReceived</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:userTask id="task_Review" name="Review order">
-      <bpmn:incoming>flow_Received</bpmn:incoming>
-      <bpmn:outgoing>flow_ToDecision</bpmn:outgoing>
+    <bpmn:userTask id="userTask_reviewOrder" name="Review order">
+      <bpmn:incoming>flow_orderReceived</bpmn:incoming>
+      <bpmn:outgoing>flow_toDecision</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:exclusiveGateway id="gateway_Decision" name="Approved?">
-      <bpmn:incoming>flow_ToDecision</bpmn:incoming>
-      <bpmn:outgoing>flow_Approve</bpmn:outgoing>
-      <bpmn:outgoing>flow_Reject</bpmn:outgoing>
+    <bpmn:exclusiveGateway id="gateway_approved" name="Approved?">
+      <bpmn:incoming>flow_toDecision</bpmn:incoming>
+      <bpmn:outgoing>flow_approve</bpmn:outgoing>
+      <bpmn:outgoing>flow_reject</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:userTask id="task_Approve" name="Approve order">
-      <bpmn:incoming>flow_Approve</bpmn:incoming>
-      <bpmn:outgoing>flow_ApproveDone</bpmn:outgoing>
+    <bpmn:userTask id="userTask_approveOrder" name="Approve order">
+      <bpmn:incoming>flow_approve</bpmn:incoming>
+      <bpmn:outgoing>flow_approveDone</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="task_Reject" name="Reject order">
-      <bpmn:incoming>flow_Reject</bpmn:incoming>
-      <bpmn:outgoing>flow_RejectDone</bpmn:outgoing>
+    <bpmn:userTask id="userTask_rejectOrder" name="Reject order">
+      <bpmn:incoming>flow_reject</bpmn:incoming>
+      <bpmn:outgoing>flow_rejectDone</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:exclusiveGateway id="gateway_Merge">
-      <bpmn:incoming>flow_ApproveDone</bpmn:incoming>
-      <bpmn:incoming>flow_RejectDone</bpmn:incoming>
-      <bpmn:outgoing>flow_ToArchive</bpmn:outgoing>
+    <bpmn:exclusiveGateway id="gateway_merge">
+      <bpmn:incoming>flow_approveDone</bpmn:incoming>
+      <bpmn:incoming>flow_rejectDone</bpmn:incoming>
+      <bpmn:outgoing>flow_toArchive</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:subProcess id="subProcess_Archive" name="Archive order">
-      <bpmn:incoming>flow_ToArchive</bpmn:incoming>
-      <bpmn:outgoing>flow_Archived</bpmn:outgoing>
-      <bpmn:startEvent id="inner_Start">
-        <bpmn:outgoing>inner_Stored</bpmn:outgoing>
+    <bpmn:subProcess id="subProcess_archiveOrder" name="Archive order">
+      <bpmn:incoming>flow_toArchive</bpmn:incoming>
+      <bpmn:outgoing>flow_archived</bpmn:outgoing>
+      <bpmn:startEvent id="startEvent_archiveStarted" name="Archiving started">
+        <bpmn:outgoing>flow_recordStored</bpmn:outgoing>
       </bpmn:startEvent>
-      <bpmn:task id="task_Store" name="Store record">
-        <bpmn:incoming>inner_Stored</bpmn:incoming>
-        <bpmn:outgoing>inner_Done</bpmn:outgoing>
+      <bpmn:task id="task_storeRecord" name="Store record">
+        <bpmn:incoming>flow_recordStored</bpmn:incoming>
+        <bpmn:outgoing>flow_recordDone</bpmn:outgoing>
       </bpmn:task>
-      <bpmn:endEvent id="inner_End">
-        <bpmn:incoming>inner_Done</bpmn:incoming>
+      <bpmn:endEvent id="endEvent_recordStored" name="Record stored">
+        <bpmn:incoming>flow_recordDone</bpmn:incoming>
       </bpmn:endEvent>
-      <bpmn:sequenceFlow id="inner_Stored" sourceRef="inner_Start" targetRef="task_Store" />
-      <bpmn:sequenceFlow id="inner_Done" sourceRef="task_Store" targetRef="inner_End" />
+      <bpmn:sequenceFlow id="flow_recordStored" sourceRef="startEvent_archiveStarted" targetRef="task_storeRecord" />
+      <bpmn:sequenceFlow id="flow_recordDone" sourceRef="task_storeRecord" targetRef="endEvent_recordStored" />
     </bpmn:subProcess>
-    <bpmn:endEvent id="event_End" name="Order handled">
-      <bpmn:incoming>flow_Archived</bpmn:incoming>
+    <bpmn:endEvent id="endEvent_orderHandled" name="Order handled">
+      <bpmn:incoming>flow_archived</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="flow_Received" sourceRef="event_Start" targetRef="task_Review" />
-    <bpmn:sequenceFlow id="flow_ToDecision" sourceRef="task_Review" targetRef="gateway_Decision" />
-    <bpmn:sequenceFlow id="flow_Approve" name="yes" sourceRef="gateway_Decision" targetRef="task_Approve" />
-    <bpmn:sequenceFlow id="flow_Reject" name="no" sourceRef="gateway_Decision" targetRef="task_Reject" />
-    <bpmn:sequenceFlow id="flow_ApproveDone" sourceRef="task_Approve" targetRef="gateway_Merge" />
-    <bpmn:sequenceFlow id="flow_RejectDone" sourceRef="task_Reject" targetRef="gateway_Merge" />
-    <bpmn:sequenceFlow id="flow_ToArchive" sourceRef="gateway_Merge" targetRef="subProcess_Archive" />
-    <bpmn:sequenceFlow id="flow_Archived" sourceRef="subProcess_Archive" targetRef="event_End" />
+    <bpmn:sequenceFlow id="flow_orderReceived" sourceRef="startEvent_orderReceived" targetRef="userTask_reviewOrder" />
+    <bpmn:sequenceFlow id="flow_toDecision" sourceRef="userTask_reviewOrder" targetRef="gateway_approved" />
+    <bpmn:sequenceFlow id="flow_approve" name="yes" sourceRef="gateway_approved" targetRef="userTask_approveOrder" />
+    <bpmn:sequenceFlow id="flow_reject" name="no" sourceRef="gateway_approved" targetRef="userTask_rejectOrder" />
+    <bpmn:sequenceFlow id="flow_approveDone" sourceRef="userTask_approveOrder" targetRef="gateway_merge" />
+    <bpmn:sequenceFlow id="flow_rejectDone" sourceRef="userTask_rejectOrder" targetRef="gateway_merge" />
+    <bpmn:sequenceFlow id="flow_toArchive" sourceRef="gateway_merge" targetRef="subProcess_archiveOrder" />
+    <bpmn:sequenceFlow id="flow_archived" sourceRef="subProcess_archiveOrder" targetRef="endEvent_orderHandled" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="orderApproval">
-      <bpmndi:BPMNShape id="event_Start_di" bpmnElement="event_Start">
+      <bpmndi:BPMNShape id="startEvent_orderReceived_di" bpmnElement="startEvent_orderReceived">
         <dc:Bounds x="160" y="182" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="task_Review_di" bpmnElement="task_Review">
+      <bpmndi:BPMNShape id="userTask_reviewOrder_di" bpmnElement="userTask_reviewOrder">
         <dc:Bounds x="250" y="160" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="gateway_Decision_di" bpmnElement="gateway_Decision" isMarkerVisible="true">
+      <bpmndi:BPMNShape id="gateway_approved_di" bpmnElement="gateway_approved" isMarkerVisible="true">
         <dc:Bounds x="410" y="175" width="50" height="50" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="470" y="193" width="54" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="task_Approve_di" bpmnElement="task_Approve">
+      <bpmndi:BPMNShape id="userTask_approveOrder_di" bpmnElement="userTask_approveOrder">
         <dc:Bounds x="520" y="90" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="task_Reject_di" bpmnElement="task_Reject">
+      <bpmndi:BPMNShape id="userTask_rejectOrder_di" bpmnElement="userTask_rejectOrder">
         <dc:Bounds x="520" y="250" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="gateway_Merge_di" bpmnElement="gateway_Merge" isMarkerVisible="true">
+      <bpmndi:BPMNShape id="gateway_merge_di" bpmnElement="gateway_merge" isMarkerVisible="true">
         <dc:Bounds x="680" y="175" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="event_End_di" bpmnElement="event_End">
+      <bpmndi:BPMNShape id="endEvent_orderHandled_di" bpmnElement="endEvent_orderHandled">
         <dc:Bounds x="1162" y="182" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1144" y="225" width="71" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="subProcess_Archive_di" bpmnElement="subProcess_Archive" isExpanded="true">
+      <bpmndi:BPMNShape id="subProcess_archiveOrder_di" bpmnElement="subProcess_archiveOrder" isExpanded="true">
         <dc:Bounds x="760" y="120" width="340" height="210" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="inner_Start_di" bpmnElement="inner_Start">
+      <bpmndi:BPMNShape id="startEvent_archiveStarted_di" bpmnElement="startEvent_archiveStarted">
         <dc:Bounds x="790" y="182" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="task_Store_di" bpmnElement="task_Store">
+      <bpmndi:BPMNShape id="task_storeRecord_di" bpmnElement="task_storeRecord">
         <dc:Bounds x="870" y="160" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="inner_End_di" bpmnElement="inner_End">
+      <bpmndi:BPMNShape id="endEvent_recordStored_di" bpmnElement="endEvent_recordStored">
         <dc:Bounds x="1020" y="182" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="inner_Stored_di" bpmnElement="inner_Stored">
+      <bpmndi:BPMNEdge id="flow_recordStored_di" bpmnElement="flow_recordStored">
         <di:waypoint x="826" y="200" />
         <di:waypoint x="870" y="200" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="inner_Done_di" bpmnElement="inner_Done">
+      <bpmndi:BPMNEdge id="flow_recordDone_di" bpmnElement="flow_recordDone">
         <di:waypoint x="970" y="200" />
         <di:waypoint x="1020" y="200" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="flow_Received_di" bpmnElement="flow_Received">
+      <bpmndi:BPMNEdge id="flow_orderReceived_di" bpmnElement="flow_orderReceived">
         <di:waypoint x="196" y="200" />
         <di:waypoint x="250" y="200" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="flow_ToDecision_di" bpmnElement="flow_ToDecision">
+      <bpmndi:BPMNEdge id="flow_toDecision_di" bpmnElement="flow_toDecision">
         <di:waypoint x="350" y="200" />
         <di:waypoint x="410" y="200" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="flow_Approve_di" bpmnElement="flow_Approve">
+      <bpmndi:BPMNEdge id="flow_approve_di" bpmnElement="flow_approve">
         <di:waypoint x="435" y="175" />
         <di:waypoint x="435" y="130" />
         <di:waypoint x="520" y="130" />
@@ -119,7 +119,7 @@
           <dc:Bounds x="468" y="112" width="18" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="flow_Reject_di" bpmnElement="flow_Reject">
+      <bpmndi:BPMNEdge id="flow_reject_di" bpmnElement="flow_reject">
         <di:waypoint x="435" y="225" />
         <di:waypoint x="435" y="290" />
         <di:waypoint x="520" y="290" />
@@ -127,21 +127,21 @@
           <dc:Bounds x="444" y="272" width="13" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="flow_ApproveDone_di" bpmnElement="flow_ApproveDone">
+      <bpmndi:BPMNEdge id="flow_approveDone_di" bpmnElement="flow_approveDone">
         <di:waypoint x="620" y="130" />
         <di:waypoint x="705" y="130" />
         <di:waypoint x="705" y="175" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="flow_RejectDone_di" bpmnElement="flow_RejectDone">
+      <bpmndi:BPMNEdge id="flow_rejectDone_di" bpmnElement="flow_rejectDone">
         <di:waypoint x="620" y="290" />
         <di:waypoint x="705" y="290" />
         <di:waypoint x="705" y="225" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="flow_ToArchive_di" bpmnElement="flow_ToArchive">
+      <bpmndi:BPMNEdge id="flow_toArchive_di" bpmnElement="flow_toArchive">
         <di:waypoint x="730" y="200" />
         <di:waypoint x="760" y="200" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="flow_Archived_di" bpmnElement="flow_Archived">
+      <bpmndi:BPMNEdge id="flow_archived_di" bpmnElement="flow_archived">
         <di:waypoint x="1100" y="200" />
         <di:waypoint x="1162" y="200" />
       </bpmndi:BPMNEdge>
