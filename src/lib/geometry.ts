@@ -166,6 +166,26 @@ export function attachSide(point: Point, rect: Rect, tolerance = 5): Side | null
   return sides.length === 1 ? sides[0]! : null;
 }
 
+/** The outward unit normal of a rectangle side — the direction a flow docked on that side runs. */
+const OUTWARD_NORMAL: Record<Side, Point> = {
+  left: { x: -1, y: 0 },
+  right: { x: 1, y: 0 },
+  top: { x: 0, y: -1 },
+  bottom: { x: 0, y: 1 },
+};
+
+/**
+ * How far the first bit of an edge runs straight out of (or into) a shape before it turns — the
+ * length of its docking "stub". `dock` is the waypoint on the shape's border, `next` the adjacent
+ * waypoint; the result is their offset projected onto `side`'s outward normal. A flow that docks and
+ * immediately turns (next waypoint directly above/beside the dock) has a stub of `0`; a value can go
+ * negative if the edge doubles back into the shape's side.
+ */
+export const stubLength = (dock: Point, next: Point, side: Side): number => {
+  const normal = OUTWARD_NORMAL[side];
+  return (next.x - dock.x) * normal.x + (next.y - dock.y) * normal.y;
+};
+
 /** The vertical centre (mid-height) of a rectangle — the row a shape is drawn on. */
 const verticalCenter = (rect: Rect): number => rect.y + rect.height / 2;
 

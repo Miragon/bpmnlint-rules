@@ -1,5 +1,5 @@
 import { collectByPlane, inst } from '../../lib/di';
-import { attachSide, gatewayTipSide, isBackwardFlow } from '../../lib/geometry';
+import { attachSide, gatewayTipSide, isBackwardFlow, stubLength } from '../../lib/geometry';
 import type { Point, Rect, Side } from '../../lib/geometry';
 import type { ModdleElement, Reporter, Rule } from '../../lib/moddle';
 
@@ -14,22 +14,34 @@ import type { ModdleElement, Reporter, Rule } from '../../lib/moddle';
  * lanes) and boundary events (which sit on their host's border) are left alone.
  *
  * A **return flow** — one whose target is drawn clearly left of its source (see
- * {@link isBackwardFlow}) — is a legitimate right-to-left loop-back, so its policy is mirrored
- * left ↔ right: it may enter a shape from the right and leave to the left. The docking is still
- * checked, just against the mirrored sides, so a return flow that wraps into the wrong face is
- * still reported.
+ * {@link isBackwardFlow}) — is a legitimate right-to-left loop-back. Its **target** is always
+ * entered on the mirrored (right) side, so a return flow re-entering the wrong/forward face is still
+ * reported. Its **source** side, however, depends on the source's role in the return path:
+ *
+ * - an **initiator** (a forward-lane element that starts the loop-back — it is not itself the target
+ *   of a return flow) exits on its normal *forward* side (an activity to the right) and wraps around;
+ * - a **chain member** (already the target of a return flow, so it sits inside the return lane)
+ *   exits on the *mirrored* side (an activity to the left), continuing the leftward chain.
+ *
+ * On top of the side, a flow must leave (and enter) with a **stub**: its first segment has to run at
+ * least `minStubLength` px straight out of the docked side before it turns, so an edge cannot dock
+ * and immediately bend away (which renders as an arrow leaving a corner with no visible direction).
+ * The stub is measured along the docked side's outward normal, so it is the same check for an
+ * activity, an event and a gateway tip; boundary events are left alone here too.
  *
  * Configuration (optional):
  *
- *     "miragon/flow-connection-side": [ "error", { "allowBackwardsFlow": false } ]
+ *     "miragon/flow-connection-side": [ "error", { "allowBackwardsFlow": false, "minStubLength": 20 } ]
  *
  * `allowBackwardsFlow` defaults to `true` (return flows are mirrored, as above). Set it to `false`
  * to hold every flow to the strict left-to-right policy, so a return flow's docking is reported like
- * any other wrong-side connection.
+ * any other wrong-side connection. `minStubLength` defaults to `20`; set it to `0` to switch the
+ * stub check off.
  */
 
 export interface FlowConnectionSideConfig {
   allowBackwardsFlow?: boolean;
+  minStubLength?: number;
 }
 
 type Category = 'event' | 'gateway' | 'activity';
@@ -97,23 +109,40 @@ function wrongSideMessage(
     : `Sequence flow leaves <${id}> to the ${side}; ${CATEGORY_LABEL[category]} must exit to the ${orList(allowed)}`;
 }
 
+function shortStubMessage(
+  direction: Direction,
+  id: string,
+  side: Side,
+  stub: number,
+  min: number,
+): string {
+  const stubPx = Math.max(0, Math.round(stub));
+  return direction === 'incoming'
+    ? `Sequence flow enters <${id}> from the ${side} with only a ${stubPx}px stub; it must run at least ${min}px straight in before turning`
+    : `Sequence flow leaves <${id}> to the ${side} with only a ${stubPx}px stub; it must run at least ${min}px straight out before turning`;
+}
+
 export default function flowConnectionSide(config?: FlowConnectionSideConfig): Rule {
-  const { allowBackwardsFlow = true } = config ?? {};
+  const { allowBackwardsFlow = true, minStubLength = 20 } = config ?? {};
 
   /**
    * Judge one endpoint of a flow — its `outgoing` end at the source, or its `incoming` end at the
-   * target. Which side does `point` dock onto `ref`, and is that side allowed for `ref`'s category
-   * in `direction`? For a `backward` (return) flow the allowed sides are mirrored left ↔ right.
-   * Reports on `flowId` when the docking side is not allowed.
+   * target. `point` is the waypoint docked onto `ref`, `neighbor` the adjacent waypoint. First:
+   * which side does `point` dock onto, and is that side allowed for `ref`'s category in `direction`?
+   * When `mirror` is set the allowed sides are mirrored left ↔ right (a return flow's target, and a
+   * return flow's source when it is a chain member). Then, if the side is clean, the docking stub
+   * (how far the edge runs straight out of that side before turning) must reach `minStubLength`.
+   * Reports on `flowId` for a wrong docking side or a too-short stub.
    */
   function evaluateEndpoint(
     reporter: Reporter,
     boundsById: Map<string, Rect>,
     flowId: string,
     direction: Direction,
-    backward: boolean,
+    mirror: boolean,
     ref: ModdleElement,
     point: Point | undefined,
+    neighbor: Point | undefined,
   ): void {
     if (!ref || !point) {
       return;
@@ -126,30 +155,33 @@ export default function flowConnectionSide(config?: FlowConnectionSideConfig): R
     }
 
     const policy = POLICY[direction][category];
-    const allowed = backward ? mirrorSides(policy) : policy;
+    const allowed = mirror ? mirrorSides(policy) : policy;
 
     // A gateway is a diamond: only its four tips are clean anchors, everything else is "seitlich".
-    if (category === 'gateway') {
-      const tipSide = gatewayTipSide(point, bounds);
-      if (tipSide === null) {
+    // Other shapes dock on one of their four edges; a corner / off-border point is too ambiguous to
+    // judge, so it is skipped rather than guessed.
+    const side = category === 'gateway' ? gatewayTipSide(point, bounds) : attachSide(point, bounds);
+    if (side === null) {
+      if (category === 'gateway') {
         reporter.report(
           flowId,
           `Sequence flow connects to <${ref.id}> on a diagonal; a gateway must connect at one of its four tips`,
         );
-        return;
-      }
-      if (!allowed.includes(tipSide)) {
-        reporter.report(flowId, wrongSideMessage(direction, ref.id, tipSide, 'gateway', allowed));
       }
       return;
     }
 
-    const side = attachSide(point, bounds);
-    if (side === null) {
-      return; // ambiguous docking (corner / off the border) — skip rather than guess
-    }
     if (!allowed.includes(side)) {
       reporter.report(flowId, wrongSideMessage(direction, ref.id, side, category, allowed));
+      return;
+    }
+
+    // The side is clean — now the edge must leave/enter with a stub, not dock and immediately turn.
+    if (minStubLength > 0 && neighbor) {
+      const stub = stubLength(point, neighbor, side);
+      if (stub < minStubLength) {
+        reporter.report(flowId, shortStubMessage(direction, ref.id, side, stub, minStubLength));
+      }
     }
   }
 
@@ -184,19 +216,33 @@ export default function flowConnectionSide(config?: FlowConnectionSideConfig): R
 
       const flows = plane.edges.filter((edge) => edge.el.$type === 'bpmn:SequenceFlow');
 
+      // Every element that is the target of a return flow sits inside the return lane. A return
+      // flow whose source is one of them is a "chain member" (exits mirrored); any other return
+      // flow's source is an "initiator" that starts the loop-back (exits its forward side).
+      const returnTargets = new Set<string>();
+      for (const flow of flows) {
+        const source = flow.el.sourceRef;
+        const target = flow.el.targetRef;
+        if (target && isReturnFlow(boundsById, source, target)) {
+          returnTargets.add(target.id);
+        }
+      }
+
       for (const flow of flows) {
         const source = flow.el.sourceRef;
         const target = flow.el.targetRef;
         const backward = isReturnFlow(boundsById, source, target);
+        const sourceIsChainMember = backward && !!source && returnTargets.has(source.id);
 
         evaluateEndpoint(
           reporter,
           boundsById,
           flow.el.id,
           'outgoing',
-          backward,
+          sourceIsChainMember,
           source,
           flow.waypoints[0],
+          flow.waypoints[1],
         );
         evaluateEndpoint(
           reporter,
@@ -206,6 +252,7 @@ export default function flowConnectionSide(config?: FlowConnectionSideConfig): R
           backward,
           target,
           flow.waypoints.at(-1),
+          flow.waypoints.at(-2),
         );
       }
     }
