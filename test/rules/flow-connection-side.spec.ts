@@ -271,6 +271,72 @@ verify('flow-connection-side', rule, {
         ],
       }),
     },
+    {
+      // A return flow — its target drawn clearly left of its source — reads right-to-left, so its
+      // docking policy is mirrored: the source activity leaves to the left and the target activity
+      // is entered from the right. Clean, so nothing is reported.
+      name: 'a return flow leaves the source left and enters the target from the right',
+      moddleElement: model({
+        shapes: [
+          { id: 'task_To', x: 200, y: 100 },
+          { id: 'task_From', x: 400, y: 100 },
+        ],
+        edges: [
+          {
+            id: 'flow_FromToTo',
+            source: 'task_From',
+            target: 'task_To',
+            waypoints: [
+              { x: 400, y: 140 },
+              { x: 300, y: 140 },
+            ],
+          },
+        ],
+      }),
+    },
+    {
+      // The reported real-world shape: a gateway branches up-left into an intermediate event, which
+      // loops back down-left into a merge gateway. Both edges run right-to-left, so their policy is
+      // mirrored — the event is entered from the right and leaves to the left, the gateways connect
+      // at their tips. All clean.
+      name: 'a return loop back through a gateway and an event',
+      moddleElement: model({
+        shapes: [
+          { id: 'gateway_Merge', tag: 'exclusiveGateway', x: 200, y: 115, width: 50, height: 50 },
+          { id: 'event_Done', tag: 'intermediateCatchEvent', x: 300, y: 20, width: 36, height: 36 },
+          {
+            id: 'gateway_Decision',
+            tag: 'exclusiveGateway',
+            x: 400,
+            y: 115,
+            width: 50,
+            height: 50,
+          },
+        ],
+        edges: [
+          {
+            id: 'flow_DecisionToDone',
+            source: 'gateway_Decision',
+            target: 'event_Done',
+            waypoints: [
+              { x: 425, y: 115 },
+              { x: 425, y: 38 },
+              { x: 336, y: 38 },
+            ],
+          },
+          {
+            id: 'flow_DoneToMerge',
+            source: 'event_Done',
+            target: 'gateway_Merge',
+            waypoints: [
+              { x: 300, y: 38 },
+              { x: 225, y: 38 },
+              { x: 225, y: 115 },
+            ],
+          },
+        ],
+      }),
+    },
   ],
 
   invalid: [
@@ -301,29 +367,33 @@ verify('flow-connection-side', rule, {
       },
     },
     {
-      name: 'an activity entered from the right',
+      // A forward flow (target drawn right of its source) that wraps around into the target's right
+      // face — the strict left-to-right policy applies, so this is reported.
+      name: 'an activity entered from the right on a forward flow',
       moddleElement: model({
         shapes: [
-          { id: 'task_From', x: 380, y: 300 },
-          { id: 'task_To', x: 200, y: 100 },
+          { id: 'task_A', x: 100, y: 100 },
+          { id: 'task_B', x: 300, y: 100 },
         ],
         edges: [
           {
-            id: 'flow_FromToTo',
-            source: 'task_From',
-            target: 'task_To',
+            id: 'flow_AToB',
+            source: 'task_A',
+            target: 'task_B',
             waypoints: [
-              { x: 480, y: 340 },
-              { x: 480, y: 140 },
-              { x: 300, y: 140 },
+              { x: 200, y: 140 },
+              { x: 200, y: 60 },
+              { x: 450, y: 60 },
+              { x: 450, y: 140 },
+              { x: 400, y: 140 },
             ],
           },
         ],
       }),
       report: {
-        id: 'flow_FromToTo',
+        id: 'flow_AToB',
         message:
-          'Sequence flow enters <task_To> from the right; an activity must be entered from the left',
+          'Sequence flow enters <task_B> from the right; an activity must be entered from the left',
       },
     },
     {
@@ -404,29 +474,120 @@ verify('flow-connection-side', rule, {
       },
     },
     {
-      name: 'an event exited to the left',
+      // A forward flow (target drawn right of its source) that still leaves the event's left face —
+      // the strict left-to-right policy applies, so this is reported.
+      name: 'an event exited to the left on a forward flow',
       moddleElement: model({
         shapes: [
           { id: 'event_Start', tag: 'startEvent', x: 300, y: 100, width: 36, height: 36 },
-          { id: 'task_Left', x: 120, y: 200 },
+          { id: 'task_Right', x: 450, y: 100 },
         ],
         edges: [
           {
-            id: 'flow_StartToLeft',
+            id: 'flow_StartToRight',
             source: 'event_Start',
-            target: 'task_Left',
+            target: 'task_Right',
             waypoints: [
               { x: 300, y: 118 },
-              { x: 300, y: 240 },
-              { x: 120, y: 240 },
+              { x: 300, y: 40 },
+              { x: 430, y: 40 },
+              { x: 430, y: 140 },
+              { x: 450, y: 140 },
             ],
           },
         ],
       }),
       report: {
-        id: 'flow_StartToLeft',
+        id: 'flow_StartToRight',
         message:
           'Sequence flow leaves <event_Start> to the left; an event must exit to the top, right or bottom',
+      },
+    },
+    {
+      // 👎 A return flow (target drawn left of its source) whose policy is mirrored, but that still
+      // docks into the wrong face: it enters the activity from the left instead of the mirrored
+      // right. The source end leaves cleanly to the left, so only the target end is reported.
+      name: 'a return flow entering an activity from the left',
+      moddleElement: model({
+        shapes: [
+          { id: 'task_From', x: 400, y: 100 },
+          { id: 'task_To', x: 200, y: 100 },
+        ],
+        edges: [
+          {
+            id: 'flow_FromToTo',
+            source: 'task_From',
+            target: 'task_To',
+            waypoints: [
+              { x: 400, y: 140 },
+              { x: 400, y: 60 },
+              { x: 160, y: 60 },
+              { x: 160, y: 140 },
+              { x: 200, y: 140 },
+            ],
+          },
+        ],
+      }),
+      report: {
+        id: 'flow_FromToTo',
+        message:
+          'Sequence flow enters <task_To> from the left; an activity must be entered from the right',
+      },
+    },
+    {
+      // 👎 A return flow that leaves the source activity to the right instead of the mirrored left.
+      name: 'a return flow leaving an activity to the right',
+      moddleElement: model({
+        shapes: [
+          { id: 'task_Exit', x: 300, y: 100 },
+          { id: 'task_Dest', x: 100, y: 100 },
+        ],
+        edges: [
+          {
+            id: 'flow_ExitToDest',
+            source: 'task_Exit',
+            target: 'task_Dest',
+            waypoints: [
+              { x: 400, y: 140 },
+              { x: 400, y: 40 },
+              { x: 200, y: 40 },
+              { x: 200, y: 140 },
+            ],
+          },
+        ],
+      }),
+      report: {
+        id: 'flow_ExitToDest',
+        message: 'Sequence flow leaves <task_Exit> to the right; an activity must exit to the left',
+      },
+    },
+    {
+      // 👎 A return flow entering an event from the left instead of the mirrored right.
+      name: 'a return flow entering an event from the left',
+      moddleElement: model({
+        shapes: [
+          { id: 'task_From', x: 300, y: 100 },
+          { id: 'event_End', tag: 'endEvent', x: 120, y: 122, width: 36, height: 36 },
+        ],
+        edges: [
+          {
+            id: 'flow_FromToEnd',
+            source: 'task_From',
+            target: 'event_End',
+            waypoints: [
+              { x: 300, y: 140 },
+              { x: 300, y: 60 },
+              { x: 80, y: 60 },
+              { x: 80, y: 140 },
+              { x: 120, y: 140 },
+            ],
+          },
+        ],
+      }),
+      report: {
+        id: 'flow_FromToEnd',
+        message:
+          'Sequence flow enters <event_End> from the left; an event must be entered from the right',
       },
     },
     {
@@ -532,6 +693,42 @@ verify('flow-connection-side', rule, {
           id: 'flow_JoinToEnd',
           message:
             'Sequence flow enters <event_End> from the top; an event must be entered from the left',
+        },
+      ],
+    },
+    {
+      // With `allowBackwardsFlow: false` the mirror is switched off, so a return flow is held to the
+      // strict left-to-right policy: the same clean loop-back that is valid by default now trips at
+      // both ends — the source leaves to the left, the target is entered from the right.
+      name: 'a return flow is reported when allowBackwardsFlow is off',
+      config: { allowBackwardsFlow: false },
+      moddleElement: model({
+        shapes: [
+          { id: 'task_To', x: 200, y: 100 },
+          { id: 'task_From', x: 400, y: 100 },
+        ],
+        edges: [
+          {
+            id: 'flow_FromToTo',
+            source: 'task_From',
+            target: 'task_To',
+            waypoints: [
+              { x: 400, y: 140 },
+              { x: 300, y: 140 },
+            ],
+          },
+        ],
+      }),
+      report: [
+        {
+          id: 'flow_FromToTo',
+          message:
+            'Sequence flow leaves <task_From> to the left; an activity must exit to the right',
+        },
+        {
+          id: 'flow_FromToTo',
+          message:
+            'Sequence flow enters <task_To> from the right; an activity must be entered from the left',
         },
       ],
     },

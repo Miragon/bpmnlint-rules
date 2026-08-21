@@ -43,10 +43,30 @@ outgoing flow out any side except the incoming-left one — the same freedom a g
 is a diamond, so its only clean anchors are the four tips (the midpoints of its bounding box); a
 point on a diagonal flank is reported as a diagonal connection.
 
+### Return flows
+
+A **return flow** — a loop-back edge whose target is drawn clearly left of its source (decided from
+the two shapes' horizontal centres) — reads right-to-left, so its policy is **mirrored left ↔ right**:
+it may be entered from the **right** and leave to the **left**. The table above is applied with
+`left` and `right` swapped, `top`/`bottom` unchanged. The docking is still checked, so a return flow
+that wraps into the wrong face (e.g. enters an activity from the left) is still reported. A
+near-vertical loop whose target sits in roughly the same column as its source is not treated as a
+return flow, so it keeps the strict left-to-right policy.
+
 Comparison is scoped per `BPMNPlane`. Left alone: shapes with no category (pools, lanes, data
 objects), **boundary events** (they sit on their host's border, so a flow leaving one may dock at any
 side), and any docking point too ambiguous to classify (exactly on a corner) — never guessed, to
 avoid false positives.
+
+## Configuration
+
+```jsonc
+"@miragon/rules/flow-connection-side": ["error", { "allowBackwardsFlow": false }]
+```
+
+| Option               | Default | Effect                                                                                                                                                                                                    |
+| -------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `allowBackwardsFlow` | `true`  | Mirror the policy for return flows (see above). Set to `false` to hold **every** flow to the strict left-to-right policy — a return flow's docking is then reported like any other wrong-side connection. |
 
 ## Examples
 

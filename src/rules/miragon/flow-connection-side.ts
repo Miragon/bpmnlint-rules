@@ -1,5 +1,5 @@
 import { collectByPlane, inst } from '../../lib/di';
-import { attachSide, gatewayTipSide } from '../../lib/geometry';
+import { attachSide, gatewayTipSide, isBackwardFlow } from '../../lib/geometry';
 import type { Point, Rect, Side } from '../../lib/geometry';
 import type { ModdleElement, Reporter, Rule } from '../../lib/moddle';
 
@@ -12,7 +12,25 @@ import type { ModdleElement, Reporter, Rule } from '../../lib/moddle';
  * last waypoint its entry into the target. Which side that point sits on is compared against
  * {@link POLICY}. Comparison is scoped per BPMNPlane; shapes with no category (data objects, pools,
  * lanes) and boundary events (which sit on their host's border) are left alone.
+ *
+ * A **return flow** — one whose target is drawn clearly left of its source (see
+ * {@link isBackwardFlow}) — is a legitimate right-to-left loop-back, so its policy is mirrored
+ * left ↔ right: it may enter a shape from the right and leave to the left. The docking is still
+ * checked, just against the mirrored sides, so a return flow that wraps into the wrong face is
+ * still reported.
+ *
+ * Configuration (optional):
+ *
+ *     "miragon/flow-connection-side": [ "error", { "allowBackwardsFlow": false } ]
+ *
+ * `allowBackwardsFlow` defaults to `true` (return flows are mirrored, as above). Set it to `false`
+ * to hold every flow to the strict left-to-right policy, so a return flow's docking is reported like
+ * any other wrong-side connection.
  */
+
+export interface FlowConnectionSideConfig {
+  allowBackwardsFlow?: boolean;
+}
 
 type Category = 'event' | 'gateway' | 'activity';
 type Direction = 'incoming' | 'outgoing';
@@ -42,6 +60,10 @@ const CATEGORY_LABEL: Record<Category, string> = {
   gateway: 'a gateway',
   activity: 'an activity',
 };
+
+/** Left ↔ right, top/bottom unchanged — the horizontal mirror applied to a return flow's policy. */
+const MIRROR: Record<Side, Side> = { left: 'right', right: 'left', top: 'top', bottom: 'bottom' };
+const mirrorSides = (sides: Side[]): Side[] => sides.map((side) => MIRROR[side]);
 
 /** The category whose side policy applies, or `null` for shapes the rule leaves alone. */
 function categoryOf(el: ModdleElement): Category | null {
@@ -75,17 +97,21 @@ function wrongSideMessage(
     : `Sequence flow leaves <${id}> to the ${side}; ${CATEGORY_LABEL[category]} must exit to the ${orList(allowed)}`;
 }
 
-export default function flowConnectionSide(): Rule {
+export default function flowConnectionSide(config?: FlowConnectionSideConfig): Rule {
+  const { allowBackwardsFlow = true } = config ?? {};
+
   /**
    * Judge one endpoint of a flow — its `outgoing` end at the source, or its `incoming` end at the
    * target. Which side does `point` dock onto `ref`, and is that side allowed for `ref`'s category
-   * in `direction`? Reports on `flowId` when it is not.
+   * in `direction`? For a `backward` (return) flow the allowed sides are mirrored left ↔ right.
+   * Reports on `flowId` when the docking side is not allowed.
    */
   function evaluateEndpoint(
     reporter: Reporter,
     boundsById: Map<string, Rect>,
     flowId: string,
     direction: Direction,
+    backward: boolean,
     ref: ModdleElement,
     point: Point | undefined,
   ): void {
@@ -99,6 +125,9 @@ export default function flowConnectionSide(): Rule {
       return;
     }
 
+    const policy = POLICY[direction][category];
+    const allowed = backward ? mirrorSides(policy) : policy;
+
     // A gateway is a diamond: only its four tips are clean anchors, everything else is "seitlich".
     if (category === 'gateway') {
       const tipSide = gatewayTipSide(point, bounds);
@@ -109,11 +138,8 @@ export default function flowConnectionSide(): Rule {
         );
         return;
       }
-      if (!POLICY[direction].gateway.includes(tipSide)) {
-        reporter.report(
-          flowId,
-          wrongSideMessage(direction, ref.id, tipSide, 'gateway', POLICY[direction].gateway),
-        );
+      if (!allowed.includes(tipSide)) {
+        reporter.report(flowId, wrongSideMessage(direction, ref.id, tipSide, 'gateway', allowed));
       }
       return;
     }
@@ -122,12 +148,27 @@ export default function flowConnectionSide(): Rule {
     if (side === null) {
       return; // ambiguous docking (corner / off the border) — skip rather than guess
     }
-    if (!POLICY[direction][category].includes(side)) {
-      reporter.report(
-        flowId,
-        wrongSideMessage(direction, ref.id, side, category, POLICY[direction][category]),
-      );
+    if (!allowed.includes(side)) {
+      reporter.report(flowId, wrongSideMessage(direction, ref.id, side, category, allowed));
     }
+  }
+
+  /**
+   * Does this flow read right-to-left — a return / loop-back edge whose target sits clearly left of
+   * its source? Needs the DI bounds of both ends; a missing end (or `allowBackwardsFlow: false`)
+   * counts as not backward, so the flow keeps the strict left-to-right policy.
+   */
+  function isReturnFlow(
+    boundsById: Map<string, Rect>,
+    source: ModdleElement,
+    target: ModdleElement,
+  ): boolean {
+    if (!allowBackwardsFlow || !source || !target) {
+      return false;
+    }
+    const sourceBounds = boundsById.get(source.id);
+    const targetBounds = boundsById.get(target.id);
+    return !!sourceBounds && !!targetBounds && isBackwardFlow(sourceBounds, targetBounds);
   }
 
   function check(node: ModdleElement, reporter: Reporter): void {
@@ -144,12 +185,17 @@ export default function flowConnectionSide(): Rule {
       const flows = plane.edges.filter((edge) => edge.el.$type === 'bpmn:SequenceFlow');
 
       for (const flow of flows) {
+        const source = flow.el.sourceRef;
+        const target = flow.el.targetRef;
+        const backward = isReturnFlow(boundsById, source, target);
+
         evaluateEndpoint(
           reporter,
           boundsById,
           flow.el.id,
           'outgoing',
-          flow.el.sourceRef,
+          backward,
+          source,
           flow.waypoints[0],
         );
         evaluateEndpoint(
@@ -157,7 +203,8 @@ export default function flowConnectionSide(): Rule {
           boundsById,
           flow.el.id,
           'incoming',
-          flow.el.targetRef,
+          backward,
+          target,
           flow.waypoints.at(-1),
         );
       }
