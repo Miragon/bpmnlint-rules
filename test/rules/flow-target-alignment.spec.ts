@@ -84,14 +84,13 @@ verify('flow-target-alignment', rule, {
       }),
     },
     {
-      // Adding bpmn:SubProcess to the exempt list clears the false positive: the same tall expanded
-      // sub-process from the invalid case is now left alone, since its box centre is not the row the
-      // flow actually attaches to.
-      name: 'an expanded sub-process is left alone once its type is exempt',
-      config: { exemptTypes: ['bpmn:Gateway', 'bpmn:BoundaryEvent', 'bpmn:SubProcess'] },
+      // The #19 fix: a tall expanded sub-process is measured against its inner reading line, not its
+      // box centre. Box centre is y=405 (way off the row), but the single inner start event is
+      // centred on y=140 — the same row as the source event — so the horizontal flow is not reported.
+      name: 'an expanded sub-process aligned by its inner start event, not its box centre',
       moddleElement: model({
         shapes: [
-          { id: 'event_Start', tag: 'startEvent', x: 100, y: 162, width: 36, height: 36 },
+          { id: 'event_Start', tag: 'startEvent', x: 100, y: 122, width: 36, height: 36 },
           {
             id: 'subProcess_Handle',
             tag: 'subProcess',
@@ -99,6 +98,115 @@ verify('flow-target-alignment', rule, {
             y: 80,
             height: 650,
             isExpanded: true,
+          },
+          {
+            id: 'inner_Start',
+            tag: 'startEvent',
+            parent: 'subProcess_Handle',
+            x: 240,
+            y: 122,
+            width: 36,
+            height: 36,
+          },
+        ],
+        edges: [{ id: 'flow_StartToHandle', source: 'event_Start', target: 'subProcess_Handle' }],
+      }),
+    },
+    {
+      // A sub-process with no inner start event is a smell owned by other rules (start-event-required
+      // / sub-process-blank-start-event), so this rule skips it rather than measure a box centre it
+      // can't trust. The box centre (405) is far off the row, yet nothing is reported.
+      name: 'an expanded sub-process with no inner start event is skipped',
+      moddleElement: model({
+        shapes: [
+          { id: 'event_Start', tag: 'startEvent', x: 100, y: 122, width: 36, height: 36 },
+          {
+            id: 'subProcess_Handle',
+            tag: 'subProcess',
+            x: 200,
+            y: 80,
+            height: 650,
+            isExpanded: true,
+          },
+          { id: 'inner_Task', parent: 'subProcess_Handle', x: 240, y: 400 },
+        ],
+        edges: [{ id: 'flow_StartToHandle', source: 'event_Start', target: 'subProcess_Handle' }],
+      }),
+    },
+    {
+      // Multiple inner start events is likewise a smell owned elsewhere; there is no single reading
+      // line to measure, so the rule skips it — even though both inner starts sit off the source row.
+      name: 'an expanded sub-process with multiple inner start events is skipped',
+      moddleElement: model({
+        shapes: [
+          { id: 'event_Start', tag: 'startEvent', x: 100, y: 122, width: 36, height: 36 },
+          {
+            id: 'subProcess_Handle',
+            tag: 'subProcess',
+            x: 200,
+            y: 80,
+            height: 650,
+            isExpanded: true,
+          },
+          {
+            id: 'inner_StartA',
+            tag: 'startEvent',
+            parent: 'subProcess_Handle',
+            x: 240,
+            y: 300,
+            width: 36,
+            height: 36,
+          },
+          {
+            id: 'inner_StartB',
+            tag: 'startEvent',
+            parent: 'subProcess_Handle',
+            x: 240,
+            y: 500,
+            width: 36,
+            height: 36,
+          },
+        ],
+        edges: [{ id: 'flow_StartToHandle', source: 'event_Start', target: 'subProcess_Handle' }],
+      }),
+    },
+    {
+      // A collapsed sub-process is a task-sized box, so its box centre IS the reading line and the
+      // default box-centre comparison applies. Here the box centre (y=140) is on the source's row.
+      name: 'a collapsed sub-process aligned by its box centre',
+      moddleElement: model({
+        shapes: [
+          { id: 'event_Start', tag: 'startEvent', x: 100, y: 122, width: 36, height: 36 },
+          { id: 'subProcess_Handle', tag: 'subProcess', x: 200, y: 100, isExpanded: false },
+        ],
+        edges: [{ id: 'flow_StartToHandle', source: 'event_Start', target: 'subProcess_Handle' }],
+      }),
+    },
+    {
+      // Adding bpmn:SubProcess to the exempt list still drops the check entirely — the escape hatch
+      // is unchanged. Here the inner start event is off the row (would otherwise be reported), but
+      // exempting the type leaves the flow alone.
+      name: 'an expanded sub-process is left alone once its type is exempt',
+      config: { exemptTypes: ['bpmn:Gateway', 'bpmn:BoundaryEvent', 'bpmn:SubProcess'] },
+      moddleElement: model({
+        shapes: [
+          { id: 'event_Start', tag: 'startEvent', x: 100, y: 122, width: 36, height: 36 },
+          {
+            id: 'subProcess_Handle',
+            tag: 'subProcess',
+            x: 200,
+            y: 80,
+            height: 650,
+            isExpanded: true,
+          },
+          {
+            id: 'inner_Start',
+            tag: 'startEvent',
+            parent: 'subProcess_Handle',
+            x: 240,
+            y: 400,
+            width: 36,
+            height: 36,
           },
         ],
         edges: [{ id: 'flow_StartToHandle', source: 'event_Start', target: 'subProcess_Handle' }],
@@ -161,21 +269,47 @@ verify('flow-target-alignment', rule, {
       },
     },
     {
-      // Default behaviour is unchanged: a sub-process is not exempt out of the box, so its tall box
-      // centre (405) far off the start event's row (180) is still reported. The 'exempt once its
-      // type is added' valid case above shows how a consumer opts out.
-      name: 'a tall expanded sub-process is still reported by default',
+      // An expanded sub-process genuinely off the row: its single inner start event (centre y=340)
+      // sits well below the source event's row (y=140), so the flow into it slopes down and is
+      // reported — regardless of where the box centre happens to land.
+      name: 'an expanded sub-process whose inner start event is off the row',
       moddleElement: model({
         shapes: [
-          { id: 'event_Start', tag: 'startEvent', x: 100, y: 162, width: 36, height: 36 },
+          { id: 'event_Start', tag: 'startEvent', x: 100, y: 122, width: 36, height: 36 },
           {
             id: 'subProcess_Handle',
             tag: 'subProcess',
             x: 200,
-            y: 80,
-            height: 650,
+            y: 280,
+            height: 200,
             isExpanded: true,
           },
+          {
+            id: 'inner_Start',
+            tag: 'startEvent',
+            parent: 'subProcess_Handle',
+            x: 240,
+            y: 322,
+            width: 36,
+            height: 36,
+          },
+        ],
+        edges: [{ id: 'flow_StartToHandle', source: 'event_Start', target: 'subProcess_Handle' }],
+      }),
+      report: {
+        id: 'flow_StartToHandle',
+        message:
+          "Sequence flow connects <event_Start> to <subProcess_Handle> at a different height; an outgoing flow's target should sit at the same height as its source",
+      },
+    },
+    {
+      // A collapsed sub-process keeps box-centre behaviour: its box centre (y=340) is off the source
+      // event's row (y=140), so the flow is reported just like any other task-sized box.
+      name: 'a collapsed sub-process whose box centre is off the row',
+      moddleElement: model({
+        shapes: [
+          { id: 'event_Start', tag: 'startEvent', x: 100, y: 122, width: 36, height: 36 },
+          { id: 'subProcess_Handle', tag: 'subProcess', x: 200, y: 300, isExpanded: false },
         ],
         edges: [{ id: 'flow_StartToHandle', source: 'event_Start', target: 'subProcess_Handle' }],
       }),

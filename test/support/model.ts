@@ -22,6 +22,12 @@ export interface ShapeSpec {
   isExpanded?: boolean;
   name?: string;
   default?: string;
+  /**
+   * Id of the shape this one nests inside (e.g. a `startEvent` inside a `subProcess`). Nests the
+   * element in the SEMANTIC tree only — every shape's DI stays flat on the plane, exactly as
+   * bpmn.io renders an expanded sub-process.
+   */
+  parent?: string;
 }
 
 export interface EdgeSpec {
@@ -56,7 +62,11 @@ const escapeXml = (value: string): string =>
  * writes them, and any rule that asks "how many flows leave this gateway" needs them, so the helper
  * writes them too.
  */
-function semanticShape(shape: ShapeSpec, edges: EdgeSpec[]): string {
+function semanticShape(
+  shape: ShapeSpec,
+  edges: EdgeSpec[],
+  childrenOf: Map<string, ShapeSpec[]>,
+): string {
   const tag = shape.tag || 'task';
   const attachedTo = shape.attachedTo ? ` attachedToRef="${shape.attachedTo}"` : '';
   const name = shape.name === undefined ? '' : ` name="${escapeXml(shape.name)}"`;
@@ -72,13 +82,16 @@ function semanticShape(shape: ShapeSpec, edges: EdgeSpec[]): string {
       .map((edge) => `outgoing>${edge.id}</bpmn:outgoing`),
   ];
 
-  if (!connections.length) {
+  const children = childrenOf.get(shape.id) || [];
+
+  if (!connections.length && !children.length) {
     return `${open} />`;
   }
 
   return [
     `${open}>`,
     ...connections.map((connection) => `      <bpmn:${connection}>`),
+    ...children.map((child) => semanticShape(child, edges, childrenOf)),
     `    </bpmn:${tag}>`,
   ].join('\n');
 }
@@ -132,6 +145,17 @@ function diEdge(edge: EdgeSpec, index: number): string {
 }
 
 function modelXml({ shapes = [], edges = [], processId = 'process_Test' }: ModelSpec): string {
+  // Semantic tree: nest children under their parent, render only the roots. DI stays flat (below).
+  const childrenOf = new Map<string, ShapeSpec[]>();
+  for (const shape of shapes) {
+    if (shape.parent) {
+      (childrenOf.get(shape.parent) ?? childrenOf.set(shape.parent, []).get(shape.parent)!).push(
+        shape,
+      );
+    }
+  }
+  const roots = shapes.filter((shape) => !shape.parent);
+
   return `<?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions
     xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
@@ -142,7 +166,7 @@ function modelXml({ shapes = [], edges = [], processId = 'process_Test' }: Model
     id="definitions_Test"
     targetNamespace="http://bpmn.io/schema/bpmn">
   <bpmn:process id="${processId}" isExecutable="true">
-${shapes.map((shape) => semanticShape(shape, edges)).join('\n')}
+${roots.map((shape) => semanticShape(shape, edges, childrenOf)).join('\n')}
 ${edges.map(semanticEdge).join('\n')}
   </bpmn:process>
   <bpmndi:BPMNDiagram id="diagram_Test">

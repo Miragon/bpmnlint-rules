@@ -41,6 +41,13 @@
       </bpmn:endEvent>
       <bpmn:sequenceFlow id="flow_recordStored" sourceRef="startEvent_archiveStarted" targetRef="task_storeRecord" />
       <bpmn:sequenceFlow id="flow_recordDone" sourceRef="task_storeRecord" targetRef="endEvent_recordStored" />
+      <bpmn:boundaryEvent id="event_storageFailed" name="Storage failed" attachedToRef="task_storeRecord">
+        <bpmn:outgoing>flow_storageFailed</bpmn:outgoing>
+      </bpmn:boundaryEvent>
+      <bpmn:endEvent id="endEvent_recordNotStored" name="Record not stored">
+        <bpmn:incoming>flow_storageFailed</bpmn:incoming>
+      </bpmn:endEvent>
+      <bpmn:sequenceFlow id="flow_storageFailed" sourceRef="event_storageFailed" targetRef="endEvent_recordNotStored" />
     </bpmn:subProcess>
     <bpmn:endEvent id="endEvent_orderHandled" name="Order handled">
       <bpmn:incoming>flow_archived</bpmn:incoming>
@@ -78,7 +85,7 @@
         <dc:Bounds x="680" y="175" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="subProcess_archiveOrder_di" bpmnElement="subProcess_archiveOrder" isExpanded="true">
-        <dc:Bounds x="790" y="120" width="360" height="160" />
+        <dc:Bounds x="790" y="120" width="360" height="210" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="startEvent_archiveStarted_di" bpmnElement="startEvent_archiveStarted">
         <dc:Bounds x="820" y="182" width="36" height="36" />
@@ -89,6 +96,28 @@
       <bpmndi:BPMNShape id="endEvent_recordStored_di" bpmnElement="endEvent_recordStored">
         <dc:Bounds x="1050" y="182" width="36" height="36" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endEvent_recordNotStored_di" bpmnElement="endEvent_recordNotStored">
+        <dc:Bounds x="1050" y="262" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1024" y="305" width="88" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="event_storageFailed_di" bpmnElement="event_storageFailed">
+        <dc:Bounds x="932" y="222" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="flow_recordStored_di" bpmnElement="flow_recordStored">
+        <di:waypoint x="856" y="200" />
+        <di:waypoint x="900" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_recordDone_di" bpmnElement="flow_recordDone">
+        <di:waypoint x="1000" y="200" />
+        <di:waypoint x="1050" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_storageFailed_di" bpmnElement="flow_storageFailed">
+        <di:waypoint x="950" y="258" />
+        <di:waypoint x="950" y="280" />
+        <di:waypoint x="1050" y="280" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="endEvent_orderHandled_di" bpmnElement="endEvent_orderHandled">
         <dc:Bounds x="1210" y="182" width="36" height="36" />
         <bpmndi:BPMNLabel>
@@ -136,14 +165,6 @@
       <bpmndi:BPMNEdge id="flow_archived_di" bpmnElement="flow_archived">
         <di:waypoint x="1150" y="200" />
         <di:waypoint x="1210" y="200" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="flow_recordStored_di" bpmnElement="flow_recordStored">
-        <di:waypoint x="856" y="200" />
-        <di:waypoint x="900" y="200" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="flow_recordDone_di" bpmnElement="flow_recordDone">
-        <di:waypoint x="1000" y="200" />
-        <di:waypoint x="1050" y="200" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

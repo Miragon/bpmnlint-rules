@@ -37,12 +37,23 @@ Only the **DI coordinates** decide: for each sequence flow, the vertical centre 
 is compared against the vertical centre of the target shape. They must match within a small tolerance
 (10px) to count as the same row.
 
+**Expanded sub-processes** are measured against their inner reading line, not the box centre. A
+sub-process's height is set by its contents, so its box centre lands in arbitrary empty space rather
+than where the flow docks (the inner main row, near the top). Instead the rule uses the vertical
+centre of the sub-process's **single inner `bpmn:StartEvent`** — the height the flow actually reads
+from. A **collapsed** sub-process is a task-sized box, so its box centre _is_ the reading line and the
+default applies.
+
 Comparison is scoped per `BPMNPlane`. Left alone:
 
 - Flows touching an **exempt element type** — by default **gateways** (a gateway is where a process
   branches, so its paths are _meant_ to leave and arrive above or below the row) and **boundary
   events** (they sit on their host's border and typically drop to a handler placed below). The list
   is configurable — see [Configuration](#configuration).
+- Flows to/from an **expanded sub-process with no single inner start event** — none, or more than
+  one, is a modelling smell owned by other rules (`bpmnlint:recommended`'s `start-event-required` /
+  `sub-process-blank-start-event`), so there is no reading line to measure and this rule stays quiet
+  rather than double-report.
 - Flows with **no DI** for one of their ends — nothing to compare, so never guessed.
 
 ## Configuration
@@ -65,63 +76,53 @@ Comparison is scoped per `BPMNPlane`. Left alone:
   `["bpmn:Gateway", "bpmn:BoundaryEvent"]` entirely, so keep those unless you want branch and
   boundary flows reported.
 
-Add `bpmn:SubProcess` to silence the false positives an **expanded sub-process** produces: its
-height is set by its contents and the flow docks at the inner main row near the top, so the
-bounding-box centre — which this rule compares — sits in empty space and a perfectly horizontal flow
-gets reported. (Because the match is inheritance-aware, this also covers `bpmn:Transaction` and
-`bpmn:AdHocSubProcess`, and it exempts collapsed sub-processes too.)
-
-Exempting the type is a **blunt workaround** — it drops the check for sub-processes entirely rather
-than measuring them correctly. The proper fix — compare against the sub-process's **first inner
-element** (or the flow's attachment point) instead of the box centre — is tracked in
-[#19](https://github.com/Miragon/bpmnlint-rules/issues/19).
+Adding `bpmn:SubProcess` remains available as an escape hatch — it drops the check for sub-processes
+entirely (and, because the match is inheritance-aware, `bpmn:Transaction` / `bpmn:AdHocSubProcess`
+and collapsed sub-processes too). It is **no longer needed** for the expanded-sub-process false
+positive: that is now measured against the inner start-event row rather than the box centre (see
+[Scope](#scope)), so a horizontal flow into a tall sub-process is no longer reported.
 
 ## Examples
 
 An order-approval process — start event, a review task, a split/merge gateway pair with two branch
 tasks, an **expanded "Archive order" sub-process** and an end event. A sub-process is checked like any
-other step (it is not exempt by default), and the rule measures **box centres** — so the sub-process's
-box centre has to land on the row.
+other step (it is not exempt by default), but an expanded one is measured against the vertical centre
+of its **inner start event** — the row the flow actually docks at — not its box centre.
 
-Both models below draw `flow_archived` **dead straight** along the row (`y=200`); the inner "Store
-record" step sits on that same line. The only difference is the sub-process's height:
+Both sub-processes below are the same tall box; the only difference is where the inner reading line
+sits:
 
-- 👎 **Invalid** — the "Archive order" sub-process holds more, so its box is taller and its centre
-  drifts below the row. The rule compares centres and reports `flow_archived` — **even though the flow
-  never moved and is still perfectly horizontal.** This is the false positive `exemptTypes` suppresses
-  (see [Configuration](#configuration)); measuring against the sub-process's first inner element
-  instead of the box centre — tracked in [#19](https://github.com/Miragon/bpmnlint-rules/issues/19) —
-  would fix it properly.
-- 👍 **Valid** — the sub-process is a modest height, so its box centre sits on the row. Centres match,
-  nothing is reported, and the main path reads as one straight horizontal line. The gateway branches
-  (up to _approve_, down to _reject_) are never judged.
+- 👎 **Invalid** — the inner "Store record" row (and its `startEvent_archiveStarted`) is drawn well
+  below the main row, so `flow_archived` has to step down to reach it. The reading line is off the
+  neighbours' row, so the flow is reported — even though the box centre happens to sit near the row.
+- 👍 **Valid** — the inner start event sits on the main row (`y=200`), so `flow_archived` reads dead
+  straight and nothing is reported — **regardless of how tall the box is**. The gateway branches (up
+  to _approve_, down to _reject_) are never judged.
 
-👎 Invalid — a taller Archive sub-process drops its centre below the row, so the straight flow is still reported
+👎 Invalid — the Archive sub-process's inner reading line is below the row, so the flow steps down and is reported
 
-![Invalid model — a taller "Archive order" sub-process whose box centre falls below the row, so the straight flow is reported](./assets/flow-target-alignment-invalid.svg)
+![Invalid model — the "Archive order" sub-process's inner start event sits below the main row, so the flow into it steps down and is reported](./assets/flow-target-alignment-invalid.svg)
 
-👍 Valid — the Archive sub-process centre is on the row, the main path straight
+👍 Valid — the Archive sub-process's inner start event is on the row, so the main path reads straight
 
-![Valid model — the "Archive order" sub-process sits on the row and the main path reads as one straight horizontal line](./assets/flow-target-alignment-valid.svg)
+![Valid model — the "Archive order" sub-process's inner start event sits on the main row, so the main path reads as one straight horizontal line](./assets/flow-target-alignment-valid.svg)
 
 ```xml
-<!-- 👎 taller sub-process, box centre y=225 — 25px below the row — so the straight flow is reported -->
+<!-- 👎 inner start event centre y=260 — off the row — so the flow into the sub-process is reported -->
 <bpmndi:BPMNShape bpmnElement="subProcess_archiveOrder" isExpanded="true">
-  <dc:Bounds x="760" y="120" width="340" height="210" />
+  <dc:Bounds x="760" y="90" width="430" height="240" />
 </bpmndi:BPMNShape>
-<bpmndi:BPMNEdge bpmnElement="flow_archived">
-  <di:waypoint x="1100" y="200" />
-  <di:waypoint x="1162" y="200" />
-</bpmndi:BPMNEdge>
+<bpmndi:BPMNShape bpmnElement="startEvent_archiveStarted">
+  <dc:Bounds x="790" y="242" width="36" height="36" />
+</bpmndi:BPMNShape>
 
-<!-- 👍 modest sub-process, box centre y=200 on the row: the same straight flow passes -->
+<!-- 👍 same tall box, inner start event centre y=200 on the row: the flow reads straight and passes -->
 <bpmndi:BPMNShape bpmnElement="subProcess_archiveOrder" isExpanded="true">
-  <dc:Bounds x="790" y="120" width="360" height="160" />
+  <dc:Bounds x="790" y="120" width="360" height="210" />
 </bpmndi:BPMNShape>
-<bpmndi:BPMNEdge bpmnElement="flow_archived">
-  <di:waypoint x="1150" y="200" />
-  <di:waypoint x="1210" y="200" />
-</bpmndi:BPMNEdge>
+<bpmndi:BPMNShape bpmnElement="startEvent_archiveStarted">
+  <dc:Bounds x="820" y="182" width="36" height="36" />
+</bpmndi:BPMNShape>
 ```
 
 ## Further reading
