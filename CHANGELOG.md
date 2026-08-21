@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.7.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.6.0...v0.7.0) (2026-08-21)
+
+
+### ⚠ BREAKING CHANGES
+
+* **flow-connection-side:** role-aware return-flow docking and minimum stub length ([#27](https://github.com/Miragon/bpmnlint-rules/issues/27))
+* add flow-crossing layout rule ([#26](https://github.com/Miragon/bpmnlint-rules/issues/26))
+
+### Features
+
+* add flow-crossing layout rule ([#26](https://github.com/Miragon/bpmnlint-rules/issues/26)) ([82ce7d4](https://github.com/Miragon/bpmnlint-rules/commit/82ce7d45cbf139446438b42384c9658a5ff021a0))
+* **flow-connection-side:** role-aware return-flow docking and minimum stub length ([#27](https://github.com/Miragon/bpmnlint-rules/issues/27)) ([d9a5ad5](https://github.com/Miragon/bpmnlint-rules/commit/d9a5ad54a0a86aa8a2c539ae8bd7ebe33495b5e8))
+* **flow-target-alignment:** align expanded sub-processes by inner start event ([#21](https://github.com/Miragon/bpmnlint-rules/issues/21)) ([a10ef9d](https://github.com/Miragon/bpmnlint-rules/commit/a10ef9de59fb4957bd21434d55b3a803a78f633a))
+
 ## [0.6.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.5.0...v0.6.0) (2026-08-21)
 
 
