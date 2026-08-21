@@ -71,47 +71,6 @@ bounding-box centre — which this rule compares — sits in empty space and a p
 gets reported. (Because the match is inheritance-aware, this also covers `bpmn:Transaction` and
 `bpmn:AdHocSubProcess`, and it exempts collapsed sub-processes too.)
 
-### Why an expanded sub-process needs this
-
-Consider a start event feeding an expanded sub-process that is 650px tall — because three event
-sub-processes are stacked below its main row. The flow is drawn dead straight along the reading line
-(`y=180`), but the sub-process's box centre is `y=405`, deep in the empty gap between the stacked
-inner elements:
-
-```
-event_Start        y=162  h=36   → centre 180  ┐
-                                                ├─ flow drawn straight: (218,180) → (340,180)
-subProcess_Handle  y=80   h=650  → centre 405  ┘   yet 180 vs 405 = 225px apart
-        ┌───────────────────────────────┐ y=80
-        │ ● → [inner main row] → ◯       │ y≈180  ← where the flow actually attaches
-        │                               │
-        │  ┌─ event sub-process ─────┐  │
-        │  └─────────────────────────┘  │ y≈405  ← box centre: empty space, no element here
-        │  ┌─ event sub-process ─────┐  │
-        │  └─────────────────────────┘  │
-        └───────────────────────────────┘ y=730
-```
-
-```xml
-<!-- The flow is horizontal — both waypoints at y=180 — so it reads as a straight main path. -->
-<bpmndi:BPMNShape bpmnElement="event_Start">
-  <dc:Bounds x="182" y="162" width="36" height="36" />
-</bpmndi:BPMNShape>
-<bpmndi:BPMNShape bpmnElement="subProcess_Handle" isExpanded="true">
-  <dc:Bounds x="340" y="80" width="520" height="650" />
-</bpmndi:BPMNShape>
-<bpmndi:BPMNEdge bpmnElement="flow_StartToHandle">
-  <di:waypoint x="218" y="180" />
-  <di:waypoint x="340" y="180" />
-</bpmndi:BPMNEdge>
-```
-
-- 👎 **Default** (`["bpmn:Gateway", "bpmn:BoundaryEvent"]`) — the rule compares centres, `|180 - 405|
-= 225 > 10`, and reports `flow_StartToHandle` even though the flow is perfectly straight. A false
-  positive: "fixing" it would mean dragging the start event 225px down into the empty middle of the
-  container.
-- 👍 **With `bpmn:SubProcess` added to `exemptTypes`** — the flow is left alone and the model passes.
-
 Exempting the type is a **blunt workaround** — it drops the check for sub-processes entirely rather
 than measuring them correctly. The proper fix — compare against the sub-process's **first inner
 element** (or the flow's attachment point) instead of the box centre — is tracked in
