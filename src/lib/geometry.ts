@@ -154,6 +154,18 @@ export function attachSide(point: Point, rect: Rect, tolerance = 5): Side | null
 /** The vertical centre (mid-height) of a rectangle — the row a shape is drawn on. */
 const verticalCenter = (rect: Rect): number => rect.y + rect.height / 2;
 
+/** The horizontal centre (mid-width) of a rectangle — the column a shape is drawn in. */
+const horizontalCenter = (rect: Rect): number => rect.x + rect.width / 2;
+
+/**
+ * Does a flow run right-to-left — its target drawn clearly left of its source? Such an edge is a
+ * return / loop-back flow, for which the left-to-right docking convention is mirrored (entered from
+ * the right, left to the left). `tolerance` keeps a near-vertical loop — target in roughly the same
+ * column as its source — from counting as backward.
+ */
+export const isBackwardFlow = (source: Rect, target: Rect, tolerance = 10): boolean =>
+  horizontalCenter(target) < horizontalCenter(source) - tolerance;
+
 /**
  * Do two rectangles sit on the same horizontal row — their vertical centres within `tolerance`?
  *
