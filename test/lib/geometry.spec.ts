@@ -1,4 +1,10 @@
-import { attachSide, gatewayTipSide, isOrthogonalPath } from '../../src/lib/geometry';
+import {
+  attachSide,
+  bendCount,
+  gatewayTipSide,
+  isMonotonePath,
+  isOrthogonalPath,
+} from '../../src/lib/geometry';
 
 // A 100×80 box at the origin-ish: left x=100, right x=200, top y=100, bottom y=180, centre (150,140).
 const BOX = { x: 100, y: 100, width: 100, height: 80 };
@@ -89,5 +95,63 @@ describe('isOrthogonalPath', () => {
         { x: 160, y: 60 },
       ]),
     ).toBe(false);
+  });
+});
+
+describe('bendCount', () => {
+  it('counts zero bends for a straight or single-segment flow', () => {
+    expect(bendCount([{ x: 0, y: 0 }])).toBe(0);
+    expect(bendCount(path({ x: 0, y: 0 }, right))).toBe(0);
+    expect(bendCount(path({ x: 0, y: 0 }, right, right, right))).toBe(0); // collinear run collapses
+  });
+
+  it('counts each corner once', () => {
+    expect(bendCount(path({ x: 0, y: 0 }, right, down))).toBe(1); // L-step
+    expect(bendCount(path({ x: 0, y: 0 }, right, down, right))).toBe(2); // Z-step
+    expect(bendCount(path({ x: 0, y: 0 }, down, left, upward))).toBe(2); // clean wrap
+    expect(bendCount(path({ x: 0, y: 0 }, down, left, upward, left, upward))).toBe(4); // winding
+  });
+
+  it('drops duplicate waypoints instead of counting a phantom bend', () => {
+    expect(
+      bendCount([
+        { x: 0, y: 0 },
+        { x: 40, y: 0 },
+        { x: 40, y: 0 }, // duplicate
+        { x: 80, y: 0 },
+      ]),
+    ).toBe(0);
+  });
+});
+
+describe('isMonotonePath', () => {
+  it('is true for any route that never doubles back', () => {
+    expect(isMonotonePath(path({ x: 0, y: 0 }, right, right))).toBe(true); // straight
+    expect(isMonotonePath(path({ x: 0, y: 0 }, right, down))).toBe(true); // L-step
+    expect(isMonotonePath(path({ x: 0, y: 0 }, right, down, right))).toBe(true); // Z-step
+    expect(isMonotonePath(path({ x: 0, y: 0 }, right, down, right, down, right))).toBe(true); // staircase
+  });
+
+  it('is false as soon as the path reverses on an axis', () => {
+    expect(isMonotonePath(path({ x: 0, y: 0 }, down, left, upward))).toBe(false); // loop-back wrap
+    expect(isMonotonePath(path({ x: 0, y: 0 }, right, down, left, down))).toBe(false); // backtrack on x
+  });
+
+  it('is true for a degenerate polyline', () => {
+    expect(isMonotonePath([{ x: 10, y: 10 }])).toBe(true);
+  });
+
+  it('ignores minor-axis drift on a segment (judges each by its dominant axis)', () => {
+    // A descending staircase whose one horizontal rung drifts a few pixels upward — still
+    // orthogonal to the eye, so it must not read as a vertical reversal.
+    expect(
+      isMonotonePath([
+        { x: 0, y: 0 },
+        { x: 0, y: 80 }, // down
+        { x: 170, y: 76 }, // right, 4px up drift — dominant axis is horizontal
+        { x: 170, y: 160 }, // down
+        { x: 320, y: 160 }, // right
+      ]),
+    ).toBe(true);
   });
 });
