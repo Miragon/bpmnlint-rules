@@ -39,50 +39,88 @@ is compared against the vertical centre of the target shape. They must match wit
 
 Comparison is scoped per `BPMNPlane`. Left alone:
 
-- **Gateways**, on either end of a flow — a gateway is where a process branches, so its paths are
-  _meant_ to leave and arrive above or below the row.
-- **Boundary events** — they sit on their host's border and typically drop to a handler placed below.
+- Flows touching an **exempt element type** — by default **gateways** (a gateway is where a process
+  branches, so its paths are _meant_ to leave and arrive above or below the row) and **boundary
+  events** (they sit on their host's border and typically drop to a handler placed below). The list
+  is configurable — see [Configuration](#configuration).
 - Flows with **no DI** for one of their ends — nothing to compare, so never guessed.
+
+## Configuration
+
+```json
+{
+  "rules": {
+    "@miragon/rules/flow-target-alignment": [
+      "error",
+      {
+        "exemptTypes": ["bpmn:Gateway", "bpmn:BoundaryEvent", "bpmn:SubProcess"]
+      }
+    ]
+  }
+}
+```
+
+- `exemptTypes` — the element types whose flows are never judged; matched inheritance-aware, so a
+  type covers its subtypes. Given a value it **replaces** the default
+  `["bpmn:Gateway", "bpmn:BoundaryEvent"]` entirely, so keep those unless you want branch and
+  boundary flows reported.
+
+Add `bpmn:SubProcess` to silence the false positives an **expanded sub-process** produces: its
+height is set by its contents and the flow docks at the inner main row near the top, so the
+bounding-box centre — which this rule compares — sits in empty space and a perfectly horizontal flow
+gets reported. (Because the match is inheritance-aware, this also covers `bpmn:Transaction` and
+`bpmn:AdHocSubProcess`, and it exempts collapsed sub-processes too.)
+
+Exempting the type is a **blunt workaround** — it drops the check for sub-processes entirely rather
+than measuring them correctly. The proper fix — compare against the sub-process's **first inner
+element** (or the flow's attachment point) instead of the box centre — is tracked in
+[#19](https://github.com/Miragon/bpmnlint-rules/issues/19).
 
 ## Examples
 
 An order-approval process — start event, a review task, a split/merge gateway pair with two branch
-tasks, an archive task and an end event. The main path should run straight along one row; the gateway
-branches up and down as expected.
+tasks, an **expanded "Archive order" sub-process** and an end event. A sub-process is checked like any
+other step (it is not exempt by default), and the rule measures **box centres** — so the sub-process's
+box centre has to land on the row.
 
-- **Invalid** — the end event `event_Done` is drawn well below the row, so `flow_Archived` slopes
-  down into it even though every other step is aligned and every dock is on the correct side.
-- **Valid** — `event_Done` is back on the row, so `flow_Archived` runs straight and the whole main
-  path reads as one horizontal line. The gateway branches (up to _approve_, down to _reject_) are
-  never judged.
+Both models below draw `flow_Archived` **dead straight** along the row (`y=200`); the inner "Store
+record" step sits on that same line. The only difference is the sub-process's height:
 
-👎 Invalid — the final flow slopes down to an off-row end event
+- 👎 **Invalid** — the "Archive order" sub-process holds more, so its box is taller and its centre
+  drifts below the row. The rule compares centres and reports `flow_Archived` — **even though the flow
+  never moved and is still perfectly horizontal.** This is the false positive `exemptTypes` suppresses
+  (see [Configuration](#configuration)); measuring against the sub-process's first inner element
+  instead of the box centre — tracked in [#19](https://github.com/Miragon/bpmnlint-rules/issues/19) —
+  would fix it properly.
+- 👍 **Valid** — the sub-process is a modest height, so its box centre sits on the row. Centres match,
+  nothing is reported, and the main path reads as one straight horizontal line. The gateway branches
+  (up to _approve_, down to _reject_) are never judged.
 
-![Invalid model — the main path bends down into an end event drawn below the row](./assets/flow-target-alignment-invalid.svg)
+👎 Invalid — a taller Archive sub-process drops its centre below the row, so the straight flow is still reported
 
-👍 Valid — every non-branching flow stays on one row, the main path straight
+![Invalid model — a taller "Archive order" sub-process whose box centre falls below the row, so the straight flow is reported](./assets/flow-target-alignment-invalid.svg)
 
-![Valid model — the main path reads as a single straight horizontal line](./assets/flow-target-alignment-valid.svg)
+👍 Valid — the Archive sub-process centre is on the row, the main path straight
+
+![Valid model — the "Archive order" sub-process sits on the row and the main path reads as one straight horizontal line](./assets/flow-target-alignment-valid.svg)
 
 ```xml
-<!-- 👎 archive (centre y=200) → end event (centre y=280): the main path slopes down -->
-<bpmndi:BPMNShape bpmnElement="event_End">
-  <dc:Bounds x="950" y="262" width="36" height="36" />
+<!-- 👎 taller sub-process, box centre y=225 — 25px below the row — so the straight flow is reported -->
+<bpmndi:BPMNShape bpmnElement="subProcess_Archive" isExpanded="true">
+  <dc:Bounds x="760" y="120" width="340" height="210" />
 </bpmndi:BPMNShape>
 <bpmndi:BPMNEdge bpmnElement="flow_Archived">
-  <di:waypoint x="890" y="200" />
-  <di:waypoint x="920" y="200" />
-  <di:waypoint x="920" y="280" />
-  <di:waypoint x="950" y="280" />
+  <di:waypoint x="1100" y="200" />
+  <di:waypoint x="1162" y="200" />
 </bpmndi:BPMNEdge>
 
-<!-- 👍 end event back on the row (centre y=200): the flow runs straight -->
-<bpmndi:BPMNShape bpmnElement="event_End">
-  <dc:Bounds x="950" y="182" width="36" height="36" />
+<!-- 👍 modest sub-process, box centre y=200 on the row: the same straight flow passes -->
+<bpmndi:BPMNShape bpmnElement="subProcess_Archive" isExpanded="true">
+  <dc:Bounds x="790" y="120" width="360" height="160" />
 </bpmndi:BPMNShape>
 <bpmndi:BPMNEdge bpmnElement="flow_Archived">
-  <di:waypoint x="890" y="200" />
-  <di:waypoint x="950" y="200" />
+  <di:waypoint x="1150" y="200" />
+  <di:waypoint x="1210" y="200" />
 </bpmndi:BPMNEdge>
 ```
 

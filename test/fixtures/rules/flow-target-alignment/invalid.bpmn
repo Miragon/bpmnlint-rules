@@ -26,10 +26,22 @@
       <bpmn:incoming>flow_RejectDone</bpmn:incoming>
       <bpmn:outgoing>flow_ToArchive</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:userTask id="task_Archive" name="Archive order">
+    <bpmn:subProcess id="subProcess_Archive" name="Archive order">
       <bpmn:incoming>flow_ToArchive</bpmn:incoming>
       <bpmn:outgoing>flow_Archived</bpmn:outgoing>
-    </bpmn:userTask>
+      <bpmn:startEvent id="inner_Start">
+        <bpmn:outgoing>inner_Stored</bpmn:outgoing>
+      </bpmn:startEvent>
+      <bpmn:task id="task_Store" name="Store record">
+        <bpmn:incoming>inner_Stored</bpmn:incoming>
+        <bpmn:outgoing>inner_Done</bpmn:outgoing>
+      </bpmn:task>
+      <bpmn:endEvent id="inner_End">
+        <bpmn:incoming>inner_Done</bpmn:incoming>
+      </bpmn:endEvent>
+      <bpmn:sequenceFlow id="inner_Stored" sourceRef="inner_Start" targetRef="task_Store" />
+      <bpmn:sequenceFlow id="inner_Done" sourceRef="task_Store" targetRef="inner_End" />
+    </bpmn:subProcess>
     <bpmn:endEvent id="event_End" name="Order handled">
       <bpmn:incoming>flow_Archived</bpmn:incoming>
     </bpmn:endEvent>
@@ -39,8 +51,8 @@
     <bpmn:sequenceFlow id="flow_Reject" name="no" sourceRef="gateway_Decision" targetRef="task_Reject" />
     <bpmn:sequenceFlow id="flow_ApproveDone" sourceRef="task_Approve" targetRef="gateway_Merge" />
     <bpmn:sequenceFlow id="flow_RejectDone" sourceRef="task_Reject" targetRef="gateway_Merge" />
-    <bpmn:sequenceFlow id="flow_ToArchive" sourceRef="gateway_Merge" targetRef="task_Archive" />
-    <bpmn:sequenceFlow id="flow_Archived" sourceRef="task_Archive" targetRef="event_End" />
+    <bpmn:sequenceFlow id="flow_ToArchive" sourceRef="gateway_Merge" targetRef="subProcess_Archive" />
+    <bpmn:sequenceFlow id="flow_Archived" sourceRef="subProcess_Archive" targetRef="event_End" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="orderApproval">
@@ -65,15 +77,32 @@
       <bpmndi:BPMNShape id="gateway_Merge_di" bpmnElement="gateway_Merge" isMarkerVisible="true">
         <dc:Bounds x="680" y="175" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="task_Archive_di" bpmnElement="task_Archive">
-        <dc:Bounds x="790" y="160" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="event_End_di" bpmnElement="event_End">
-        <dc:Bounds x="950" y="262" width="36" height="36" />
+        <dc:Bounds x="1162" y="182" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="932" y="305" width="71" height="14" />
+          <dc:Bounds x="1144" y="225" width="71" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="subProcess_Archive_di" bpmnElement="subProcess_Archive" isExpanded="true">
+        <dc:Bounds x="760" y="120" width="340" height="210" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="inner_Start_di" bpmnElement="inner_Start">
+        <dc:Bounds x="790" y="182" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task_Store_di" bpmnElement="task_Store">
+        <dc:Bounds x="870" y="160" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="inner_End_di" bpmnElement="inner_End">
+        <dc:Bounds x="1020" y="182" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="inner_Stored_di" bpmnElement="inner_Stored">
+        <di:waypoint x="826" y="200" />
+        <di:waypoint x="870" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="inner_Done_di" bpmnElement="inner_Done">
+        <di:waypoint x="970" y="200" />
+        <di:waypoint x="1020" y="200" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="flow_Received_di" bpmnElement="flow_Received">
         <di:waypoint x="196" y="200" />
         <di:waypoint x="250" y="200" />
@@ -110,13 +139,11 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="flow_ToArchive_di" bpmnElement="flow_ToArchive">
         <di:waypoint x="730" y="200" />
-        <di:waypoint x="790" y="200" />
+        <di:waypoint x="760" y="200" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="flow_Archived_di" bpmnElement="flow_Archived">
-        <di:waypoint x="890" y="200" />
-        <di:waypoint x="920" y="200" />
-        <di:waypoint x="920" y="280" />
-        <di:waypoint x="950" y="280" />
+        <di:waypoint x="1100" y="200" />
+        <di:waypoint x="1162" y="200" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
