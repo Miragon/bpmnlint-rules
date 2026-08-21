@@ -1,70 +1,103 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_FlowRouting" targetNamespace="http://bpmn.io/schema/bpmn">
   <bpmn:process id="ticketHandling" isExecutable="true">
-    <bpmn:startEvent id="startEvent_Start" name="Ticket raised">
-      <bpmn:outgoing>flow_StartToReceive</bpmn:outgoing>
+    <bpmn:startEvent id="startEvent_ticketRaised" name="Ticket raised">
+      <bpmn:outgoing>flow_ticketRaised</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:serviceTask id="serviceTask_Receive" name="Receive ticket">
-      <bpmn:incoming>flow_StartToReceive</bpmn:incoming>
-      <bpmn:incoming>flow_Reopen</bpmn:incoming>
-      <bpmn:outgoing>flow_ReceiveToAssess</bpmn:outgoing>
+    <bpmn:exclusiveGateway id="gateway_intake">
+      <bpmn:incoming>flow_ticketRaised</bpmn:incoming>
+      <bpmn:incoming>flow_reopen</bpmn:incoming>
+      <bpmn:outgoing>flow_intakeToReceive</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="serviceTask_receiveTicket" name="Receive ticket">
+      <bpmn:incoming>flow_intakeToReceive</bpmn:incoming>
+      <bpmn:outgoing>flow_receiveToAssess</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:serviceTask id="serviceTask_Assess" name="Assess ticket">
-      <bpmn:incoming>flow_ReceiveToAssess</bpmn:incoming>
-      <bpmn:outgoing>flow_AssessToResolve</bpmn:outgoing>
+    <bpmn:serviceTask id="serviceTask_assessTicket" name="Assess ticket">
+      <bpmn:incoming>flow_receiveToAssess</bpmn:incoming>
+      <bpmn:outgoing>flow_assessToResolve</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:serviceTask id="serviceTask_Resolve" name="Resolve ticket">
-      <bpmn:incoming>flow_AssessToResolve</bpmn:incoming>
-      <bpmn:outgoing>flow_ResolveToDone</bpmn:outgoing>
-      <bpmn:outgoing>flow_Reopen</bpmn:outgoing>
+    <bpmn:serviceTask id="serviceTask_resolveTicket" name="Resolve ticket">
+      <bpmn:incoming>flow_assessToResolve</bpmn:incoming>
+      <bpmn:outgoing>flow_resolveToGateway</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:endEvent id="endEvent_Done" name="Ticket closed">
-      <bpmn:incoming>flow_ResolveToDone</bpmn:incoming>
+    <bpmn:exclusiveGateway id="gateway_resolved" name="Resolved?">
+      <bpmn:incoming>flow_resolveToGateway</bpmn:incoming>
+      <bpmn:outgoing>flow_ticketClosed</bpmn:outgoing>
+      <bpmn:outgoing>flow_reopen</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="endEvent_ticketClosed" name="Ticket closed">
+      <bpmn:incoming>flow_ticketClosed</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="flow_StartToReceive" sourceRef="startEvent_Start" targetRef="serviceTask_Receive" />
-    <bpmn:sequenceFlow id="flow_ReceiveToAssess" sourceRef="serviceTask_Receive" targetRef="serviceTask_Assess" />
-    <bpmn:sequenceFlow id="flow_AssessToResolve" sourceRef="serviceTask_Assess" targetRef="serviceTask_Resolve" />
-    <bpmn:sequenceFlow id="flow_ResolveToDone" sourceRef="serviceTask_Resolve" targetRef="endEvent_Done" />
-    <bpmn:sequenceFlow id="flow_Reopen" name="Reopen" sourceRef="serviceTask_Resolve" targetRef="serviceTask_Receive" />
+    <bpmn:sequenceFlow id="flow_ticketRaised" sourceRef="startEvent_ticketRaised" targetRef="gateway_intake" />
+    <bpmn:sequenceFlow id="flow_intakeToReceive" sourceRef="gateway_intake" targetRef="serviceTask_receiveTicket" />
+    <bpmn:sequenceFlow id="flow_receiveToAssess" sourceRef="serviceTask_receiveTicket" targetRef="serviceTask_assessTicket" />
+    <bpmn:sequenceFlow id="flow_assessToResolve" sourceRef="serviceTask_assessTicket" targetRef="serviceTask_resolveTicket" />
+    <bpmn:sequenceFlow id="flow_resolveToGateway" sourceRef="serviceTask_resolveTicket" targetRef="gateway_resolved" />
+    <bpmn:sequenceFlow id="flow_ticketClosed" sourceRef="gateway_resolved" targetRef="endEvent_ticketClosed" />
+    <bpmn:sequenceFlow id="flow_reopen" name="Reopen" sourceRef="gateway_resolved" targetRef="gateway_intake" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="ticketHandling">
-      <bpmndi:BPMNShape id="startEvent_Start_di" bpmnElement="startEvent_Start">
+      <bpmndi:BPMNShape id="startEvent_ticketRaised_di" bpmnElement="startEvent_ticketRaised">
         <dc:Bounds x="160" y="102" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="serviceTask_Receive_di" bpmnElement="serviceTask_Receive">
-        <dc:Bounds x="240" y="80" width="100" height="80" />
+      <bpmndi:BPMNShape id="gateway_intake_di" bpmnElement="gateway_intake" isMarkerVisible="true">
+        <dc:Bounds x="250" y="95" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="serviceTask_Assess_di" bpmnElement="serviceTask_Assess">
-        <dc:Bounds x="420" y="80" width="100" height="80" />
+      <bpmndi:BPMNShape id="serviceTask_receiveTicket_di" bpmnElement="serviceTask_receiveTicket">
+        <dc:Bounds x="360" y="80" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="serviceTask_Resolve_di" bpmnElement="serviceTask_Resolve">
-        <dc:Bounds x="600" y="80" width="100" height="80" />
+      <bpmndi:BPMNShape id="serviceTask_assessTicket_di" bpmnElement="serviceTask_assessTicket">
+        <dc:Bounds x="520" y="80" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="endEvent_Done_di" bpmnElement="endEvent_Done">
-        <dc:Bounds x="780" y="102" width="36" height="36" />
+      <bpmndi:BPMNShape id="serviceTask_resolveTicket_di" bpmnElement="serviceTask_resolveTicket">
+        <dc:Bounds x="680" y="80" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="flow_StartToReceive_di" bpmnElement="flow_StartToReceive">
+      <bpmndi:BPMNShape id="gateway_resolved_di" bpmnElement="gateway_resolved" isMarkerVisible="true">
+        <dc:Bounds x="840" y="95" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="835" y="72" width="60" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endEvent_ticketClosed_di" bpmnElement="endEvent_ticketClosed">
+        <dc:Bounds x="950" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="932" y="145" width="73" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="flow_ticketRaised_di" bpmnElement="flow_ticketRaised">
         <di:waypoint x="196" y="120" />
-        <di:waypoint x="240" y="120" />
+        <di:waypoint x="250" y="120" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="flow_ReceiveToAssess_di" bpmnElement="flow_ReceiveToAssess">
-        <di:waypoint x="340" y="120" />
-        <di:waypoint x="420" y="120" />
+      <bpmndi:BPMNEdge id="flow_intakeToReceive_di" bpmnElement="flow_intakeToReceive">
+        <di:waypoint x="300" y="120" />
+        <di:waypoint x="360" y="120" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="flow_AssessToResolve_di" bpmnElement="flow_AssessToResolve">
+      <bpmndi:BPMNEdge id="flow_receiveToAssess_di" bpmnElement="flow_receiveToAssess">
+        <di:waypoint x="460" y="120" />
         <di:waypoint x="520" y="120" />
-        <di:waypoint x="600" y="120" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="flow_ResolveToDone_di" bpmnElement="flow_ResolveToDone">
-        <di:waypoint x="700" y="120" />
+      <bpmndi:BPMNEdge id="flow_assessToResolve_di" bpmnElement="flow_assessToResolve">
+        <di:waypoint x="620" y="120" />
+        <di:waypoint x="680" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_resolveToGateway_di" bpmnElement="flow_resolveToGateway">
         <di:waypoint x="780" y="120" />
+        <di:waypoint x="840" y="120" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="flow_Reopen_di" bpmnElement="flow_Reopen">
-        <di:waypoint x="650" y="160" />
-        <di:waypoint x="650" y="230" />
-        <di:waypoint x="290" y="230" />
-        <di:waypoint x="290" y="160" />
+      <bpmndi:BPMNEdge id="flow_ticketClosed_di" bpmnElement="flow_ticketClosed">
+        <di:waypoint x="890" y="120" />
+        <di:waypoint x="950" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_reopen_di" bpmnElement="flow_reopen">
+        <di:waypoint x="865" y="145" />
+        <di:waypoint x="865" y="250" />
+        <di:waypoint x="275" y="250" />
+        <di:waypoint x="275" y="145" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="545" y="232" width="38" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

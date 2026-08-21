@@ -9,9 +9,9 @@ import { reportedIds } from '../support/lint-file';
 const EXAMPLES = [
   { rule: 'no-generated-ids', offender: 'Activity_0049ryx' },
   { rule: 'element-id-naming', offender: 'ReviewOrder' },
-  { rule: 'flow-through-element', offender: 'flow_Reopen' },
-  { rule: 'flow-connection-side', offender: 'flow_ToDecision' },
-  { rule: 'flow-target-alignment', offender: 'flow_Archived' },
+  { rule: 'flow-through-element', offender: 'flow_reopen' },
+  { rule: 'flow-connection-side', offender: 'flow_toDecision' },
+  { rule: 'flow-target-alignment', offender: 'flow_archived' },
 ];
 
 describe('example models', () => {

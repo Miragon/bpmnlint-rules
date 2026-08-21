@@ -73,9 +73,9 @@ avoid false positives.
 An order-approval process — start event, a review task, a split/merge gateway pair, two branch
 tasks and an end event. The invalid model mis-docks one flow on **each** element type at once:
 
-- **Gateway** — `flow_ToDecision` lands on the diagonal flank of `gateway_Decision` instead of a tip.
-- **Activity** — `flow_Approve` enters `task_Approve` from the top instead of the left.
-- **Event** — `flow_Done` enters `event_Done` from the top instead of the left.
+- **Gateway** — `flow_toDecision` lands on the diagonal flank of `gateway_approved` instead of a tip.
+- **Activity** — `flow_approve` enters `userTask_approveOrder` from the top instead of the left.
+- **Event** — `flow_done` enters `endEvent_orderHandled` from the top instead of the left.
 
 👎 Invalid — three flows docked on the wrong side, one per element type
 
@@ -87,33 +87,33 @@ tasks and an end event. The invalid model mis-docks one flow on **each** element
 
 ```xml
 <!-- 👎 into the gateway's slanted edge, the task's top, the event's top -->
-<bpmndi:BPMNEdge bpmnElement="flow_ToDecision">
+<bpmndi:BPMNEdge bpmnElement="flow_toDecision">
   <di:waypoint x="350" y="200" />
   <di:waypoint x="423" y="188" />
 </bpmndi:BPMNEdge>
-<bpmndi:BPMNEdge bpmnElement="flow_Approve">
+<bpmndi:BPMNEdge bpmnElement="flow_approve">
   <di:waypoint x="435" y="175" />
   <di:waypoint x="435" y="30" />
   <di:waypoint x="570" y="30" />
   <di:waypoint x="570" y="90" />
 </bpmndi:BPMNEdge>
-<bpmndi:BPMNEdge bpmnElement="flow_Done">
+<bpmndi:BPMNEdge bpmnElement="flow_done">
   <di:waypoint x="740" y="200" />
   <di:waypoint x="790" y="200" />
   <di:waypoint x="790" y="232" />
 </bpmndi:BPMNEdge>
 
 <!-- 👍 into the gateway's left tip, the task's left edge, the event's left edge -->
-<bpmndi:BPMNEdge bpmnElement="flow_ToDecision">
+<bpmndi:BPMNEdge bpmnElement="flow_toDecision">
   <di:waypoint x="350" y="200" />
   <di:waypoint x="410" y="200" />
 </bpmndi:BPMNEdge>
-<bpmndi:BPMNEdge bpmnElement="flow_Approve">
+<bpmndi:BPMNEdge bpmnElement="flow_approve">
   <di:waypoint x="435" y="175" />
   <di:waypoint x="435" y="130" />
   <di:waypoint x="520" y="130" />
 </bpmndi:BPMNEdge>
-<bpmndi:BPMNEdge bpmnElement="flow_Done">
+<bpmndi:BPMNEdge bpmnElement="flow_done">
   <di:waypoint x="740" y="200" />
   <di:waypoint x="772" y="200" />
 </bpmndi:BPMNEdge>

@@ -83,11 +83,11 @@ tasks, an **expanded "Archive order" sub-process** and an end event. A sub-proce
 other step (it is not exempt by default), and the rule measures **box centres** — so the sub-process's
 box centre has to land on the row.
 
-Both models below draw `flow_Archived` **dead straight** along the row (`y=200`); the inner "Store
+Both models below draw `flow_archived` **dead straight** along the row (`y=200`); the inner "Store
 record" step sits on that same line. The only difference is the sub-process's height:
 
 - 👎 **Invalid** — the "Archive order" sub-process holds more, so its box is taller and its centre
-  drifts below the row. The rule compares centres and reports `flow_Archived` — **even though the flow
+  drifts below the row. The rule compares centres and reports `flow_archived` — **even though the flow
   never moved and is still perfectly horizontal.** This is the false positive `exemptTypes` suppresses
   (see [Configuration](#configuration)); measuring against the sub-process's first inner element
   instead of the box centre — tracked in [#19](https://github.com/Miragon/bpmnlint-rules/issues/19) —
@@ -106,19 +106,19 @@ record" step sits on that same line. The only difference is the sub-process's he
 
 ```xml
 <!-- 👎 taller sub-process, box centre y=225 — 25px below the row — so the straight flow is reported -->
-<bpmndi:BPMNShape bpmnElement="subProcess_Archive" isExpanded="true">
+<bpmndi:BPMNShape bpmnElement="subProcess_archiveOrder" isExpanded="true">
   <dc:Bounds x="760" y="120" width="340" height="210" />
 </bpmndi:BPMNShape>
-<bpmndi:BPMNEdge bpmnElement="flow_Archived">
+<bpmndi:BPMNEdge bpmnElement="flow_archived">
   <di:waypoint x="1100" y="200" />
   <di:waypoint x="1162" y="200" />
 </bpmndi:BPMNEdge>
 
 <!-- 👍 modest sub-process, box centre y=200 on the row: the same straight flow passes -->
-<bpmndi:BPMNShape bpmnElement="subProcess_Archive" isExpanded="true">
+<bpmndi:BPMNShape bpmnElement="subProcess_archiveOrder" isExpanded="true">
   <dc:Bounds x="790" y="120" width="360" height="160" />
 </bpmndi:BPMNShape>
-<bpmndi:BPMNEdge bpmnElement="flow_Archived">
+<bpmndi:BPMNEdge bpmnElement="flow_archived">
   <di:waypoint x="1150" y="200" />
   <di:waypoint x="1210" y="200" />
 </bpmndi:BPMNEdge>

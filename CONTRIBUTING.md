@@ -75,7 +75,13 @@ dependencies in `package.json`.
    them by `npm run docs:examples`). Cover both sides: every exclusion the rule makes (a shape it
    deliberately ignores, a case it deliberately allows) needs a valid case whose geometry would
    otherwise trip it — otherwise the exclusion is untested and the next refactor silently drops it.
-   Add the pair to `test/rules/examples.spec.ts` so the docs picture stays honest.
+   Add the pair to `test/rules/examples.spec.ts` so the docs picture stays honest. The pair is also
+   held to a wider bar by `test/rules/fixtures-self-lint.spec.ts` (self-enrolling from the folder):
+   linted through `bpmnlint:recommended` + `plugin:@miragon/rules/all`, `valid.bpmn` must be clean
+   against **every** rule (a complete, labeled process on the `<typePrefix>_<camelCase>` id
+   convention), and `invalid.bpmn` may carry only its one intentional defect — nothing flagged on any
+   other element. A model that is "valid" only w.r.t. its own rule is a docs example that quietly
+   teaches broken modeling.
 3. **Docs page.** Add `docs/rules/<name>.md` explaining what the rule catches, why it matters, and
    the valid/invalid example pair.
 4. **Wire it in.** Import the factory in `src/rules/miragon/index.ts` and add it to
