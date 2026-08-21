@@ -61,6 +61,21 @@ export const segments = (waypoints: Point[]): [Point, Point][] =>
   waypoints.slice(0, -1).map((point, index) => [point, waypoints[index + 1]!]);
 
 /**
+ * Do two line segments cross each other (form an X)?
+ *
+ * A thin public wrapper over {@link properCross}: each segment strictly separates the other's
+ * endpoints. Collinear overlap ("running on top of each other") and shared or touching endpoints are
+ * deliberately NOT crossings, so two flows that merely overlap or fan out from a common node don't
+ * count.
+ */
+export const segmentsCross = (
+  firstStart: Point,
+  firstEnd: Point,
+  secondStart: Point,
+  secondEnd: Point,
+): boolean => properCross(firstStart, firstEnd, secondStart, secondEnd);
+
+/**
  * Is the point strictly inside the rectangle? `padding` keeps a point sitting exactly on the
  * border (where flows legitimately attach) from counting as "inside".
  */

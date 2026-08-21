@@ -73,6 +73,7 @@ The Miragon conventions this plugin adds — each with a docs page and a good/ba
 | [`@miragon/rules/flow-through-element`](docs/rules/flow-through-element.md)   | A sequence flow routed through an unrelated shape's body              |
 | [`@miragon/rules/flow-connection-side`](docs/rules/flow-connection-side.md)   | A sequence flow docked onto the wrong side of a shape                 |
 | [`@miragon/rules/flow-target-alignment`](docs/rules/flow-target-alignment.md) | A flow's target drawn off the row, sloping the main path              |
+| [`@miragon/rules/flow-crossing`](docs/rules/flow-crossing.md)                 | Two sequence flows whose drawn paths cross each other                 |
 
 Turn any of them on individually, the usual way:
 

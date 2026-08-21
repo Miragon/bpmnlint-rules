@@ -15,6 +15,7 @@ import type { RuleFactory } from '../../lib/moddle';
 
 import elementIdNaming from './element-id-naming';
 import flowConnectionSide from './flow-connection-side';
+import flowCrossing from './flow-crossing';
 import flowTargetAlignment from './flow-target-alignment';
 import flowThroughElement from './flow-through-element';
 import noGeneratedIds from './no-generated-ids';
@@ -32,6 +33,7 @@ export const miragonRuleFactories: Record<string, RuleFactory> = {
   'flow-through-element': flowThroughElement,
   'flow-connection-side': flowConnectionSide,
   'flow-target-alignment': flowTargetAlignment,
+  'flow-crossing': flowCrossing,
 };
 
 /**
@@ -43,6 +45,7 @@ export const visualRules: RuleSet = {
   [`${MIRAGON_NAME}/flow-through-element`]: 'error',
   [`${MIRAGON_NAME}/flow-connection-side`]: 'error',
   [`${MIRAGON_NAME}/flow-target-alignment`]: 'error',
+  [`${MIRAGON_NAME}/flow-crossing`]: 'error',
 };
 
 /** The naming/id subset. */
@@ -69,6 +72,7 @@ export const miragonRecommendedForModeling: BpmnlintConfig = {
     [`${MIRAGON_NAME}/flow-through-element`]: 'warn',
     [`${MIRAGON_NAME}/flow-connection-side`]: 'warn',
     [`${MIRAGON_NAME}/flow-target-alignment`]: 'warn',
+    [`${MIRAGON_NAME}/flow-crossing`]: 'warn',
   },
 };
 
@@ -88,6 +92,7 @@ export const miragonRecommendedForAutomation: BpmnlintConfig = {
     [`${MIRAGON_NAME}/flow-through-element`]: 'warn',
     [`${MIRAGON_NAME}/flow-connection-side`]: 'warn',
     [`${MIRAGON_NAME}/flow-target-alignment`]: 'warn',
+    [`${MIRAGON_NAME}/flow-crossing`]: 'warn',
   },
 };
 
@@ -99,6 +104,7 @@ export const miragonAll: BpmnlintConfig = {
     [`${MIRAGON_NAME}/flow-through-element`]: 'error',
     [`${MIRAGON_NAME}/flow-connection-side`]: 'error',
     [`${MIRAGON_NAME}/flow-target-alignment`]: 'error',
+    [`${MIRAGON_NAME}/flow-crossing`]: 'error',
   },
 };
 
@@ -118,6 +124,7 @@ export const resolverEntries: ResolverEntries = {
 export {
   elementIdNaming,
   flowConnectionSide,
+  flowCrossing,
   flowTargetAlignment,
   flowThroughElement,
   noGeneratedIds,

@@ -12,6 +12,7 @@ const EXAMPLES = [
   { rule: 'flow-through-element', offender: 'flow_reopen' },
   { rule: 'flow-connection-side', offender: 'flow_toDecision' },
   { rule: 'flow-target-alignment', offender: 'flow_archived' },
+  { rule: 'flow-crossing', offender: 'flow_orderRevised' },
 ];
 
 describe('example models', () => {
