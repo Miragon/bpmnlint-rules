@@ -4,39 +4,24 @@ import type { Point, Rect, Side } from '../../lib/geometry';
 import type { ModdleElement, Reporter, Rule } from '../../lib/moddle';
 
 /**
- * Reports a sequence flow that docks onto a shape at the wrong side — an event entered from the top,
- * an activity exited to the left, a gateway connected on a diagonal flank instead of one of its
- * four tips.
+ * Reports a sequence flow that docks at the wrong side — an event entered from the top, an activity
+ * exited to the left, a gateway connected on a diagonal flank instead of one of its four tips.
  *
- * Only the DI coordinates decide: for each flow, the first waypoint is its exit off the source, the
- * last waypoint its entry into the target. Which side that point sits on is compared against
- * {@link POLICY}. Comparison is scoped per BPMNPlane; shapes with no category (data objects, pools,
- * lanes) and boundary events (which sit on their host's border) are left alone.
+ * Only DI coordinates decide: a flow's first waypoint is its exit off the source, its last waypoint
+ * the entry into the target; the side each sits on is checked against {@link POLICY}. Scoped per
+ * BPMNPlane; uncategorised shapes (data objects, pools, lanes) and boundary events are left alone.
  *
- * A **return flow** — one whose target is drawn clearly left of its source (see
- * {@link isBackwardFlow}) — is a legitimate right-to-left loop-back. Its **target** is always
- * entered on the mirrored (right) side, so a return flow re-entering the wrong/forward face is still
- * reported. Its **source** side, however, depends on the source's role in the return path:
+ * A **return flow** — target drawn clearly left of its source (see {@link isBackwardFlow}) — is a
+ * legitimate right-to-left loop-back, so its policy is mirrored; {@link allowedSidesFor} spells out
+ * how per endpoint.
  *
- * - an **initiator** (a forward-lane element that starts the loop-back — it is not itself the target
- *   of a return flow) exits on its normal *forward* side (an activity to the right) and wraps around;
- * - a **chain member** (already the target of a return flow, so it sits inside the return lane)
- *   exits on the *mirrored* side (an activity to the left), continuing the leftward chain.
+ * Each endpoint must also leave/enter with a **stub**: the first segment runs at least
+ * `minStubLength` px straight out of the docked side before turning, so an edge cannot dock and
+ * immediately bend away. Boundary events are skipped here too.
  *
- * On top of the side, a flow must leave (and enter) with a **stub**: its first segment has to run at
- * least `minStubLength` px straight out of the docked side before it turns, so an edge cannot dock
- * and immediately bend away (which renders as an arrow leaving a corner with no visible direction).
- * The stub is measured along the docked side's outward normal, so it is the same check for an
- * activity, an event and a gateway tip; boundary events are left alone here too.
- *
- * Configuration (optional):
- *
- *     "miragon/flow-connection-side": [ "error", { "allowBackwardsFlow": false, "minStubLength": 20 } ]
- *
- * `allowBackwardsFlow` defaults to `true` (return flows are mirrored, as above). Set it to `false`
- * to hold every flow to the strict left-to-right policy, so a return flow's docking is reported like
- * any other wrong-side connection. `minStubLength` defaults to `20`; set it to `0` to switch the
- * stub check off.
+ * Config (optional): `["error", { "allowBackwardsFlow": true, "minStubLength": 20 }]`.
+ * `allowBackwardsFlow` (default `true`) mirrors return flows; `false` holds every flow to the strict
+ * left-to-right policy. `minStubLength` (default `20`); `0` switches the stub check off.
  */
 
 export interface FlowConnectionSideConfig {
@@ -48,17 +33,17 @@ type Category = 'event' | 'gateway' | 'activity';
 type Direction = 'incoming' | 'outgoing';
 
 /**
- * The allowed docking sides per flow direction and element category — the single place to change
- * what counts as a clean connection. `incoming` is the target end of a flow, `outgoing` the source
- * end. Reads as a left-to-right model: the main flow always enters on the left. Activities exit to
- * the right; events and gateways may branch out any side *except* the incoming-left one (an event
- * behaves like a gateway here). A gateway is additionally only ever connected at one of its four tips.
+ * Allowed docking sides per direction and category — the single knob for what counts as clean.
+ * `incoming` is a flow's target end, `outgoing` its source. Left-to-right model: the main flow enters
+ * on the left; activities exit right; events and gateways branch out any side but the incoming-left
+ * one. A gateway is entered at any tip but the forward-right one (mirror of that exit rule), and only
+ * ever connects at one of its four tips.
  */
 const POLICY: Record<Direction, Record<Category, Side[]>> = {
   incoming: {
     event: ['left'],
     activity: ['left'],
-    gateway: ['top', 'right', 'bottom', 'left'],
+    gateway: ['top', 'bottom', 'left'],
   },
   outgoing: {
     event: ['top', 'right', 'bottom'],
@@ -76,6 +61,33 @@ const CATEGORY_LABEL: Record<Category, string> = {
 /** Left ↔ right, top/bottom unchanged — the horizontal mirror applied to a return flow's policy. */
 const MIRROR: Record<Side, Side> = { left: 'right', right: 'left', top: 'top', bottom: 'bottom' };
 const mirrorSides = (sides: Side[]): Side[] => sides.map((side) => MIRROR[side]);
+
+/** De-duplicated union of two side lists. */
+const union = (first: Side[], second: Side[]): Side[] => [...new Set([...first, ...second])];
+
+/**
+ * Resolves the allowed docking sides for one endpoint, mirroring the policy on a return flow:
+ * - incoming (target): mirrored — event/activity left → right.
+ * - outgoing activity: mirrored only for a chain member (right → left); else strict right — the
+ *   linear backbone stays strict.
+ * - outgoing gateway/event: a branch point may leave any tip on a return flow (forward ∪ mirror).
+ */
+function allowedSidesFor(
+  direction: Direction,
+  category: Category,
+  backward: boolean,
+  sourceIsChainMember: boolean,
+): Side[] {
+  const policy = POLICY[direction][category];
+  if (direction === 'incoming') {
+    return backward ? mirrorSides(policy) : policy;
+  }
+  if (category === 'activity') {
+    return sourceIsChainMember ? mirrorSides(policy) : policy;
+  }
+  // gateway or event: a branch point may leave any tip on a return flow.
+  return backward ? union(policy, mirrorSides(policy)) : policy;
+}
 
 /** The category whose side policy applies, or `null` for shapes the rule leaves alone. */
 function categoryOf(el: ModdleElement): Category | null {
@@ -126,20 +138,19 @@ export default function flowConnectionSide(config?: FlowConnectionSideConfig): R
   const { allowBackwardsFlow = true, minStubLength = 20 } = config ?? {};
 
   /**
-   * Judge one endpoint of a flow — its `outgoing` end at the source, or its `incoming` end at the
-   * target. `point` is the waypoint docked onto `ref`, `neighbor` the adjacent waypoint. First:
-   * which side does `point` dock onto, and is that side allowed for `ref`'s category in `direction`?
-   * When `mirror` is set the allowed sides are mirrored left ↔ right (a return flow's target, and a
-   * return flow's source when it is a chain member). Then, if the side is clean, the docking stub
-   * (how far the edge runs straight out of that side before turning) must reach `minStubLength`.
-   * Reports on `flowId` for a wrong docking side or a too-short stub.
+   * Judge one endpoint — the outgoing end at the source or the incoming end at the target. `point`
+   * is the waypoint docked onto `ref`, `neighbor` the adjacent one. Checks the side `point` docks
+   * onto against {@link allowedSidesFor} (`backward` / `sourceIsChainMember` pick the policy), then —
+   * if the side is clean — that its stub reaches `minStubLength`. Reports a wrong side or a too-short
+   * stub on `flowId`.
    */
   function evaluateEndpoint(
     reporter: Reporter,
     boundsById: Map<string, Rect>,
     flowId: string,
     direction: Direction,
-    mirror: boolean,
+    backward: boolean,
+    sourceIsChainMember: boolean,
     ref: ModdleElement,
     point: Point | undefined,
     neighbor: Point | undefined,
@@ -154,12 +165,10 @@ export default function flowConnectionSide(config?: FlowConnectionSideConfig): R
       return;
     }
 
-    const policy = POLICY[direction][category];
-    const allowed = mirror ? mirrorSides(policy) : policy;
+    const allowed = allowedSidesFor(direction, category, backward, sourceIsChainMember);
 
-    // A gateway is a diamond: only its four tips are clean anchors, everything else is "seitlich".
-    // Other shapes dock on one of their four edges; a corner / off-border point is too ambiguous to
-    // judge, so it is skipped rather than guessed.
+    // Gateway: only its four tips are clean anchors. Other shapes dock on an edge; a corner or
+    // off-border point is too ambiguous, so it is skipped rather than guessed.
     const side = category === 'gateway' ? gatewayTipSide(point, bounds) : attachSide(point, bounds);
     if (side === null) {
       if (category === 'gateway') {
@@ -186,9 +195,8 @@ export default function flowConnectionSide(config?: FlowConnectionSideConfig): R
   }
 
   /**
-   * Does this flow read right-to-left — a return / loop-back edge whose target sits clearly left of
-   * its source? Needs the DI bounds of both ends; a missing end (or `allowBackwardsFlow: false`)
-   * counts as not backward, so the flow keeps the strict left-to-right policy.
+   * Right-to-left loop-back — target drawn clearly left of its source. A missing end or
+   * `allowBackwardsFlow: false` counts as not backward, keeping the strict policy.
    */
   function isReturnFlow(
     boundsById: Map<string, Rect>,
@@ -216,9 +224,8 @@ export default function flowConnectionSide(config?: FlowConnectionSideConfig): R
 
       const flows = plane.edges.filter((edge) => edge.el.$type === 'bpmn:SequenceFlow');
 
-      // Every element that is the target of a return flow sits inside the return lane. A return
-      // flow whose source is one of them is a "chain member" (exits mirrored); any other return
-      // flow's source is an "initiator" that starts the loop-back (exits its forward side).
+      // Targets of return flows sit inside the return lane. A return flow whose source is one of
+      // them is a "chain member" (exits mirrored); any other is an "initiator" (exits forward).
       const returnTargets = new Set<string>();
       for (const flow of flows) {
         const source = flow.el.sourceRef;
@@ -239,6 +246,7 @@ export default function flowConnectionSide(config?: FlowConnectionSideConfig): R
           boundsById,
           flow.el.id,
           'outgoing',
+          backward,
           sourceIsChainMember,
           source,
           flow.waypoints[0],
@@ -250,6 +258,7 @@ export default function flowConnectionSide(config?: FlowConnectionSideConfig): R
           flow.el.id,
           'incoming',
           backward,
+          sourceIsChainMember,
           target,
           flow.waypoints.at(-1),
           flow.waypoints.at(-2),
