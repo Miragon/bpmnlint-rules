@@ -33,8 +33,6 @@ export {
   miragonRecommendedForAutomation,
   miragonAll,
   miragonRuleFactories,
-  visualRules,
-  namingRules,
   elementIdNaming,
   flowConnectionSide,
   flowThroughElement,
