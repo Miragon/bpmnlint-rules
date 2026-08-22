@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_Orthogonal" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:process id="orderApproval" isExecutable="true">
+    <bpmn:startEvent id="startEvent_orderReceived" name="Order received">
+      <bpmn:outgoing>flow_orderReceived</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="userTask_reviewOrder" name="Review order">
+      <bpmn:incoming>flow_orderReceived</bpmn:incoming>
+      <bpmn:outgoing>flow_toDecision</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="gateway_approved" name="Approved?">
+      <bpmn:incoming>flow_toDecision</bpmn:incoming>
+      <bpmn:outgoing>flow_approved</bpmn:outgoing>
+      <bpmn:outgoing>flow_reject</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="endEvent_orderHandled" name="Order handled">
+      <bpmn:incoming>flow_approved</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:userTask id="userTask_reviseOrder" name="Revise order">
+      <bpmn:incoming>flow_reject</bpmn:incoming>
+      <bpmn:outgoing>flow_reviseDone</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="endEvent_orderRejected" name="Order rejected">
+      <bpmn:incoming>flow_reviseDone</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="flow_orderReceived" sourceRef="startEvent_orderReceived" targetRef="userTask_reviewOrder" />
+    <bpmn:sequenceFlow id="flow_toDecision" sourceRef="userTask_reviewOrder" targetRef="gateway_approved" />
+    <bpmn:sequenceFlow id="flow_approved" name="yes" sourceRef="gateway_approved" targetRef="endEvent_orderHandled" />
+    <bpmn:sequenceFlow id="flow_reject" name="no" sourceRef="gateway_approved" targetRef="userTask_reviseOrder" />
+    <bpmn:sequenceFlow id="flow_reviseDone" sourceRef="userTask_reviseOrder" targetRef="endEvent_orderRejected" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="orderApproval">
+      <bpmndi:BPMNShape id="startEvent_orderReceived_di" bpmnElement="startEvent_orderReceived">
+        <dc:Bounds x="160" y="182" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="142" y="225" width="73" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="userTask_reviewOrder_di" bpmnElement="userTask_reviewOrder">
+        <dc:Bounds x="250" y="160" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="gateway_approved_di" bpmnElement="gateway_approved" isMarkerVisible="true">
+        <dc:Bounds x="410" y="175" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="470" y="193" width="54" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endEvent_orderHandled_di" bpmnElement="endEvent_orderHandled">
+        <dc:Bounds x="540" y="182" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="522" y="225" width="71" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="userTask_reviseOrder_di" bpmnElement="userTask_reviseOrder">
+        <dc:Bounds x="550" y="290" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endEvent_orderRejected_di" bpmnElement="endEvent_orderRejected">
+        <dc:Bounds x="720" y="312" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="703" y="355" width="71" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="flow_orderReceived_di" bpmnElement="flow_orderReceived">
+        <di:waypoint x="196" y="200" />
+        <di:waypoint x="250" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_toDecision_di" bpmnElement="flow_toDecision">
+        <di:waypoint x="350" y="200" />
+        <di:waypoint x="410" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_approved_di" bpmnElement="flow_approved">
+        <di:waypoint x="460" y="200" />
+        <di:waypoint x="540" y="200" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="492" y="182" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_reject_di" bpmnElement="flow_reject">
+        <di:waypoint x="435" y="225" />
+        <di:waypoint x="550" y="330" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="475" y="270" width="13" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_reviseDone_di" bpmnElement="flow_reviseDone">
+        <di:waypoint x="650" y="330" />
+        <di:waypoint x="720" y="330" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
