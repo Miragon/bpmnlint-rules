@@ -76,6 +76,32 @@ export const segmentsCross = (
 ): boolean => properCross(firstStart, firstEnd, secondStart, secondEnd);
 
 /**
+ * Is every segment of the polyline horizontal or vertical (within `toleranceDeg` of an axis)?
+ *
+ * BPMN sequence flows are routed orthogonally, so a segment that runs on a slant, moving on both
+ * axes at once, is a routing defect. A segment is judged by the ratio of its shorter axis span to
+ * its longer one: at or below `tan(toleranceDeg)` it counts as axis-aligned, so a few pixels of
+ * drift on a long segment stays orthogonal while a genuine diagonal does not. Zero-length segments
+ * are ignored.
+ */
+export function isOrthogonalPath(waypoints: Point[], toleranceDeg = 10): boolean {
+  const maxRatio = Math.tan((toleranceDeg * Math.PI) / 180);
+  for (const [start, end] of segments(waypoints)) {
+    const deltaX = Math.abs(end.x - start.x);
+    const deltaY = Math.abs(end.y - start.y);
+    const shorter = Math.min(deltaX, deltaY);
+    const longer = Math.max(deltaX, deltaY);
+    if (longer < 1e-6) {
+      continue; // zero-length segment, no direction
+    }
+    if (shorter / longer > maxRatio) {
+      return false; // slanted: moves meaningfully on both axes
+    }
+  }
+  return true;
+}
+
+/**
  * Is the point strictly inside the rectangle? `padding` keeps a point sitting exactly on the
  * border (where flows legitimately attach) from counting as "inside".
  */

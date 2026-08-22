@@ -13,6 +13,7 @@ const EXAMPLES = [
   { rule: 'flow-connection-side', offender: 'flow_toDecision' },
   { rule: 'flow-target-alignment', offender: 'flow_archived' },
   { rule: 'flow-crossing', offender: 'flow_orderRevised' },
+  { rule: 'flow-orthogonal', offender: 'flow_reject' },
 ];
 
 describe('example models', () => {

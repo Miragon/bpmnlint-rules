@@ -66,14 +66,15 @@ npx bpmnlint diagram.bpmn
 
 The Miragon conventions this plugin adds — each with a docs page and a good/bad example:
 
-| Rule                                                                          | What it catches                                                       |
-| ----------------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| [`@miragon/rules/no-generated-ids`](docs/rules/no-generated-ids.md)           | IDs generated rather than chosen (`Activity_0049ryx`, `StartEvent_1`) |
-| [`@miragon/rules/element-id-naming`](docs/rules/element-id-naming.md)         | IDs that don't follow the type-prefix + case convention               |
-| [`@miragon/rules/flow-through-element`](docs/rules/flow-through-element.md)   | A sequence flow routed through an unrelated shape's body              |
-| [`@miragon/rules/flow-connection-side`](docs/rules/flow-connection-side.md)   | A sequence flow docked onto the wrong side of a shape                 |
-| [`@miragon/rules/flow-target-alignment`](docs/rules/flow-target-alignment.md) | A flow's target drawn off the row, sloping the main path              |
-| [`@miragon/rules/flow-crossing`](docs/rules/flow-crossing.md)                 | Two sequence flows whose drawn paths cross each other                 |
+| Rule                                                                          | What it catches                                                         |
+| ----------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| [`@miragon/rules/no-generated-ids`](docs/rules/no-generated-ids.md)           | IDs generated rather than chosen (`Activity_0049ryx`, `StartEvent_1`)   |
+| [`@miragon/rules/element-id-naming`](docs/rules/element-id-naming.md)         | IDs that don't follow the type-prefix + case convention                 |
+| [`@miragon/rules/flow-through-element`](docs/rules/flow-through-element.md)   | A sequence flow routed through an unrelated shape's body                |
+| [`@miragon/rules/flow-connection-side`](docs/rules/flow-connection-side.md)   | A sequence flow docked onto the wrong side of a shape                   |
+| [`@miragon/rules/flow-target-alignment`](docs/rules/flow-target-alignment.md) | A flow's target drawn off the row, sloping the main path                |
+| [`@miragon/rules/flow-crossing`](docs/rules/flow-crossing.md)                 | Two sequence flows whose drawn paths cross each other                   |
+| [`@miragon/rules/flow-orthogonal`](docs/rules/flow-orthogonal.md)             | A sequence flow that runs diagonally instead of horizontal and vertical |
 
 Turn any of them on individually, the usual way:
 

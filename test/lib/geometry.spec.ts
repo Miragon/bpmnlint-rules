@@ -1,4 +1,4 @@
-import { attachSide, gatewayTipSide } from '../../src/lib/geometry';
+import { attachSide, gatewayTipSide, isOrthogonalPath } from '../../src/lib/geometry';
 
 // A 100×80 box at the origin-ish: left x=100, right x=200, top y=100, bottom y=180, centre (150,140).
 const BOX = { x: 100, y: 100, width: 100, height: 80 };
@@ -39,5 +39,55 @@ describe('gatewayTipSide', () => {
   it('returns null on a diagonal flank ("seitlich")', () => {
     // Midway between the left and top tips — on the diamond's edge, but not at a tip.
     expect(gatewayTipSide({ x: 113, y: 113 }, DIAMOND)).toBeNull();
+  });
+});
+
+// Named unit moves on a grid, for readable polylines: right, down, left, upward.
+const right = { x: 40, y: 0 };
+const down = { x: 0, y: 40 };
+const left = { x: -40, y: 0 };
+const upward = { x: 0, y: -40 };
+
+// Walk a start point through a sequence of moves into a waypoint list.
+const path = (start: { x: number; y: number }, ...moves: { x: number; y: number }[]) =>
+  moves.reduce(
+    (points, move) => {
+      const last = points[points.length - 1]!;
+      return [...points, { x: last.x + move.x, y: last.y + move.y }];
+    },
+    [start],
+  );
+
+describe('isOrthogonalPath', () => {
+  it('is true when every segment is horizontal or vertical', () => {
+    expect(isOrthogonalPath(path({ x: 0, y: 0 }, right, down, left, upward))).toBe(true);
+    expect(isOrthogonalPath([{ x: 0, y: 0 }])).toBe(true); // degenerate
+  });
+
+  it('tolerates a few pixels of drift on a long segment', () => {
+    expect(
+      isOrthogonalPath([
+        { x: 0, y: 0 },
+        { x: 200, y: 3 }, // ~1 degree off horizontal
+      ]),
+    ).toBe(true);
+  });
+
+  it('is false when a segment runs on a slant', () => {
+    expect(
+      isOrthogonalPath([
+        { x: 0, y: 0 },
+        { x: 100, y: 100 }, // 45 degrees
+      ]),
+    ).toBe(false);
+    // a slanted middle segment among orthogonal ones
+    expect(
+      isOrthogonalPath([
+        { x: 0, y: 0 },
+        { x: 0, y: 100 },
+        { x: 80, y: 60 },
+        { x: 160, y: 60 },
+      ]),
+    ).toBe(false);
   });
 });
