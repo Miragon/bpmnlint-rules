@@ -33,16 +33,18 @@ Only the **DI coordinates** decide: for each sequence flow, the first waypoint i
 source, the last waypoint its entry into the target. The docking side is compared against a fixed
 per-direction, per-type policy:
 
-| Element      | Incoming (target) | Outgoing (source)                       |
-| ------------ | ----------------- | --------------------------------------- |
-| **Event**    | left              | top, right or bottom (any but left)     |
-| **Activity** | left              | right                                   |
-| **Gateway**  | any of its 4 tips | top, right or bottom (any tip but left) |
+| Element      | Incoming (target)                       | Outgoing (source)                       |
+| ------------ | --------------------------------------- | --------------------------------------- |
+| **Event**    | left                                    | top, right or bottom (any but left)     |
+| **Activity** | left                                    | right                                   |
+| **Gateway**  | top, bottom or left tip (any but right) | top, right or bottom (any tip but left) |
 
 The main flow always enters on the left. An activity exits to the right; an **event** may branch its
-outgoing flow out any side except the incoming-left one, the same freedom a gateway has. A gateway
-is a diamond, so its only clean anchors are the four tips (the midpoints of its bounding box); a
-point on a diagonal flank is reported as a diagonal connection.
+outgoing flow out any side except the incoming-left one, the same freedom a gateway has. A **gateway**
+is entered at any tip but the forward-right one (the mirror of that exit rule — a flow arriving on the
+right face is coming back against the main direction). A gateway is a diamond, so its only clean
+anchors are the four tips (the midpoints of its bounding box); a point on a diagonal flank is reported
+as a diagonal connection.
 
 ### Return flows
 
@@ -52,29 +54,31 @@ roughly the same column as its source) is **not** treated as a return flow and k
 left-to-right policy above.
 
 A return flow reads right-to-left, so its docking is judged against a mirrored form of the policy
-(`left` and `right` swapped, `top`/`bottom` unchanged). Which end is mirrored depends on the
-element's **role in the return path**, so each of the three endpoints below is decided
-independently:
+(`left` and `right` swapped, `top`/`bottom` unchanged). The **target** end is always mirrored; the
+**source** end depends on the element's category:
 
-| Element      | Target — entered _(mirrored)_ | Source, **initiator** — exits _(forward)_ | Source, **chain member** — exits _(mirrored)_ |
-| ------------ | ----------------------------- | ----------------------------------------- | --------------------------------------------- |
-| **Event**    | right                         | top, right or bottom                      | top, left or bottom                           |
-| **Activity** | right                         | right                                     | left                                          |
-| **Gateway**  | any of its 4 tips             | top, right or bottom tip                  | top, left or bottom tip                       |
+| Element      | Target — entered _(mirrored)_ | Source, **initiator** — exits | Source, **chain member** — exits |
+| ------------ | ----------------------------- | ----------------------------- | -------------------------------- |
+| **Event**    | right                         | any side                      | any side                         |
+| **Activity** | right                         | right                         | left                             |
+| **Gateway**  | top, bottom or right tip      | any tip                       | any tip                          |
 
 - **Target (entered).** Always mirrored — an activity is re-entered from the right, an event from the
-  right, a gateway at any tip. A return flow that wraps into the wrong face (e.g. enters an activity
-  from the left, its forward-input side) is still reported.
-- **Source that _initiates_ the loop-back** — a forward-lane element that is **not** itself the
-  target of a return flow. It exits on its normal **forward** side and wraps around (an activity to
-  the right; an event or gateway to top/right/bottom). A short direct return that leaves an activity
-  to the left is reported: it should exit right and wrap.
-- **Source that is a _chain member_** — an element that **is** already the target of a return flow,
-  so it sits inside the return lane. It exits on the **mirrored** side (an activity to the left; an
-  event or gateway to top/left/bottom), continuing the leftward chain.
+  right, a gateway at any tip but the forward-left one. A return flow that wraps into the wrong face
+  (e.g. enters an activity from the left, its forward-input side) is still reported.
+- **Source — gateway or event.** A branch point: on a return flow it may dock the branch at **any
+  tip** — a forward tip (top/right/bottom) to wrap around, or the mirrored **left** tip to head
+  straight back. Its role in the return path does not matter here. The "not left" restriction only
+  bites on a _forward_ flow, where leaving left would mean doubling back into the incoming face.
+- **Source — activity.** The linear backbone, so it keeps the strict role distinction. An element
+  that **initiates** the loop-back (a forward-lane activity **not** itself the target of a return
+  flow) exits on its **forward** (right) side and wraps around; a short direct return leaving an
+  activity to the left is reported. A **chain member** (an activity that **is** already the target of
+  a return flow, so it sits inside the return lane) exits on the **mirrored** (left) side, continuing
+  the leftward chain.
 
-The role is read from the graph, not guessed from coordinates: an element counts as a chain member
-exactly when some other return flow targets it.
+The activity role is read from the graph, not guessed from coordinates: an activity counts as a
+chain member exactly when some other return flow targets it.
 
 ### Stub length
 

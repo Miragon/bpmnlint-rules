@@ -88,7 +88,7 @@ verify('flow-connection-side', rule, {
       }),
     },
     {
-      // Incoming is allowed at any of a gateway's four tips, not just the left one.
+      // Incoming is allowed at the top, bottom or left tip — any tip but the forward-right one.
       name: 'a gateway entered at its top tip',
       moddleElement: model({
         shapes: [
@@ -370,6 +370,120 @@ verify('flow-connection-side', rule, {
       }),
     },
     {
+      // A return flow may re-enter a gateway from the right — the mirror of the forward-left face.
+      // The branch wraps over the top and docks the merge gateway's right tip; the source activity
+      // initiates the loop-back and exits its forward (right) side.
+      name: 'a return flow re-enters a gateway from its right tip',
+      moddleElement: model({
+        shapes: [
+          { id: 'gateway_Merge', tag: 'exclusiveGateway', x: 200, y: 115, width: 50, height: 50 },
+          { id: 'task_Src', x: 400, y: 100 },
+        ],
+        edges: [
+          {
+            id: 'flow_SrcToMerge',
+            source: 'task_Src',
+            target: 'gateway_Merge',
+            waypoints: [
+              { x: 500, y: 140 },
+              { x: 540, y: 140 },
+              { x: 540, y: 60 },
+              { x: 290, y: 60 },
+              { x: 290, y: 140 },
+              { x: 250, y: 140 },
+            ],
+          },
+        ],
+      }),
+    },
+    {
+      // The reported real-world shape: an event-based gateway waits on a catch event drawn to its
+      // left and looping back upstream. The branch leaves the gateway's mirrored *left* tip and runs
+      // straight into the event's right face. The gateway is a return-flow initiator (nothing points
+      // back to it), but as a branch point it may still dock a return branch on any tip.
+      name: 'a return branch leaves a gateway through its mirrored left tip',
+      moddleElement: model({
+        shapes: [
+          { id: 'gateway_Wait', tag: 'eventBasedGateway', x: 400, y: 115, width: 50, height: 50 },
+          {
+            id: 'event_Catch',
+            tag: 'intermediateCatchEvent',
+            x: 282,
+            y: 122,
+            width: 36,
+            height: 36,
+          },
+        ],
+        edges: [
+          {
+            id: 'flow_WaitToCatch',
+            source: 'gateway_Wait',
+            target: 'event_Catch',
+            waypoints: [
+              { x: 400, y: 140 },
+              { x: 318, y: 140 },
+            ],
+          },
+        ],
+      }),
+    },
+    {
+      // An intermediate event acting as a branch point: on a return flow it may leave its mirrored
+      // left face into an upstream activity (entered, mirrored, from the right).
+      name: 'a return branch leaves an intermediate event through its mirrored left tip',
+      moddleElement: model({
+        shapes: [
+          {
+            id: 'event_Branch',
+            tag: 'intermediateThrowEvent',
+            x: 400,
+            y: 122,
+            width: 36,
+            height: 36,
+          },
+          { id: 'task_Back', x: 200, y: 100 },
+        ],
+        edges: [
+          {
+            id: 'flow_BranchToBack',
+            source: 'event_Branch',
+            target: 'task_Back',
+            waypoints: [
+              { x: 400, y: 140 },
+              { x: 300, y: 140 },
+            ],
+          },
+        ],
+      }),
+    },
+    {
+      // The union keeps the forward tips too: a gateway initiator may still leave its right tip on a
+      // return flow and wrap up and over into the target's mirrored right face — allowing the left
+      // tip must not forbid the classic wrap-around.
+      name: 'a gateway initiator may still wrap out its right tip on a return flow',
+      moddleElement: model({
+        shapes: [
+          { id: 'task_Loop', x: 100, y: 100 },
+          { id: 'gateway_Dec', tag: 'exclusiveGateway', x: 400, y: 115, width: 50, height: 50 },
+        ],
+        edges: [
+          {
+            id: 'flow_DecToLoop',
+            source: 'gateway_Dec',
+            target: 'task_Loop',
+            waypoints: [
+              { x: 450, y: 140 },
+              { x: 490, y: 140 },
+              { x: 490, y: 40 },
+              { x: 240, y: 40 },
+              { x: 240, y: 140 },
+              { x: 200, y: 140 },
+            ],
+          },
+        ],
+      }),
+    },
+    {
       // With `minStubLength: 0` the stub check is off: an edge may dock on the correct side and turn
       // immediately (0px stub) without being reported. The sides are still judged.
       name: 'a 0px stub is allowed when minStubLength is 0',
@@ -530,6 +644,37 @@ verify('flow-connection-side', rule, {
         id: 'flow_SplitToBack',
         message:
           'Sequence flow leaves <gateway_Split> to the left; a gateway must exit to the top, right or bottom',
+      },
+    },
+    {
+      // A forward flow that wraps over the top and docks the gateway's right tip. Right is the
+      // forward-exit face, so entering there is reported — a gateway is entered from the top, bottom
+      // or left. (A return flow re-entering from the right stays valid; that is the mirrored case.)
+      name: 'a gateway entered from the right on a forward flow',
+      moddleElement: model({
+        shapes: [
+          { id: 'task_A', x: 180, y: 100 },
+          { id: 'gateway_Join', tag: 'exclusiveGateway', x: 400, y: 115, width: 50, height: 50 },
+        ],
+        edges: [
+          {
+            id: 'flow_AToJoin',
+            source: 'task_A',
+            target: 'gateway_Join',
+            waypoints: [
+              { x: 280, y: 140 },
+              { x: 340, y: 140 },
+              { x: 340, y: 60 },
+              { x: 450, y: 60 },
+              { x: 450, y: 140 },
+            ],
+          },
+        ],
+      }),
+      report: {
+        id: 'flow_AToJoin',
+        message:
+          'Sequence flow enters <gateway_Join> from the right; a gateway must be entered from the top, bottom or left',
       },
     },
     {
