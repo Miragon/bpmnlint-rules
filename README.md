@@ -40,6 +40,7 @@ Add the plugin to your `.bpmnlintrc` and extend one of its configs, like any oth
   "extends": [
     "bpmnlint:recommended", // standard structural rules
     "plugin:@miragon/rules/recommended-for-<scope>", // the Miragon layer — pick a scope below
+    // "plugin:camunda-compat/camunda-cloud-8-10", // optional: Camunda engine rules — see below
   ],
 }
 ```
