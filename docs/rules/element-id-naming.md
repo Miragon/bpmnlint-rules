@@ -51,12 +51,44 @@ A camelCase element-type prefix plus a camelCase name.
 
 Types are resolved by exact `$type` first, then by inheritance, so `bpmn:Transaction` and
 `bpmn:AdHocSubProcess` pick up the sub-process convention, and every gateway kind picks up
-`gateway_`, without being listed.
+`gateway_`, without being listed. Because the exact `$type` wins over the inheritance fallback,
+switching a concrete type off with `false` (or overriding it) also stops it from inheriting a base
+convention — and the concrete task types each need their own entry, since the default map lists them
+individually rather than only `bpmn:Task`.
 
 Two things are intentionally left out. `bpmn:Process` is not covered: a process ID is a public
 contract (the deployment key, and what a call activity references), not a diagram-internal
 identifier. Any type not in the table is skipped too, so an exotic element nobody configured never
 produces a report.
+
+## Event-definition qualifiers
+
+An event id may optionally name its event definition — `messageStartEvent_membershipRequested`
+instead of `startEvent_membershipRequested`. The accepted set is derived from the element's _own_
+`<bpmn:*EventDefinition>` children, so a qualifier that matches passes and a qualifier that lies is
+reported. The qualifier is the definition name lowercased (`bpmn:TimerEventDefinition` → `timer`):
+`message`, `timer`, `signal`, `conditional`, `escalation`, `error`, `link`, `terminate`,
+`compensate`. It is prepended to whatever prefix the type resolves to (`startEvent_` →
+`timerStartEvent_`, a custom `boundaryEvent_` → `messageBoundaryEvent_`).
+
+`eventDefinitionQualifier` controls this:
+
+| mode                 | accepted for a message start event with prefix `startEvent_` |
+| -------------------- | ------------------------------------------------------------ |
+| `optional` (default) | `startEvent_…` **or** `messageStartEvent_…`                  |
+| `required`           | `messageStartEvent_…` only (plain prefix when no definition) |
+| `off`                | `startEvent_…` only                                          |
+
+```
+startEvent_membershipRequested          👍 always valid
+messageStartEvent_membershipRequested   👍 the element IS a message start event
+timerStartEvent_membershipRequested     👎 no timer event definition on this element
+```
+
+The default `optional` only _widens_ what passes, so enabling the rule never rejects an id that was
+valid before. A lying qualifier gets its own message —
+`Element id claims a timer event, but this element has no timer event definition` — separate from the
+plain wrong-prefix / wrong-case one.
 
 ## Configuration
 
@@ -67,7 +99,8 @@ produces a report.
       "error",
       {
         "prefixes": { "bpmn:SequenceFlow": "Flow_", "bpmn:ScriptTask": false },
-        "case": "snake_case"
+        "case": "snake_case",
+        "eventDefinitionQualifier": "optional"
       }
     ]
   }
@@ -78,6 +111,8 @@ produces a report.
   off entirely.
 - `case`: the shape of the part after the prefix: `camelCase` (default), `PascalCase`,
   `snake_case` or `any`.
+- `eventDefinitionQualifier`: whether an event id may name its event definition — `optional`
+  (default), `required` or `off`. See [Event-definition qualifiers](#event-definition-qualifiers).
 
 ## Examples
 
