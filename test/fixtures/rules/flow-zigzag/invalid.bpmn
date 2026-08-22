@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_Zigzag" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:process id="orderApproval" isExecutable="true">
+    <bpmn:startEvent id="startEvent_orderReceived" name="Order received">
+      <bpmn:outgoing>flow_orderReceived</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:exclusiveGateway id="gateway_reworkMerge">
+      <bpmn:incoming>flow_orderReceived</bpmn:incoming>
+      <bpmn:incoming>flow_rework</bpmn:incoming>
+      <bpmn:outgoing>flow_toReview</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="userTask_reviewOrder" name="Review order">
+      <bpmn:incoming>flow_toReview</bpmn:incoming>
+      <bpmn:outgoing>flow_toDecision</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="gateway_approved" name="Approved?">
+      <bpmn:incoming>flow_toDecision</bpmn:incoming>
+      <bpmn:outgoing>flow_approved</bpmn:outgoing>
+      <bpmn:outgoing>flow_rework</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="endEvent_orderHandled" name="Order handled">
+      <bpmn:incoming>flow_approved</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="flow_orderReceived" sourceRef="startEvent_orderReceived" targetRef="gateway_reworkMerge" />
+    <bpmn:sequenceFlow id="flow_toReview" sourceRef="gateway_reworkMerge" targetRef="userTask_reviewOrder" />
+    <bpmn:sequenceFlow id="flow_toDecision" sourceRef="userTask_reviewOrder" targetRef="gateway_approved" />
+    <bpmn:sequenceFlow id="flow_approved" name="yes" sourceRef="gateway_approved" targetRef="endEvent_orderHandled" />
+    <bpmn:sequenceFlow id="flow_rework" name="no" sourceRef="gateway_approved" targetRef="gateway_reworkMerge" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="orderApproval">
+      <bpmndi:BPMNShape id="startEvent_orderReceived_di" bpmnElement="startEvent_orderReceived">
+        <dc:Bounds x="160" y="182" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="142" y="225" width="73" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="gateway_reworkMerge_di" bpmnElement="gateway_reworkMerge" isMarkerVisible="true">
+        <dc:Bounds x="250" y="175" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="userTask_reviewOrder_di" bpmnElement="userTask_reviewOrder">
+        <dc:Bounds x="360" y="160" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="gateway_approved_di" bpmnElement="gateway_approved" isMarkerVisible="true">
+        <dc:Bounds x="520" y="175" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="580" y="193" width="54" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endEvent_orderHandled_di" bpmnElement="endEvent_orderHandled">
+        <dc:Bounds x="650" y="182" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="632" y="225" width="71" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="flow_orderReceived_di" bpmnElement="flow_orderReceived">
+        <di:waypoint x="196" y="200" />
+        <di:waypoint x="250" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_toReview_di" bpmnElement="flow_toReview">
+        <di:waypoint x="300" y="200" />
+        <di:waypoint x="360" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_toDecision_di" bpmnElement="flow_toDecision">
+        <di:waypoint x="460" y="200" />
+        <di:waypoint x="520" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_approved_di" bpmnElement="flow_approved">
+        <di:waypoint x="570" y="200" />
+        <di:waypoint x="650" y="200" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="602" y="182" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_rework_di" bpmnElement="flow_rework">
+        <di:waypoint x="545" y="225" />
+        <di:waypoint x="545" y="310" />
+        <di:waypoint x="390" y="310" />
+        <di:waypoint x="390" y="280" />
+        <di:waypoint x="275" y="280" />
+        <di:waypoint x="275" y="225" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="461" y="292" width="13" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

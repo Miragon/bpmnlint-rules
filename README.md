@@ -75,6 +75,7 @@ The Miragon conventions this plugin adds — each with a docs page and a good/ba
 | [`@miragon/rules/flow-target-alignment`](docs/rules/flow-target-alignment.md) | A flow's target drawn off the row, sloping the main path                |
 | [`@miragon/rules/flow-crossing`](docs/rules/flow-crossing.md)                 | Two sequence flows whose drawn paths cross each other                   |
 | [`@miragon/rules/flow-orthogonal`](docs/rules/flow-orthogonal.md)             | A sequence flow that runs diagonally instead of horizontal and vertical |
+| [`@miragon/rules/flow-zigzag`](docs/rules/flow-zigzag.md)                     | A flow that winds back on itself instead of reaching its target         |
 
 Turn any of them on individually, the usual way:
 
