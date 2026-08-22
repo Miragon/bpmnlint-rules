@@ -145,6 +145,17 @@ const linter = new Linter({
 const results = await linter.lint(rootElement);
 ```
 
+`engine` picks the Camunda deployability layer + typed moddle; `preset` picks the Miragon opinion
+layer independently — `'modeling'` (layout hints only, safe on hand-drawn diagrams) or
+`'automation'` (every Miragon rule at `error`). When `preset` is omitted it defaults to
+`'automation'` for an engine-bound config and `'modeling'` otherwise. Pass both to decouple them —
+e.g. a modeler that wants Camunda 8's typed properties and deployability checks but the relaxed
+modeling opinion layer:
+
+```ts
+getDefaultLintConfig({ engine: 'c8', preset: 'modeling' });
+```
+
 Results are keyed by rule; each finding has a `category` (`error` | `warn`). Block on any error — a
 CI gate, or the reject signal that sends an AI agent back to fix its output:
 

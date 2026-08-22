@@ -1,7 +1,7 @@
 import Linter from 'bpmnlint/lib/linter';
 
 import { createBundledResolver, getDefaultLintConfig } from '../../src';
-import type { Engine } from '../../src';
+import type { DefaultLintConfigOptions, Engine } from '../../src';
 import { model } from '../support/model';
 
 /**
@@ -26,6 +26,10 @@ async function lintKeys(engine?: Engine): Promise<string[]> {
   return Object.keys(await linter.lint(parsed.root));
 }
 
+function extendsOf(options: DefaultLintConfigOptions): string[] {
+  return getDefaultLintConfig(options).extends as string[];
+}
+
 describe('bundled resolver + engine config, end to end', () => {
   it('fires the structural base under every engine', async () => {
     for (const engine of [undefined, 'c7', 'c8'] as const) {
@@ -46,5 +50,29 @@ describe('bundled resolver + engine config, end to end', () => {
 
   it('adds a Camunda 8 deployability finding for engine c8', async () => {
     expect(await lintKeys('c8')).toContain('camunda-compat/implementation');
+  });
+});
+
+describe('getDefaultLintConfig preset selection', () => {
+  const MODELING = 'plugin:@miragon/rules/recommended-for-modeling';
+  const AUTOMATION = 'plugin:@miragon/rules/recommended-for-automation';
+
+  it('defaults the preset from the engine — modeling engine-less, automation engine-bound', () => {
+    expect(extendsOf({})).toContain(MODELING);
+    expect(extendsOf({ engine: 'c8' })).toContain(AUTOMATION);
+  });
+
+  it('honours an explicit preset regardless of the engine', () => {
+    expect(extendsOf({ preset: 'automation' })).toContain(AUTOMATION);
+    expect(extendsOf({ engine: 'c8', preset: 'modeling' })).toContain(MODELING);
+  });
+
+  it('keeps the engine deployability layer when the modeling preset is forced', () => {
+    const extendsLayers = extendsOf({ engine: 'c7', preset: 'modeling' });
+    expect(extendsLayers).toContain(MODELING);
+    expect(extendsLayers.some((layer) => layer.startsWith('plugin:camunda-compat/'))).toBe(true);
+    expect(
+      getDefaultLintConfig({ engine: 'c7', preset: 'modeling' }).moddleExtensions,
+    ).toHaveProperty('camunda');
   });
 });
