@@ -15,7 +15,7 @@ export type { Resolver } from './resolver/Resolver';
 
 // Config building — the zero-config default, layered per engine.
 export { getDefaultLintConfig, getRulesForEngine } from './config/engineConfig';
-export type { Engine, DefaultLintConfigOptions } from './config/engineConfig';
+export type { Engine, Preset, DefaultLintConfigOptions } from './config/engineConfig';
 
 // Ready-to-use presets (structural base + Miragon layer).
 export { recommendedForModeling, recommendedForAutomation } from './presets/recommended';
