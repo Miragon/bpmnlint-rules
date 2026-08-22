@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.8.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.7.0...v0.8.0) (2026-08-22)
+
+
+### ⚠ BREAKING CHANGES
+
+* add flow-orthogonal layout rule ([#33](https://github.com/Miragon/bpmnlint-rules/issues/33))
+* **flow-connection-side:** role-aware gateway/event return exits, stricter gateway entry ([#29](https://github.com/Miragon/bpmnlint-rules/issues/29))
+
+### Features
+
+* add flow-orthogonal layout rule ([#33](https://github.com/Miragon/bpmnlint-rules/issues/33)) ([c15cf95](https://github.com/Miragon/bpmnlint-rules/commit/c15cf95b688bbe54d8a2112deb470232778a6104))
+* **flow-connection-side:** role-aware gateway/event return exits, stricter gateway entry ([#29](https://github.com/Miragon/bpmnlint-rules/issues/29)) ([c18ea0a](https://github.com/Miragon/bpmnlint-rules/commit/c18ea0a69b547a850a737816b95e871da0874e75))
+
 ## [0.7.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.6.0...v0.7.0) (2026-08-21)
 
 
