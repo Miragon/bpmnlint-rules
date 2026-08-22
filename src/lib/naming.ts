@@ -69,6 +69,113 @@ const FALLBACK_ORDER = [
   'bpmn:SequenceFlow',
 ];
 
+/**
+ * How aggressively an element's event definition may (or must) qualify its type prefix.
+ *
+ * `off`      — one prefix per type, exactly as before.
+ * `optional` — the plain prefix *and* an event-definition-qualified form are both accepted, e.g.
+ *              `startEvent_` and `messageStartEvent_` on a message start event.
+ * `required` — only the qualified form(s) are accepted, falling back to the plain prefix for an
+ *              element that carries no event definition at all.
+ */
+export type QualifierMode = 'off' | 'optional' | 'required';
+
+const QUALIFIER_MODES = new Set<QualifierMode>(['off', 'optional', 'required']);
+
+/**
+ * The event-definition qualifiers BPMN knows. Used only to *detect a lie* — an id that claims,
+ * say, a timer event on an element that has no timer definition. The set of qualifiers actually
+ * accepted for an element is derived from its own definitions, not from this list.
+ */
+const KNOWN_EVENT_QUALIFIERS = [
+  'message',
+  'timer',
+  'signal',
+  'conditional',
+  'escalation',
+  'error',
+  'link',
+  'terminate',
+  'compensate',
+];
+
+const EVENT_DEFINITION_SUFFIX = 'EventDefinition';
+
+/** `bpmn:TimerEventDefinition` -> `timer`. Returns `null` for anything not an event definition. */
+function qualifierOf(definition: ModdleElement): string | null {
+  const type: string = definition.$type ?? '';
+  const local = type.slice(type.indexOf(':') + 1);
+
+  if (!local.endsWith(EVENT_DEFINITION_SUFFIX) || local.length === EVENT_DEFINITION_SUFFIX.length) {
+    return null;
+  }
+
+  const name = local.slice(0, -EVENT_DEFINITION_SUFFIX.length);
+  return name.charAt(0).toLowerCase() + name.slice(1);
+}
+
+/** The distinct event-definition qualifiers an element carries, e.g. `['message']`. */
+export function eventQualifiers(node: ModdleElement): string[] {
+  const definitions: ModdleElement[] = node.eventDefinitions ?? [];
+  const qualifiers = definitions
+    .map(qualifierOf)
+    .filter((qualifier): qualifier is string => qualifier !== null);
+  return [...new Set(qualifiers)];
+}
+
+/** `qualify('timer', 'startEvent_')` -> `timerStartEvent_` (trailing separator preserved). */
+function qualify(qualifier: string, prefix: string): string {
+  return `${qualifier}${prefix.charAt(0).toUpperCase()}${prefix.slice(1)}`;
+}
+
+/**
+ * Every prefix that is acceptable for this element, given its resolved base `prefix` and the
+ * qualifier `mode`. The set is built from the element's *own* event definitions, so a qualifier
+ * that does not match a definition is simply never in it.
+ *
+ * Qualifiers name an *event* definition, so they only apply to `bpmn:Event`s; every other type
+ * keeps its single prefix regardless of `mode`.
+ */
+export function acceptedPrefixes(
+  node: ModdleElement,
+  prefix: string,
+  mode: QualifierMode,
+): string[] {
+  if (mode === 'off' || !is(node, 'bpmn:Event')) {
+    return [prefix];
+  }
+
+  const qualified = eventQualifiers(node).map((qualifier) => qualify(qualifier, prefix));
+
+  if (mode === 'required') {
+    return qualified.length ? [...new Set(qualified)] : [prefix];
+  }
+
+  return [...new Set([prefix, ...qualified])];
+}
+
+/**
+ * Does this id *claim* an event qualifier the element does not actually have? `timerStartEvent_…`
+ * on a message start event returns `'timer'`, which lets the rule say exactly what is wrong. Only
+ * `bpmn:Event`s can lie about a qualifier — a task whose id merely starts with a qualifier word is
+ * never flagged as one.
+ */
+export function detectLyingQualifier(node: ModdleElement, prefix: string): string | null {
+  if (!is(node, 'bpmn:Event')) {
+    return null;
+  }
+
+  const actual = new Set(eventQualifiers(node));
+
+  for (const qualifier of KNOWN_EVENT_QUALIFIERS) {
+    if (!actual.has(qualifier) && node.id.startsWith(qualify(qualifier, prefix))) {
+      return qualifier;
+    }
+  }
+
+  return null;
+}
+
 export interface CaseSpec {
   pattern: RegExp;
   label: string;
@@ -122,6 +229,13 @@ export function resolvePrefix(node: ModdleElement, prefixes: PrefixMap): PrefixC
 
 export function resolveCase(caseName: string): CaseSpec {
   return CASES[caseName] ?? PASCAL_CASE;
+}
+
+/** Coerce a config value to a known qualifier mode; an unrecognised value falls back to `optional`. */
+export function resolveQualifierMode(mode: string | undefined): QualifierMode {
+  return mode !== undefined && QUALIFIER_MODES.has(mode as QualifierMode)
+    ? (mode as QualifierMode)
+    : 'optional';
 }
 
 /**

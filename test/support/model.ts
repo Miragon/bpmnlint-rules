@@ -23,6 +23,11 @@ export interface ShapeSpec {
   name?: string;
   default?: string;
   /**
+   * Event-definition qualifiers to nest inside this shape, e.g. `['message']` renders a
+   * `<bpmn:messageEventDefinition>`. Turns a plain event into a message/timer/... event.
+   */
+  eventDefinitions?: string[];
+  /**
    * Id of the shape this one nests inside (e.g. a `startEvent` inside a `subProcess`). Nests the
    * element in the SEMANTIC tree only — every shape's DI stays flat on the plane, exactly as
    * bpmn.io renders an expanded sub-process.
@@ -83,14 +88,18 @@ function semanticShape(
   ];
 
   const children = childrenOf.get(shape.id) || [];
+  const eventDefinitions = (shape.eventDefinitions || []).map(
+    (qualifier) => `      <bpmn:${qualifier}EventDefinition id="def_${shape.id}_${qualifier}" />`,
+  );
 
-  if (!connections.length && !children.length) {
+  if (!connections.length && !children.length && !eventDefinitions.length) {
     return `${open} />`;
   }
 
   return [
     `${open}>`,
     ...connections.map((connection) => `      <bpmn:${connection}>`),
+    ...eventDefinitions,
     ...children.map((child) => semanticShape(child, edges, childrenOf)),
     `    </bpmn:${tag}>`,
   ].join('\n');

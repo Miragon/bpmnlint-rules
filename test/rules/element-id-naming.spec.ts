@@ -90,6 +90,84 @@ verify('element-id-naming', rule, {
         shapes: [{ id: 'whateverYouLike', tag: 'scriptTask' }],
       }),
     },
+    {
+      // Default `optional`: the plain prefix stays valid on an event that carries a definition.
+      name: 'the plain prefix is still accepted alongside the qualified form',
+      moddleElement: model({
+        shapes: [
+          {
+            id: 'startEvent_membershipRequested',
+            tag: 'startEvent',
+            eventDefinitions: ['message'],
+          },
+        ],
+      }),
+    },
+    {
+      // Default `optional`: a truthful qualifier passes, because the element really is a message event.
+      name: 'a truthful event-definition qualifier is accepted',
+      moddleElement: model({
+        shapes: [
+          {
+            id: 'messageStartEvent_membershipRequested',
+            tag: 'startEvent',
+            eventDefinitions: ['message'],
+          },
+        ],
+      }),
+    },
+    {
+      // The qualifier is prepended to whatever prefix a project configures for the type.
+      name: 'the qualifier composes with a custom event prefix',
+      config: { prefixes: { 'bpmn:BoundaryEvent': 'boundaryEvent_' } },
+      moddleElement: model({
+        shapes: [
+          { id: 'serviceTask_claimMembership', tag: 'serviceTask' },
+          {
+            id: 'messageBoundaryEvent_reminderDue',
+            tag: 'boundaryEvent',
+            attachedTo: 'serviceTask_claimMembership',
+            eventDefinitions: ['message'],
+          },
+        ],
+      }),
+    },
+    {
+      // `off` restores one-prefix-per-type: the plain prefix is accepted.
+      name: 'with the qualifier off the plain prefix is accepted',
+      config: { eventDefinitionQualifier: 'off' },
+      moddleElement: model({
+        shapes: [
+          {
+            id: 'startEvent_membershipRequested',
+            tag: 'startEvent',
+            eventDefinitions: ['message'],
+          },
+        ],
+      }),
+    },
+    {
+      // `required`: an event with a definition must carry the qualified form.
+      name: 'with the qualifier required the qualified form is accepted',
+      config: { eventDefinitionQualifier: 'required' },
+      moddleElement: model({
+        shapes: [
+          {
+            id: 'timerStartEvent_membershipRequested',
+            tag: 'startEvent',
+            eventDefinitions: ['timer'],
+          },
+        ],
+      }),
+    },
+    {
+      // `required` falls back to the plain prefix when the element has no event definition at all.
+      name: 'required falls back to the plain prefix without a definition',
+      config: { eventDefinitionQualifier: 'required' },
+      moddleElement: model({
+        shapes: [{ id: 'startEvent_membershipRequested', tag: 'startEvent' }],
+      }),
+    },
   ],
 
   invalid: [
@@ -150,6 +228,86 @@ verify('element-id-naming', rule, {
       report: {
         id: 'Flow_1sy6h9p',
         message: 'Element id must match the naming convention <flow_camelCase>',
+      },
+    },
+    {
+      // A lying qualifier: the id claims a timer event, but the element is a message event.
+      name: 'a qualifier that the element does not have is reported as a lie',
+      moddleElement: model({
+        shapes: [
+          {
+            id: 'timerStartEvent_membershipRequested',
+            tag: 'startEvent',
+            eventDefinitions: ['message'],
+          },
+        ],
+      }),
+      report: {
+        id: 'timerStartEvent_membershipRequested',
+        message: 'Element id claims a timer event, but this element has no timer event definition',
+      },
+    },
+    {
+      // Qualifiers only apply to events: a non-event whose id happens to start with a qualifier
+      // word (`error…`) must get the plain wrong-prefix message, never a bogus "claims an error
+      // event" lie.
+      name: 'a non-event is never reported as lying about a qualifier',
+      moddleElement: model({
+        shapes: [{ id: 'errorServiceTask_handle', tag: 'serviceTask' }],
+      }),
+      report: {
+        id: 'errorServiceTask_handle',
+        message: 'Element id must match the naming convention <serviceTask_camelCase>',
+      },
+    },
+    {
+      // Wrong case on an event that carries a definition: the message lists every accepted form.
+      name: 'a wrong-case event id lists both the plain and qualified conventions',
+      moddleElement: model({
+        shapes: [
+          {
+            id: 'messageStartEvent_MembershipRequested',
+            tag: 'startEvent',
+            eventDefinitions: ['message'],
+          },
+        ],
+      }),
+      report: {
+        id: 'messageStartEvent_MembershipRequested',
+        message:
+          'Element id must match the naming convention <startEvent_camelCase> or <messageStartEvent_camelCase>',
+      },
+    },
+    {
+      // With the qualifier off, the qualified form is no longer accepted.
+      name: 'with the qualifier off the qualified form is rejected',
+      config: { eventDefinitionQualifier: 'off' },
+      moddleElement: model({
+        shapes: [
+          {
+            id: 'messageStartEvent_membershipRequested',
+            tag: 'startEvent',
+            eventDefinitions: ['message'],
+          },
+        ],
+      }),
+      report: {
+        id: 'messageStartEvent_membershipRequested',
+        message: 'Element id must match the naming convention <startEvent_camelCase>',
+      },
+    },
+    {
+      // With the qualifier required, the plain prefix on a definition-carrying event is rejected.
+      name: 'with the qualifier required the plain prefix is rejected',
+      config: { eventDefinitionQualifier: 'required' },
+      moddleElement: model({
+        shapes: [
+          { id: 'startEvent_membershipRequested', tag: 'startEvent', eventDefinitions: ['timer'] },
+        ],
+      }),
+      report: {
+        id: 'startEvent_membershipRequested',
+        message: 'Element id must match the naming convention <timerStartEvent_camelCase>',
       },
     },
   ],

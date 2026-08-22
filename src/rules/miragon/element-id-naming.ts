@@ -1,10 +1,18 @@
-import { DEFAULT_PREFIXES, resolveCase, resolvePrefix } from '../../lib/naming';
-import type { PrefixMap } from '../../lib/naming';
+import {
+  DEFAULT_PREFIXES,
+  acceptedPrefixes,
+  detectLyingQualifier,
+  resolveCase,
+  resolvePrefix,
+  resolveQualifierMode,
+} from '../../lib/naming';
+import type { PrefixMap, QualifierMode } from '../../lib/naming';
 import type { ModdleElement, Reporter, Rule } from '../../lib/moddle';
 
 export interface ElementIdNamingConfig {
   prefixes?: PrefixMap;
   case?: string;
+  eventDefinitionQualifier?: QualifierMode;
 }
 
 /**
@@ -19,11 +27,18 @@ export interface ElementIdNamingConfig {
  *
  *     "miragon/element-id-naming": [ "error", {
  *       "prefixes": { "bpmn:SequenceFlow": "Flow_", "bpmn:ScriptTask": false },
- *       "case": "PascalCase"
+ *       "case": "PascalCase",
+ *       "eventDefinitionQualifier": "optional"
  *     } ]
  *
  * `prefixes` is merged over the defaults, so you only state what differs. `false` switches a
  * type off. `case` is one of `camelCase` (default), `PascalCase`, `snake_case` or `any`.
+ *
+ * `eventDefinitionQualifier` (default `optional`) controls whether an event id may name its event
+ * definition: `optional` accepts both `startEvent_` and `messageStartEvent_` on a message start
+ * event; `required` accepts only the qualified form; `off` restores one-prefix-per-type. The
+ * accepted qualifier is derived from the element's own definitions, so `timerStartEvent_` on a
+ * message start event is reported.
  *
  * Element types that are not configured are not checked — an exotic BPMN type nobody thought
  * about must not produce a report.
@@ -33,6 +48,7 @@ export default function elementIdNaming(config?: ElementIdNamingConfig): Rule {
 
   const prefixes = { ...DEFAULT_PREFIXES, ...overrides };
   const { pattern, label: caseLabel } = resolveCase(caseName);
+  const mode = resolveQualifierMode(config?.eventDefinitionQualifier);
 
   function check(node: ModdleElement, reporter: Reporter): void {
     // Elements without an ID are `no-bpmndi`'s / the engine's problem, not this rule's.
@@ -47,12 +63,29 @@ export default function elementIdNaming(config?: ElementIdNamingConfig): Rule {
     }
 
     const { prefix } = convention;
+    const accepted = acceptedPrefixes(node, prefix, mode);
 
-    if (node.id.startsWith(prefix) && pattern.test(node.id.slice(prefix.length))) {
+    const matches = (candidate: string): boolean =>
+      node.id.startsWith(candidate) && pattern.test(node.id.slice(candidate.length));
+
+    if (accepted.some(matches)) {
       return;
     }
 
-    reporter.report(node.id, `Element id must match the naming convention <${prefix}${caseLabel}>`);
+    // A truthful qualifier passes above; an id that *claims* a definition the element does not
+    // have gets a message that points straight at the lie.
+    const lie = mode !== 'off' ? detectLyingQualifier(node, prefix) : null;
+
+    if (lie) {
+      reporter.report(
+        node.id,
+        `Element id claims a ${lie} event, but this element has no ${lie} event definition`,
+      );
+      return;
+    }
+
+    const conventions = accepted.map((candidate) => `<${candidate}${caseLabel}>`).join(' or ');
+    reporter.report(node.id, `Element id must match the naming convention ${conventions}`);
   }
 
   return { check };
