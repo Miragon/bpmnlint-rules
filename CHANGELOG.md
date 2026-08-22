@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.9.0...v0.10.0) (2026-08-22)
+
+
+### Features
+
+* **engine-config:** decouple Miragon preset from engine in getDefaultLintConfig ([#36](https://github.com/Miragon/bpmnlint-rules/issues/36)) ([559c7d4](https://github.com/Miragon/bpmnlint-rules/commit/559c7d444e17f9e19c4e0ee03d464d6e8681156a))
+
 ## [0.9.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.8.0...v0.9.0) (2026-08-22)
 
 
