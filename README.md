@@ -111,8 +111,14 @@ Deploying to a Camunda engine? Add its deployability layer (bundled — no separ
 | Camunda 7         | `plugin:camunda-compat/camunda-platform-7-24` |
 | Camunda 8 (Zeebe) | `plugin:camunda-compat/camunda-cloud-8-10`    |
 
-These rules read engine properties, so point bpmnlint at the matching moddle extension in your
-`.bpmnlintrc`:
+These rules read engine-specific properties (`zeebe:*` for Camunda 8, `camunda:*` for Camunda 7), so
+bpmnlint has to parse them with the matching moddle extension. Wire it into your `.bpmnlintrc`
+alongside the engine layer:
+
+| Engine            | Add to `moddleExtensions`                                 |
+| ----------------- | --------------------------------------------------------- |
+| Camunda 8 (Zeebe) | `"zeebe": "zeebe-bpmn-moddle/resources/zeebe.json"`       |
+| Camunda 7         | `"camunda": "camunda-bpmn-moddle/resources/camunda.json"` |
 
 ```jsonc
 {
@@ -121,9 +127,12 @@ These rules read engine properties, so point bpmnlint at the matching moddle ext
 }
 ```
 
-For Camunda 7, use `"camunda": "camunda-bpmn-moddle/resources/camunda.json"`. Prefer to skip the
-wiring? The programmatic `getDefaultLintConfig({ engine })` below sets up both the layer and its
-moddle extension for you.
+**This line is not optional.** Without it the parser doesn't recognize the engine namespace, so those
+properties are invisible to the rules — they then report false findings (for example a service task
+flagged as missing its `zeebe:taskDefinition` even though it has one). A modeler loads the moddle
+already; it's the bare `npx bpmnlint` CLI that needs this line. Prefer to skip the wiring? The
+programmatic `getDefaultLintConfig({ engine })` below sets up both the layer and its moddle extension
+for you.
 
 ## Programmatic use
 
