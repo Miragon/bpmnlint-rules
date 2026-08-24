@@ -104,35 +104,43 @@ npx bpmnlint 'models/**/*.bpmn'
 ## Camunda engine rules
 
 Deploying to a Camunda engine? Add its deployability layer (bundled — no separate install) to your
-`extends`:
+`extends`. These rules read engine-specific properties, so bpmnlint must also parse them with the
+matching moddle extension — pick the config for your engine below.
 
-| Engine            | Add to `extends`                              |
-| ----------------- | --------------------------------------------- |
-| Camunda 7         | `plugin:camunda-compat/camunda-platform-7-24` |
-| Camunda 8 (Zeebe) | `plugin:camunda-compat/camunda-cloud-8-10`    |
+**The `moddleExtensions` line is not optional.** Without it the parser doesn't recognize the engine
+namespace, so those properties are invisible to the rules — they then report false findings (for
+example a service task flagged as missing its task definition even though it has one). A modeler loads
+the moddle already; it's the bare `npx bpmnlint` CLI that needs this line. Prefer to skip the wiring?
+The programmatic `getDefaultLintConfig({ engine })` below sets up both the layer and its moddle
+extension for you.
 
-These rules read engine-specific properties (`zeebe:*` for Camunda 8, `camunda:*` for Camunda 7), so
-bpmnlint has to parse them with the matching moddle extension. Wire it into your `.bpmnlintrc`
-alongside the engine layer:
-
-| Engine            | Add to `moddleExtensions`                                 |
-| ----------------- | --------------------------------------------------------- |
-| Camunda 8 (Zeebe) | `"zeebe": "zeebe-bpmn-moddle/resources/zeebe.json"`       |
-| Camunda 7         | `"camunda": "camunda-bpmn-moddle/resources/camunda.json"` |
+### Camunda 7
 
 ```jsonc
+// .bpmnlintrc
 {
-  "extends": ["bpmnlint:recommended", "plugin:camunda-compat/camunda-cloud-8-10"],
-  "moddleExtensions": { "zeebe": "zeebe-bpmn-moddle/resources/zeebe.json" },
+  "extends": [
+    "bpmnlint:recommended",
+    "plugin:@miragon/rules/recommended-for-automation",
+    "plugin:camunda-compat/camunda-platform-7-24",
+  ],
+  "moddleExtensions": { "camunda": "camunda-bpmn-moddle/resources/camunda.json" },
 }
 ```
 
-**This line is not optional.** Without it the parser doesn't recognize the engine namespace, so those
-properties are invisible to the rules — they then report false findings (for example a service task
-flagged as missing its `zeebe:taskDefinition` even though it has one). A modeler loads the moddle
-already; it's the bare `npx bpmnlint` CLI that needs this line. Prefer to skip the wiring? The
-programmatic `getDefaultLintConfig({ engine })` below sets up both the layer and its moddle extension
-for you.
+### Camunda 8 (Zeebe)
+
+```jsonc
+// .bpmnlintrc
+{
+  "extends": [
+    "bpmnlint:recommended",
+    "plugin:@miragon/rules/recommended-for-automation",
+    "plugin:camunda-compat/camunda-cloud-8-10",
+  ],
+  "moddleExtensions": { "zeebe": "zeebe-bpmn-moddle/resources/zeebe.json" },
+}
+```
 
 ## Programmatic use
 
