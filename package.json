@@ -67,14 +67,14 @@
     "bpmnlint-plugin-camunda-compat": "2.59.2",
     "bpmnlint-utils": "1.1.1",
     "camunda-bpmn-moddle": "7.0.1",
-    "zeebe-bpmn-moddle": "1.17.0"
+    "zeebe-bpmn-moddle": "1.18.0"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "@types/node": "26.2.0",
     "bpmnlint": "11.13.0",
     "dependency-cruiser": "18.2.0",
-    "eslint": "10.8.1",
+    "eslint": "10.9.0",
     "eslint-config-prettier": "10.1.8",
     "globals": "17.11.0",
     "knip": "6.32.2",
@@ -82,7 +82,7 @@
     "tsup": "8.5.1",
     "typescript": "5.9.3",
     "typescript-eslint": "8.67.0",
-    "vitest": "4.1.10"
+    "vitest": "4.1.11"
   },
   "repository": {
     "type": "git",
