@@ -67,7 +67,7 @@
     "bpmnlint-plugin-camunda-compat": "2.59.2",
     "bpmnlint-utils": "1.1.1",
     "camunda-bpmn-moddle": "7.0.2",
-    "zeebe-bpmn-moddle": "1.18.0"
+    "zeebe-bpmn-moddle": "2.0.0"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
