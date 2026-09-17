@@ -30,6 +30,13 @@ const npm = (args, cwd) =>
 
 const step = (message) => console.log(`  -> ${message}`);
 
+/** `npm pack --json` is an array (npm <= 11) or an object keyed by package name (npm >= 12). */
+function packedFilename(packOutput) {
+  const parsed = JSON.parse(packOutput);
+  const [entry] = Array.isArray(parsed) ? parsed : Object.values(parsed);
+  return entry.filename;
+}
+
 /** Runs the installed bpmnlint CLI over a fixture and returns its combined output + status. */
 function lint(project, fixture) {
   try {
@@ -51,9 +58,9 @@ function main() {
   try {
     step(`sandbox: ${sandbox}`);
 
-    const { filename } = JSON.parse(
+    const filename = packedFilename(
       npm(['pack', '--json', '--pack-destination', sandbox], REPO_ROOT),
-    )[0];
+    );
     const tarball = path.join(sandbox, filename);
     step(`packed ${filename}`);
 
