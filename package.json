@@ -64,15 +64,15 @@
     "bpmnlint": ">=11"
   },
   "dependencies": {
-    "bpmnlint-plugin-camunda-compat": "2.59.2",
+    "bpmnlint-plugin-camunda-compat": "2.60.1",
     "bpmnlint-utils": "1.1.1",
     "camunda-bpmn-moddle": "8.0.1",
     "zeebe-bpmn-moddle": "2.0.0"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
-    "@types/node": "26.5.0",
-    "bpmnlint": "11.13.0",
+    "@types/node": "26.5.1",
+    "bpmnlint": "11.14.0",
     "dependency-cruiser": "18.2.0",
     "eslint": "10.10.0",
     "eslint-config-prettier": "10.1.8",
