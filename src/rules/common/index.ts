@@ -39,6 +39,7 @@ import standardSize from 'bpmnlint/rules/standard-size';
 import startEventRequired from 'bpmnlint/rules/start-event-required';
 import subProcessBlankStartEvent from 'bpmnlint/rules/sub-process-blank-start-event';
 import superfluousGateway from 'bpmnlint/rules/superfluous-gateway';
+import superfluousLabel from 'bpmnlint/rules/superfluous-label';
 import superfluousTermination from 'bpmnlint/rules/superfluous-termination';
 
 /** The `extends` entry a config uses to pull in the structural base. */
@@ -77,5 +78,6 @@ export const resolverEntries: ResolverEntries = {
   'rule:bpmnlint/start-event-required': startEventRequired,
   'rule:bpmnlint/sub-process-blank-start-event': subProcessBlankStartEvent,
   'rule:bpmnlint/superfluous-gateway': superfluousGateway,
+  'rule:bpmnlint/superfluous-label': superfluousLabel,
   'rule:bpmnlint/superfluous-termination': superfluousTermination,
 };
