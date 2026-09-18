@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.1](https://github.com/Miragon/bpmnlint-rules/compare/v0.10.0...v0.10.1) (2026-09-18)
+
+
+### Bug Fixes
+
+* **test:** parse npm pack --json across npm versions in distro smoke ([#46](https://github.com/Miragon/bpmnlint-rules/issues/46)) ([de6d542](https://github.com/Miragon/bpmnlint-rules/commit/de6d542948b027fe7c893dfbf63e0c2fca01b99e))
+
 ## [0.10.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.9.0...v0.10.0) (2026-08-22)
 
 
