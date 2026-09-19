@@ -22,6 +22,8 @@ that automatically, wherever BPMN is written:
 Most teams already have these conventions — in a wiki, or in one reviewer's head. This plugin makes
 them executable.
 
+<!-- #region setup -->
+
 ## Install
 
 Install the plugin together with `bpmnlint` (its peer dependency):
@@ -38,14 +40,19 @@ Add the plugin to your `.bpmnlintrc` and extend one of its configs, like any oth
 // .bpmnlintrc
 {
   "extends": [
-    "bpmnlint:recommended", // standard structural rules
-    "plugin:@miragon/rules/recommended-for-<scope>", // the Miragon layer — pick a scope below
-    // "plugin:camunda-compat/camunda-cloud-8-10", // optional: Camunda engine rules — see below
+    // standard structural rules
+    "bpmnlint:recommended",
+    // the Miragon layer, pick a scope below
+    "plugin:@miragon/rules/recommended-for-<scope>",
+    // optional: Camunda engine rules, see below
+    // "plugin:camunda-compat/camunda-cloud-8-10",
   ],
 }
 ```
 
 It ships three configs — pick one by who's modeling and why:
+
+<!-- #region presets -->
 
 - `plugin:@miragon/rules/recommended-for-modeling` — for **purely business/technical models**, and for
   **modeler applications that surface linting** to their users. Layout hints only: bpmnlint's
@@ -57,11 +64,15 @@ It ships three configs — pick one by who's modeling and why:
 - `plugin:@miragon/rules/all` — every Miragon rule at `error`, engine-agnostic. The strict gate to opt
   into when you want findings to fail the build.
 
+<!-- #endregion presets -->
+
 Then lint a diagram:
 
 ```bash
 npx bpmnlint diagram.bpmn
 ```
+
+<!-- #endregion setup -->
 
 ## Rules
 
@@ -81,7 +92,10 @@ Turn any of them on individually, the usual way:
 
 ```jsonc
 {
-  "extends": ["bpmnlint:recommended", "plugin:@miragon/rules/recommended-for-modeling"],
+  "extends": [
+    "bpmnlint:recommended",
+    "plugin:@miragon/rules/recommended-for-modeling",
+  ],
   "rules": {
     "@miragon/rules/no-generated-ids": "error",
     "@miragon/rules/element-id-naming": "warn",
@@ -93,7 +107,11 @@ Structural checks — start/end events, connectivity, element sizing — come fr
 [`bpmnlint:recommended`](https://github.com/bpmn-io/bpmnlint/blob/main/docs/rules/README.md). The
 Miragon set grows over time; see [CONTRIBUTING.md](CONTRIBUTING.md) to propose a rule.
 
+<!-- #region usage -->
+
 ## In CI
+
+<!-- #region ci -->
 
 Lint every model as a merge gate — bpmnlint exits non-zero on a finding, failing the build:
 
@@ -101,7 +119,11 @@ Lint every model as a merge gate — bpmnlint exits non-zero on a finding, faili
 npx bpmnlint 'models/**/*.bpmn'
 ```
 
+<!-- #endregion ci -->
+
 ## Camunda engine rules
+
+<!-- #region engines -->
 
 Deploying to a Camunda engine? Add its deployability layer (bundled — no separate install) to your
 `extends`. These rules read engine-specific properties, so bpmnlint must also parse them with the
@@ -124,7 +146,9 @@ extension for you.
     "plugin:@miragon/rules/recommended-for-automation",
     "plugin:camunda-compat/camunda-platform-7-24",
   ],
-  "moddleExtensions": { "camunda": "camunda-bpmn-moddle/resources/camunda.json" },
+  "moddleExtensions": {
+    "camunda": "camunda-bpmn-moddle/resources/camunda.json",
+  },
 }
 ```
 
@@ -138,11 +162,17 @@ extension for you.
     "plugin:@miragon/rules/recommended-for-automation",
     "plugin:camunda-compat/camunda-cloud-8-10",
   ],
-  "moddleExtensions": { "zeebe": "zeebe-bpmn-moddle/resources/zeebe.json" },
+  "moddleExtensions": {
+    "zeebe": "zeebe-bpmn-moddle/resources/zeebe.json",
+  },
 }
 ```
 
+<!-- #endregion engines -->
+
 ## Programmatic use
+
+<!-- #region programmatic -->
 
 Building a linter in code — a modeler, a CI script, an agent loop? Skip `.bpmnlintrc` and use the
 bundled resolver. It carries every layer (structural + Camunda + Miragon), so there's nothing else
@@ -151,12 +181,16 @@ to wire up, and it works offline:
 ```ts
 import BpmnModdle from 'bpmn-moddle';
 import Linter from 'bpmnlint/lib/linter';
-import { createBundledResolver, getDefaultLintConfig } from '@miragon/bpmnlint-plugin-rules';
+import {
+  createBundledResolver,
+  getDefaultLintConfig,
+} from '@miragon/bpmnlint-plugin-rules';
 
 const { rootElement } = await new BpmnModdle().fromXML(xml);
 
 const linter = new Linter({
-  config: getDefaultLintConfig({ engine: 'c8' }), // 'c7' | 'c8' — omit for structural-only
+  // 'c7' | 'c8', omit for structural-only
+  config: getDefaultLintConfig({ engine: 'c8' }),
   resolver: createBundledResolver(),
 });
 
@@ -186,6 +220,10 @@ if (errors.length) process.exit(1);
 ```
 
 Every rule factory, rule-set and helper is exported from the package root as well.
+
+<!-- #endregion programmatic -->
+
+<!-- #endregion usage -->
 
 ## Alternatives
 

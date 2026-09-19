@@ -65,7 +65,11 @@ Comparison is scoped per `BPMNPlane`. Left alone:
     "@miragon/rules/flow-target-alignment": [
       "error",
       {
-        "exemptTypes": ["bpmn:Gateway", "bpmn:BoundaryEvent", "bpmn:SubProcess"]
+        "exemptTypes": [
+          "bpmn:Gateway",
+          "bpmn:BoundaryEvent",
+          "bpmn:SubProcess"
+        ]
       }
     ]
   }

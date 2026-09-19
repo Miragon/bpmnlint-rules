@@ -8,3 +8,8 @@ run_mode = "concurrent"
 [scripts.run.test]
 command = "npm run test:watch"
 icon = "test-tube"
+
+# Docs site with hot reload (VitePress).
+[scripts.run.docs]
+command = "npm run build && npm run dev --workspace docs -- --port ${CONDUCTOR_PORT:-5173}"
+icon = "book-open"
