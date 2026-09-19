@@ -80,9 +80,9 @@ reported. The qualifier is the definition name lowercased (`bpmn:TimerEventDefin
 | `off`                | `startEvent_…` only                                          |
 
 ```
-startEvent_membershipRequested          👍 always valid
-messageStartEvent_membershipRequested   👍 the element IS a message start event
-timerStartEvent_membershipRequested     👎 no timer event definition on this element
+👍 startEvent_membershipRequested         always valid
+👍 messageStartEvent_membershipRequested  it IS a message start event
+👎 timerStartEvent_membershipRequested    no timer event definition
 ```
 
 The default `optional` only _widens_ what passes, so enabling the rule never rejects an id that was
@@ -98,7 +98,10 @@ plain wrong-prefix / wrong-case one.
     "@miragon/rules/element-id-naming": [
       "error",
       {
-        "prefixes": { "bpmn:SequenceFlow": "Flow_", "bpmn:ScriptTask": false },
+        "prefixes": {
+          "bpmn:SequenceFlow": "Flow_",
+          "bpmn:ScriptTask": false
+        },
         "case": "snake_case",
         "eventDefinitionQualifier": "optional"
       }

@@ -3,5 +3,11 @@
   "singleQuote": true,
   "printWidth": 100,
   "trailingComma": "all",
-  "arrowParens": "always"
+  "arrowParens": "always",
+  "overrides": [
+    {
+      "files": ["README.md", "docs/**/*.md"],
+      "options": { "printWidth": 72, "proseWrap": "preserve" }
+    }
+  ]
 }

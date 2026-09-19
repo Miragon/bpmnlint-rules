@@ -99,7 +99,10 @@ guessed, to avoid false positives.
 ## Configuration
 
 ```jsonc
-"@miragon/rules/flow-connection-side": ["error", { "allowBackwardsFlow": false, "minStubLength": 20 }]
+"@miragon/rules/flow-connection-side": [
+  "error",
+  { "allowBackwardsFlow": false, "minStubLength": 20 }
+]
 ```
 
 | Option               | Default | Effect                                                                                                                                                                                              |

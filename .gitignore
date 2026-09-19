@@ -13,3 +13,7 @@ coverage/
 .DS_Store
 *.log
 .gstack/
+
+# docs site (vitepress)
+docs/.vitepress/dist/
+docs/.vitepress/cache/

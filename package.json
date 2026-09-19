@@ -55,10 +55,12 @@
     "knip": "knip",
     "knip:production": "knip --production --strict",
     "knip:fix": "knip --fix",
-    "docs:examples": "node scripts/render-examples.mjs",
+    "docs:examples": "npm run examples --workspace docs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "docs:dev": "npm run build && npm run dev --workspace docs",
+    "docs:build": "npm run build && npm run build --workspace docs"
   },
   "peerDependencies": {
     "bpmnlint": ">=11"
@@ -91,5 +93,8 @@
   "bugs": {
     "url": "https://github.com/Miragon/bpmnlint-rules/issues"
   },
-  "homepage": "https://github.com/Miragon/bpmnlint-rules#readme"
+  "homepage": "https://miragon.github.io/bpmnlint-rules/",
+  "workspaces": [
+    "docs"
+  ]
 }
