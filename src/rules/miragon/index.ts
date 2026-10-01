@@ -19,6 +19,7 @@ import flowCrossing from './flow-crossing';
 import flowOrthogonal from './flow-orthogonal';
 import flowTargetAlignment from './flow-target-alignment';
 import flowThroughElement from './flow-through-element';
+import flowZigzag from './flow-zigzag';
 import noGeneratedIds from './no-generated-ids';
 
 /** The expanded plugin package name — the prefix every resolver cache key uses. */
@@ -36,6 +37,7 @@ export const miragonRuleFactories: Record<string, RuleFactory> = {
   'flow-target-alignment': flowTargetAlignment,
   'flow-crossing': flowCrossing,
   'flow-orthogonal': flowOrthogonal,
+  'flow-zigzag': flowZigzag,
 };
 
 /**
@@ -58,6 +60,7 @@ export const miragonRecommendedForModeling: BpmnlintConfig = {
     [`${MIRAGON_NAME}/flow-target-alignment`]: 'warn',
     [`${MIRAGON_NAME}/flow-crossing`]: 'warn',
     [`${MIRAGON_NAME}/flow-orthogonal`]: 'warn',
+    [`${MIRAGON_NAME}/flow-zigzag`]: 'warn',
   },
 };
 
@@ -79,6 +82,7 @@ export const miragonRecommendedForAutomation: BpmnlintConfig = {
     [`${MIRAGON_NAME}/flow-target-alignment`]: 'warn',
     [`${MIRAGON_NAME}/flow-crossing`]: 'warn',
     [`${MIRAGON_NAME}/flow-orthogonal`]: 'warn',
+    [`${MIRAGON_NAME}/flow-zigzag`]: 'warn',
   },
 };
 
@@ -92,6 +96,7 @@ export const miragonAll: BpmnlintConfig = {
     [`${MIRAGON_NAME}/flow-target-alignment`]: 'error',
     [`${MIRAGON_NAME}/flow-crossing`]: 'error',
     [`${MIRAGON_NAME}/flow-orthogonal`]: 'error',
+    [`${MIRAGON_NAME}/flow-zigzag`]: 'error',
   },
 };
 
@@ -115,5 +120,6 @@ export {
   flowOrthogonal,
   flowTargetAlignment,
   flowThroughElement,
+  flowZigzag,
   noGeneratedIds,
 };

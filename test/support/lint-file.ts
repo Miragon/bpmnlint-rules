@@ -15,6 +15,7 @@ import flowConnectionSide from '../../src/rules/miragon/flow-connection-side';
 import flowTargetAlignment from '../../src/rules/miragon/flow-target-alignment';
 import flowCrossing from '../../src/rules/miragon/flow-crossing';
 import flowOrthogonal from '../../src/rules/miragon/flow-orthogonal';
+import flowZigzag from '../../src/rules/miragon/flow-zigzag';
 
 const RULES: Record<string, RuleFactory> = {
   'no-generated-ids': noGeneratedIds,
@@ -24,6 +25,7 @@ const RULES: Record<string, RuleFactory> = {
   'flow-target-alignment': flowTargetAlignment,
   'flow-crossing': flowCrossing,
   'flow-orthogonal': flowOrthogonal,
+  'flow-zigzag': flowZigzag,
 };
 
 const EXAMPLES_DIR = fileURLToPath(new URL('../fixtures/rules', import.meta.url));

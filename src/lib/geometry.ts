@@ -102,6 +102,84 @@ export function isOrthogonalPath(waypoints: Point[], toleranceDeg = 10): boolean
 }
 
 /**
+ * How many bends (direction changes) does a waypoint polyline make?
+ *
+ * The unit direction of each segment is compared with the one before it; a change larger than
+ * `toleranceDeg` counts as one bend. Zero-length segments (duplicate waypoints) are dropped, and a
+ * straight run split across several waypoints collapses to no bend, so only genuine corners count.
+ * A right-angle turn or a full reversal is a bend; a few pixels of rounding is not. A straight or
+ * single-segment flow has zero bends.
+ */
+export function bendCount(waypoints: Point[], toleranceDeg = 5): number {
+  const directions: Point[] = [];
+  for (const [start, end] of segments(waypoints)) {
+    const deltaX = end.x - start.x;
+    const deltaY = end.y - start.y;
+    const length = Math.hypot(deltaX, deltaY);
+    if (length < 1e-6) {
+      continue; // duplicate/degenerate waypoint, not a segment
+    }
+    directions.push({ x: deltaX / length, y: deltaY / length });
+  }
+
+  if (directions.length < 2) {
+    return 0;
+  }
+
+  const cosTolerance = Math.cos((toleranceDeg * Math.PI) / 180);
+  let bends = 0;
+  for (let index = 1; index < directions.length; index++) {
+    const previous = directions[index - 1]!;
+    const current = directions[index]!;
+    const dot = previous.x * current.x + previous.y * current.y;
+    if (dot < cosTolerance) {
+      bends++;
+    }
+  }
+  return bends;
+}
+
+/**
+ * Does a waypoint polyline make monotone progress, never reversing on either axis?
+ *
+ * A monotone path only ever moves in one horizontal direction and one vertical direction (a
+ * straight line, an L, a Z, a staircase that steps toward its target across rows or lanes), so it
+ * reads as steady progress and never doubles back. As soon as it moves right after moving left, or
+ * down after moving up, it has reversed: it wraps back on itself (every loop-back does) or wanders.
+ *
+ * Orthogonal routing is assumed (a slant is a separate concern), so each segment is judged only on
+ * its dominant axis: a near-horizontal segment's minor-axis drift is not a turn and must not
+ * register a vertical direction, or a clean staircase whose rung drifts a few pixels would read as a
+ * reversal. Moves smaller than `tolerance` on the dominant axis are ignored as rounding.
+ */
+export function isMonotonePath(waypoints: Point[], tolerance = 1): boolean {
+  let xSign = 0;
+  let ySign = 0;
+  for (const [start, end] of segments(waypoints)) {
+    const deltaX = end.x - start.x;
+    const deltaY = end.y - start.y;
+    if (Math.abs(deltaX) >= Math.abs(deltaY)) {
+      if (Math.abs(deltaX) > tolerance) {
+        const sign = Math.sign(deltaX);
+        if (xSign !== 0 && sign !== xSign) {
+          return false;
+        }
+        xSign = sign;
+      }
+    } else {
+      if (Math.abs(deltaY) > tolerance) {
+        const sign = Math.sign(deltaY);
+        if (ySign !== 0 && sign !== ySign) {
+          return false;
+        }
+        ySign = sign;
+      }
+    }
+  }
+  return true;
+}
+
+/**
  * Is the point strictly inside the rectangle? `padding` keeps a point sitting exactly on the
  * border (where flows legitimately attach) from counting as "inside".
  */
