@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.1](https://github.com/Miragon/bpmnlint-rules/compare/v0.11.0...v0.11.1) (2026-10-02)
+
+
+### Bug Fixes
+
+* make flow-crossing and flow-through-element linear on large models ([#58](https://github.com/Miragon/bpmnlint-rules/issues/58)) ([635e24b](https://github.com/Miragon/bpmnlint-rules/commit/635e24b70f818dc59bd72eed4c1e2f9eb6fdbce7))
+
 ## [0.11.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.10.1...v0.11.0) (2026-10-02)
 
 
