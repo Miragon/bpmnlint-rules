@@ -155,6 +155,94 @@ export const bboxDisjoint = (first: Bbox, second: Bbox): boolean =>
   first.maxY < second.minY ||
   second.maxY < first.minY;
 
+const isFiniteSpan = (low: number, high: number): boolean =>
+  high - low >= 0 && high - low < Infinity;
+
+const isWellFormed = (box: Bbox): boolean =>
+  isFiniteSpan(box.minX, box.maxX) && isFiniteSpan(box.minY, box.maxY);
+
+/**
+ * Spatial index (uniform grid) over `boxes`, so a caller no longer compares every box with every
+ * other one.
+ *
+ * The returned lookup yields the indices of exactly the boxes a linear `!bboxDisjoint(box, query)`
+ * scan would keep, in ascending order, but only visits the boxes filed in the grid cells `query`
+ * covers. The grid has about one cell per box.
+ *
+ * A box is only filed when it is local: well-formed (finite, not inverted) and covering no more
+ * cells than one grid row holds. Every other box is compared against each query directly, and a
+ * query that is not local itself is compared against every box, so the answer never depends on the
+ * grid and a diagram full of sprawling boxes costs no more than the linear scan did.
+ */
+export function indexBboxes(boxes: Bbox[]): (query: Bbox) => number[] {
+  const extent = bboxOfPoints(
+    boxes.filter(isWellFormed).flatMap((box) => [
+      { x: box.minX, y: box.minY },
+      { x: box.maxX, y: box.maxY },
+    ]),
+  );
+  const cellsPerAxis = Math.ceil(Math.sqrt(boxes.length)) || 1;
+  const cellWidth = (extent.maxX - extent.minX) / cellsPerAxis || 1;
+  const cellHeight = (extent.maxY - extent.minY) / cellsPerAxis || 1;
+  const cells: number[][] = Array.from({ length: cellsPerAxis * cellsPerAxis }, () => []);
+
+  const cellAlongAxis = (offset: number, cellSize: number): number => {
+    const cell = Math.floor(offset / cellSize);
+    return cell > 0 ? Math.min(cell, cellsPerAxis - 1) : 0;
+  };
+
+  const cellsOfLocalBox = (box: Bbox): number[][] | undefined => {
+    if (!isWellFormed(box)) {
+      return undefined;
+    }
+
+    const firstColumn = cellAlongAxis(box.minX - extent.minX, cellWidth);
+    const lastColumn = cellAlongAxis(box.maxX - extent.minX, cellWidth);
+    const firstRow = cellAlongAxis(box.minY - extent.minY, cellHeight);
+    const lastRow = cellAlongAxis(box.maxY - extent.minY, cellHeight);
+
+    if ((lastColumn - firstColumn + 1) * (lastRow - firstRow + 1) > cellsPerAxis) {
+      return undefined;
+    }
+
+    const covered: number[][] = [];
+    for (let row = firstRow; row <= lastRow; row++) {
+      for (let column = firstColumn; column <= lastColumn; column++) {
+        covered.push(cells[row * cellsPerAxis + column]!);
+      }
+    }
+    return covered;
+  };
+
+  const allIndices = Array.from(boxes.keys());
+  const unfiledIndices: number[] = [];
+
+  for (const index of allIndices) {
+    const covered = cellsOfLocalBox(boxes[index]!);
+
+    if (covered) {
+      covered.forEach((cell) => cell.push(index));
+    } else {
+      unfiledIndices.push(index);
+    }
+  }
+
+  return (query) => {
+    const overlapsQuery = (index: number): boolean => !bboxDisjoint(boxes[index]!, query);
+    const covered = cellsOfLocalBox(query);
+
+    if (!covered) {
+      return allIndices.filter(overlapsQuery);
+    }
+
+    const filedOverlaps = new Set(covered.flat().filter(overlapsQuery));
+
+    return [...unfiledIndices.filter(overlapsQuery), ...filedOverlaps].sort(
+      (first, second) => first - second,
+    );
+  };
+}
+
 /** The four sides of an axis-aligned rectangle — where a flow docks onto a shape. */
 export type Side = 'top' | 'right' | 'bottom' | 'left';
 

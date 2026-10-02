@@ -1,4 +1,11 @@
-import { attachSide, gatewayTipSide, isOrthogonalPath } from '../../src/lib/geometry';
+import {
+  attachSide,
+  bboxDisjoint,
+  gatewayTipSide,
+  indexBboxes,
+  isOrthogonalPath,
+} from '../../src/lib/geometry';
+import type { Bbox } from '../../src/lib/geometry';
 
 // A 100×80 box at the origin-ish: left x=100, right x=200, top y=100, bottom y=180, centre (150,140).
 const BOX = { x: 100, y: 100, width: 100, height: 80 };
@@ -89,5 +96,78 @@ describe('isOrthogonalPath', () => {
         { x: 160, y: 60 },
       ]),
     ).toBe(false);
+  });
+});
+
+const linearScan = (boxes: Bbox[], query: Bbox): number[] =>
+  boxes.flatMap((box, index) => (bboxDisjoint(box, query) ? [] : [index]));
+
+// A seeded generator (mulberry32), so the randomised layouts are the same on every run.
+function seededRandom(seed: number): () => number {
+  let state = seed;
+  return () => {
+    state = (state + 0x6d2b79f5) | 0;
+    let mixed = Math.imul(state ^ (state >>> 15), 1 | state);
+    mixed = (mixed + Math.imul(mixed ^ (mixed >>> 7), 61 | mixed)) ^ mixed;
+    return ((mixed ^ (mixed >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+const MALFORMED_BOXES: Bbox[] = [
+  { minX: NaN, minY: 0, maxX: 500, maxY: 500 },
+  { minX: 0, minY: NaN, maxX: NaN, maxY: 500 },
+  { minX: -Infinity, minY: 100, maxX: Infinity, maxY: 200 },
+  { minX: 900, minY: 100, maxX: 300, maxY: 400 },
+];
+
+function randomBoxes(random: () => number, count: number, canvasSize: number): Bbox[] {
+  return Array.from({ length: count }, () => {
+    const roll = random();
+    if (roll < 0.05) {
+      return MALFORMED_BOXES[Math.floor(random() * MALFORMED_BOXES.length)]!;
+    }
+
+    const maxSize = roll < 0.2 ? canvasSize : 120;
+    const minX = Math.round(random() * canvasSize);
+    const minY = Math.round(random() * canvasSize);
+    return {
+      minX,
+      minY,
+      maxX: minX + Math.round(random() * maxSize),
+      maxY: minY + Math.round(random() * maxSize),
+    };
+  });
+}
+
+describe('indexBboxes', () => {
+  it('finds the boxes a query overlaps or touches, in ascending order', () => {
+    const boxes: Bbox[] = [
+      { minX: 0, minY: 0, maxX: 100, maxY: 80 },
+      { minX: 400, minY: 0, maxX: 500, maxY: 80 },
+      { minX: 100, minY: 80, maxX: 200, maxY: 160 },
+      { minX: 0, minY: 400, maxX: 100, maxY: 480 },
+      { minX: 50, minY: 40, maxX: 60, maxY: 50 },
+    ];
+
+    expect(indexBboxes(boxes)({ minX: 20, minY: 20, maxX: 100, maxY: 80 })).toEqual([0, 2, 4]);
+    expect(indexBboxes(boxes)({ minX: 250, minY: 200, maxX: 300, maxY: 300 })).toEqual([]);
+  });
+
+  it('finds nothing in an empty index', () => {
+    expect(indexBboxes([])({ minX: 0, minY: 0, maxX: 10, maxY: 10 })).toEqual([]);
+  });
+
+  it('matches the linear scan on randomised layouts, sprawling and malformed boxes included', () => {
+    const random = seededRandom(52);
+
+    for (let layout = 0; layout < 200; layout++) {
+      const canvasSize = layout % 10 === 0 ? 0 : 2000;
+      const boxes = randomBoxes(random, Math.floor(random() * 150), canvasSize);
+      const overlapping = indexBboxes(boxes);
+
+      for (const query of [...boxes, ...randomBoxes(random, 25, canvasSize)]) {
+        expect(overlapping(query)).toEqual(linearScan(boxes, query));
+      }
+    }
   });
 });

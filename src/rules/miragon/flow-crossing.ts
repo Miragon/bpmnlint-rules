@@ -1,5 +1,5 @@
 import { collectByPlane, flowEndpointIds } from '../../lib/di';
-import { bboxDisjoint, bboxOfPoints, segments, segmentsCross } from '../../lib/geometry';
+import { bboxOfPoints, indexBboxes, segments, segmentsCross } from '../../lib/geometry';
 import type { Bbox, Point } from '../../lib/geometry';
 import type { ModdleElement, Reporter, Rule } from '../../lib/moddle';
 
@@ -39,19 +39,18 @@ export default function flowCrossing(): Rule {
           segments: segments(edge.waypoints),
         }));
 
+      const flowsOverlapping = indexBboxes(flows.map((flow) => flow.bbox));
+
       for (let outer = 0; outer < flows.length; outer++) {
         const first = flows[outer]!;
+        const laterOverlappingFlows = flowsOverlapping(first.bbox).filter((inner) => inner > outer);
 
-        for (let inner = outer + 1; inner < flows.length; inner++) {
+        for (const inner of laterOverlappingFlows) {
           const second = flows[inner]!;
 
           // Flows sharing a node fan out from / into it — never a crossing.
           if ([...first.endpoints].some((nodeId) => second.endpoints.has(nodeId))) {
             continue;
-          }
-
-          if (bboxDisjoint(first.bbox, second.bbox)) {
-            continue; // cheap reject
           }
 
           const cross = first.segments.some(([firstStart, firstEnd]) =>

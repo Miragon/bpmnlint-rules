@@ -1,8 +1,8 @@
 import { collectByPlane, flowEndpointIds, inst, isPassableShape } from '../../lib/di';
 import {
-  bboxDisjoint,
   bboxOfPoints,
   bboxOfRect,
+  indexBboxes,
   segments,
   segThroughRect,
 } from '../../lib/geometry';
@@ -25,9 +25,10 @@ export default function flowThroughElement(): Rule {
     }
 
     for (const plane of collectByPlane(node)) {
-      const obstacles = plane.shapes
-        .filter((shape) => !isPassableShape(shape.el, shape.isExpanded))
-        .map((shape) => ({ ...shape, bbox: bboxOfRect(shape.bounds) }));
+      const obstacles = plane.shapes.filter(
+        (shape) => !isPassableShape(shape.el, shape.isExpanded),
+      );
+      const obstaclesOverlapping = indexBboxes(obstacles.map((shape) => bboxOfRect(shape.bounds)));
 
       const flows = plane.edges.filter((edge) => edge.el.$type === 'bpmn:SequenceFlow');
 
@@ -45,13 +46,11 @@ export default function flowThroughElement(): Rule {
         const flowSegments = segments(flow.waypoints);
         const flowBox = bboxOfPoints(flow.waypoints);
 
-        for (const shape of obstacles) {
+        for (const obstacleIndex of obstaclesOverlapping(flowBox)) {
+          const shape = obstacles[obstacleIndex]!;
+
           if (endpoints.has(shape.el.id)) {
             continue;
-          }
-
-          if (bboxDisjoint(flowBox, shape.bbox)) {
-            continue; // cheap reject
           }
 
           if (flowSegments.some(([start, end]) => segThroughRect(start, end, shape.bounds))) {
