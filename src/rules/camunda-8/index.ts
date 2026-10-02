@@ -56,6 +56,7 @@ import rule_subscription from 'bpmnlint-plugin-camunda-compat/rules/camunda-clou
 import rule_task_listener from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/task-listener';
 import rule_task_schedule from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/task-schedule';
 import rule_timer from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/timer';
+import rule_unresolvable_secret_reference from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/unresolvable-secret-reference';
 import rule_user_task_definition from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/user-task-definition';
 import rule_user_task_form from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/user-task-form';
 import rule_variable_name from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/variable-name';
@@ -125,6 +126,7 @@ export const resolverEntries: ResolverEntries = {
   [`rule:${PLUGIN}/task-listener`]: rule_task_listener,
   [`rule:${PLUGIN}/task-schedule`]: rule_task_schedule,
   [`rule:${PLUGIN}/timer`]: rule_timer,
+  [`rule:${PLUGIN}/unresolvable-secret-reference`]: rule_unresolvable_secret_reference,
   [`rule:${PLUGIN}/user-task-definition`]: rule_user_task_definition,
   [`rule:${PLUGIN}/user-task-form`]: rule_user_task_form,
   [`rule:${PLUGIN}/variable-name`]: rule_variable_name,
