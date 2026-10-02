@@ -27,16 +27,21 @@ export const MIRAGON_PLUGIN = '@miragon/bpmnlint-plugin-rules';
 /** The short plugin name a `.bpmnlintrc` writes (`@miragon/rules/<rule>`, `plugin:@miragon/rules/<config>`). */
 export const MIRAGON_NAME = '@miragon/rules';
 
-/** The rule factories this plugin ships, keyed by their short (unprefixed) name. */
-export const miragonRuleFactories: Record<string, RuleFactory> = {
-  'no-generated-ids': noGeneratedIds,
-  'element-id-naming': elementIdNaming,
-  'flow-through-element': flowThroughElement,
-  'flow-connection-side': flowConnectionSide,
-  'flow-target-alignment': flowTargetAlignment,
-  'flow-crossing': flowCrossing,
-  'flow-orthogonal': flowOrthogonal,
+const ruleFactoriesByName = {
+  [noGeneratedIds.ruleName]: noGeneratedIds,
+  [elementIdNaming.ruleName]: elementIdNaming,
+  [flowThroughElement.ruleName]: flowThroughElement,
+  [flowConnectionSide.ruleName]: flowConnectionSide,
+  [flowTargetAlignment.ruleName]: flowTargetAlignment,
+  [flowCrossing.ruleName]: flowCrossing,
+  [flowOrthogonal.ruleName]: flowOrthogonal,
 };
+
+/** The short (unprefixed) name of a rule this plugin ships, as each rule file declares it. */
+export type MiragonRuleName = keyof typeof ruleFactoriesByName;
+
+/** The rule factories this plugin ships, keyed by their short (unprefixed) name. */
+export const miragonRuleFactories: Record<string, RuleFactory> = ruleFactoriesByName;
 
 /**
  * The Miragon opinion layer for **modeling**, exposed as

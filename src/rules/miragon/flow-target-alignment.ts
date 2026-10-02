@@ -132,3 +132,5 @@ export default function flowTargetAlignment(config?: FlowTargetAlignmentConfig):
 
   return { check };
 }
+
+flowTargetAlignment.ruleName = 'flow-target-alignment' as const;

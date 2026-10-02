@@ -269,3 +269,5 @@ export default function flowConnectionSide(config?: FlowConnectionSideConfig): R
 
   return { check };
 }
+
+flowConnectionSide.ruleName = 'flow-connection-side' as const;
