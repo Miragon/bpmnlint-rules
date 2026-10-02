@@ -16,11 +16,11 @@ Only `src/rules/miragon/` holds rule source we author. Shared, linter-free logic
 
 ## Before saying "done" — the verify gate
 
-Run the eight-command gate from `CONTRIBUTING.md` ("Before opening a PR"); CI runs the same:
+Run the nine-command gate from `CONTRIBUTING.md` ("Before opening a PR"); CI runs the same:
 
 ```bash
 npm run typecheck && npm run lint && npm run format:check && npm run knip \
-  && npm run lint:deps && npm test && npm run build && npm run test:distro
+  && npm run lint:deps && npm test && npm run build && npm run bench && npm run test:distro
 ```
 
 ## Guardrails (easy to break, load-bearing)

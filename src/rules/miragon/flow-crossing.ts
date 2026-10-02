@@ -70,3 +70,5 @@ export default function flowCrossing(): Rule {
 
   return { check };
 }
+
+flowCrossing.ruleName = 'flow-crossing' as const;
