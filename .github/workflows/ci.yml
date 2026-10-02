@@ -57,6 +57,11 @@ jobs:
       - name: Build
         run: npm run build
 
+      # Times every rule on its own against a 5,000-node model: a Miragon rule over its target
+      # time, without one, or scaling worse than linear fails the build.
+      - name: Rule benchmark
+        run: npm run bench
+
       # Packs + installs the tarball into a throwaway consumer, then drives the real
       # bpmnlint CLI (classic path) + the resolver (programmatic) — catching packaging
       # gaps the src-based unit tests can't see.

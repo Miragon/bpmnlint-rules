@@ -63,3 +63,5 @@ export default function flowThroughElement(): Rule {
 
   return { check };
 }
+
+flowThroughElement.ruleName = 'flow-through-element' as const;

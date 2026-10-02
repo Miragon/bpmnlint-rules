@@ -25,6 +25,7 @@ npm run knip          # knip: unused files, dependencies and exports
 npm run lint:deps     # dependency-cruiser architecture check
 npm test              # rule specs (Vitest, driving bpmnlint's RuleTester)
 npm run build         # tsup build into dist/ (ESM + CJS + d.ts)
+npm run bench         # build, then time every rule on its own against a large synthetic model
 npm run test:distro   # pack + install the tarball, then drive the bpmnlint CLI + resolver
 ```
 
@@ -44,6 +45,7 @@ src/config/             engineConfig: getDefaultLintConfig / getRulesForEngine
 src/presets/            ready-to-use recommended-for-modeling / -for-automation / all configs
 test/                   RuleTester specs, the resolver integration + sync specs, and fixtures
 test/fixtures/rules/    valid.bpmn / invalid.bpmn pairs per rule (rendered to the docs SVGs)
+test/bench/             the per-rule benchmark: synthetic model, target times, the benchmark itself
 docs/rules/             one documentation page per rule
 ```
 
@@ -69,7 +71,9 @@ dependencies in `package.json`.
    `{ check(node, reporter) }` — see bpmnlint's
    [plugin docs](https://github.com/bpmn-io/bpmnlint/blob/main/docs/plugins/README.md). Keep any
    reusable, linter-free logic in `src/lib/` (typed against `ModdleElement`/`Reporter` from
-   `src/lib/moddle.ts`).
+   `src/lib/moddle.ts`). The file declares the rule's name below the factory, as
+   `<factory>.ruleName = '<name>' as const;` — a property, not a named export, because a second
+   export would break the bare `module.exports = factory` shape bpmnlint's classic resolver needs.
 2. **Spec + fixtures.** Add `test/rules/<name>.spec.ts` using `bpmnlint`'s `RuleTester`, and a
    `test/fixtures/rules/<name>/{valid,invalid}.bpmn` pair (the SVGs in the docs are rendered from
    them by `npm run docs:examples`). Cover both sides: every exclusion the rule makes (a shape it
@@ -85,14 +89,36 @@ dependencies in `package.json`.
 3. **Docs page.** Add `docs/rules/<name>.md` explaining what the rule catches, why it matters, and
    the valid/invalid example pair.
 4. **Wire it in.** Import the factory in `src/rules/miragon/index.ts` and add it to
-   `miragonRuleFactories` — `resolverEntries` picks it up automatically, and the bundled resolver
-   with it.
+   `ruleFactoriesByName` as `[<factory>.ruleName]: <factory>` — `miragonRuleFactories`,
+   `resolverEntries` and the `MiragonRuleName` type pick it up automatically, and the bundled
+   resolver with it.
 5. **Severity.** List it in `miragonAll` at `error` and in `miragonRecommendedForAutomation` at
    `warn`. In `miragonRecommendedForModeling` ship it `off`, unless it is a non-blocking layout hint
    safe on hand-drawn diagrams — those ship at `warn` (all in `src/rules/miragon/index.ts`). The two
    `recommended-for-*` layers stay non-blocking (only `all` is `error`), and the modeling layer must
    never block a modeler on execution-only conventions; consumers opt in via
    `plugin:@miragon/rules/all`, the automation layer, or per rule.
+6. **Target time.** Add the rule to `targetTimeMsAt5000Nodes` in `test/bench/targets.ts`. It is
+   keyed by `MiragonRuleName`, so `npm run typecheck` fails as soon as a wired-in rule has no
+   target. The default is 50 ms; go higher only with a measured reason from the `npm run bench`
+   table. See [The benchmark](#the-benchmark).
+
+### The benchmark
+
+`npm run bench` builds the package and lints a synthetic model of 500, 2,000 and 5,000 flow nodes
+(`test/bench/large-model.ts`, the generator from
+[Miragon/bpmn-modeler#1572](https://github.com/Miragon/bpmn-modeler/issues/1572)) through every rule
+on its own, then prints the median times as one table. The rules run on a modeler's main thread
+after every edit, so a slow rule is a visible lag. A Miragon rule fails the benchmark when it
+
+- **has no target time** in `test/bench/targets.ts`,
+- **exceeds its target time** at 5,000 flow nodes, or
+- **scales worse than linear**: the 5,000-node time divided by the 2,000-node time must stay
+  below 4. A linear rule lands near 2.5, a quadratic one near 6.25, whatever the machine.
+
+The target times are loose because shared CI runners are slow and noisy; the ratio is the check that
+does not depend on the machine. The bundled upstream rules (`common`, `camunda-7`, `camunda-8`) are
+measured and listed, not enforced: they cannot be fixed here.
 
 ### The bar for a new rule
 
@@ -126,6 +152,7 @@ npm run knip
 npm run lint:deps
 npm test
 npm run build
+npm run bench
 npm run test:distro
 ```
 

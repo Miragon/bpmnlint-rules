@@ -90,3 +90,5 @@ export default function elementIdNaming(config?: ElementIdNamingConfig): Rule {
 
   return { check };
 }
+
+elementIdNaming.ruleName = 'element-id-naming' as const;

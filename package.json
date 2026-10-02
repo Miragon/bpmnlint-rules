@@ -48,6 +48,7 @@
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run",
     "test:watch": "vitest",
+    "bench": "npm run build && vitest run --config vitest.bench.config.ts",
     "test:distro": "node test/distro/smoke.cjs",
     "lint": "eslint .",
     "lint:deps": "depcruise src --config .dependency-cruiser.cjs --output-type err",

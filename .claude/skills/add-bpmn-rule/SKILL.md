@@ -46,7 +46,13 @@ export default function <name>(): Rule {
 
   return { check };
 }
+
+<name>.ruleName = '<name>' as const;
 ```
+
+The `ruleName` line is how the rule declares its own name: `index.ts` keys the registry by it and
+the `MiragonRuleName` type derives from it. Keep it a property — a named export would break the bare
+`module.exports = factory` shape bpmnlint's classic resolver needs.
 
 For a geometry rule, gate on `node.$type === 'bpmn:Definitions'` and iterate `collectByPlane(node)`
 instead — see `flow-through-element.ts`. Geometry math belongs in `src/lib/geometry.ts` (pure, no
@@ -58,7 +64,7 @@ Everything else (`plugin.ts` path map, `resolverEntries`, the tsup entry glob) d
 file. Make four edits:
 
 1. `import <camelName> from './<name>';`
-2. Add to `miragonRuleFactories`: `'<name>': <camelName>,`
+2. Add to `ruleFactoriesByName`: `[<camelName>.ruleName]: <camelName>,`
 3. Add it at `'error'` to `miragonAll` and at `'warn'` to `miragonRecommendedForAutomation`. In
    `miragonRecommendedForModeling` add it `'off'`, unless it is a non-blocking layout hint safe on
    hand-drawn diagrams (those ship at `'warn'`). All keyed `` `${MIRAGON_NAME}/<name>` ``. Each
@@ -125,16 +131,27 @@ helpers added to `src/lib/` get their own direct unit `verify`/`expect` cases.
   `.bpmn` fixtures + docs now and regenerate the assets later — `examples.spec.ts` only needs the
   fixtures.
 
-## 5. Verify gate (must be green)
+## 5. Target time — `test/bench/targets.ts`
+
+Add `'<name>': 50,` to `targetTimeMsAt5000Nodes`: the median time in ms the rule may take on the
+5,000-flow-node model. The map is keyed by `MiragonRuleName`, so `npm run typecheck` fails until the
+entry exists. Then run `npm run bench` and read the rule's row:
+
+- **`5,000` over the target:** make the rule faster. Raise the target only with a measured reason
+  (e.g. the rule reports on every element of the benchmark model).
+- **`5k / 2k` at 4 or above:** the rule is not linear (linear is about 2.5, quadratic about 6.25).
+  Replace the pairwise loop with an index, see `indexBboxes` in `src/lib/geometry.ts`.
+
+## 6. Verify gate (must be green)
 
 ```bash
 npm run typecheck && npm run lint && npm run format:check && npm run knip \
-  && npm run lint:deps && npm test && npm run build && npm run test:distro
+  && npm run lint:deps && npm test && npm run build && npm run bench && npm run test:distro
 ```
 
 Optionally `npm run docs:examples` first, and `npm run lint:bpmn` after building to dogfood.
 
-## 6. Commit
+## 7. Commit
 
 Conventional Commits. A new rule added only to `all` is `feat:`; adding it to `recommended` or
 raising a severity is `feat!:` (it can turn a consumer's build red). Keep dependency versions exact

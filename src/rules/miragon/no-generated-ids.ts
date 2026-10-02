@@ -31,3 +31,5 @@ export default function noGeneratedIds(): Rule {
 
   return { check };
 }
+
+noGeneratedIds.ruleName = 'no-generated-ids' as const;
