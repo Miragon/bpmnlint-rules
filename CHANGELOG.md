@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.10.1...v0.11.0) (2026-10-02)
+
+
+### Features
+
+* **camunda-8:** bundle camunda-compat unresolvable-secret-reference rule ([#54](https://github.com/Miragon/bpmnlint-rules/issues/54)) ([b7ecab9](https://github.com/Miragon/bpmnlint-rules/commit/b7ecab9844497c41b151335a82b939b4ebdf3b7c))
+
 ## [0.10.1](https://github.com/Miragon/bpmnlint-rules/compare/v0.10.0...v0.10.1) (2026-09-18)
 
 
