@@ -9,13 +9,17 @@ on:
         description: Validate the publish path without releasing
         type: boolean
         default: false
+      beta_version:
+        description: Publish the selected branch as this beta (dist-tag beta), e.g. 0.12.0-beta.0
+        type: string
+        default: ''
 
 permissions:
   contents: read
 
 jobs:
   release-please:
-    if: github.event_name != 'workflow_dispatch' || !inputs.dry_run
+    if: github.event_name != 'workflow_dispatch' || (!inputs.dry_run && inputs.beta_version == '')
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -71,9 +75,43 @@ jobs:
             npm publish --provenance --access public
           fi
 
+  publish-beta:
+    if: github.event_name == 'workflow_dispatch' && inputs.beta_version != ''
+    runs-on: ubuntu-latest
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      BETA_VERSION: ${{ inputs.beta_version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+          cache: npm
+
+      - name: Upgrade npm for trusted publishing
+        run: npm install -g npm@latest
+
+      - run: npm ci
+
+      - name: Refuse a version that is not a beta
+        run: |
+          if ! [[ "$BETA_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+-beta\.[0-9]+$ ]]; then
+            echo "::error::'$BETA_VERSION' is not a beta version, expected e.g. 0.12.0-beta.0"
+            exit 1
+          fi
+
+      - name: Publish the beta
+        run: |
+          npm pkg set version="$BETA_VERSION"
+          npm publish --provenance --access public --tag beta ${{ inputs.dry_run && '--dry-run' || '' }}
+
   # Exercises the packaging path on demand so it is never first tried on a real release.
   dry-run:
-    if: github.event_name == 'workflow_dispatch' && inputs.dry_run
+    if: github.event_name == 'workflow_dispatch' && inputs.dry_run && inputs.beta_version == ''
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
