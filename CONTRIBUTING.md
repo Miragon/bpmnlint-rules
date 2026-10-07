@@ -167,6 +167,16 @@ Releases are automated with release-please:
    using OIDC trusted publishing (tokenless, with provenance). No manual `npm publish` and no
    `NPM_TOKEN` are involved.
 
+### Betas
+
+To try a change in a real project before it is released, publish a beta: run the **Release**
+workflow manually on a `beta/*` branch and give a `beta_version` such as `0.12.0-beta.0` (the
+version the change will be released as, plus `-beta.N`). It lands on npm under the `beta` dist-tag
+with provenance. Nothing is committed, tagged or released, and `latest` stays where it is. A
+published version can never be overwritten or reused, so the next one is `-beta.1`. Add `dry_run`
+to rehearse the publish. Consumers pin the exact version
+(`npm i -D @miragon/bpmnlint-plugin-rules@0.12.0-beta.0`).
+
 ## Reporting bugs
 
 Use the GitHub issue templates. For a false positive or a missed defect, attaching the `.bpmn`
