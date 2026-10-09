@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.12.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.11.1...v0.12.0) (2026-10-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* add boundary-event-marker-overlap rule ([#65](https://github.com/Miragon/bpmnlint-rules/issues/65))
+
+### Features
+
+* add boundary-event-marker-overlap rule ([#65](https://github.com/Miragon/bpmnlint-rules/issues/65)) ([cc7d1d9](https://github.com/Miragon/bpmnlint-rules/commit/cc7d1d98ef09cdb50b2334f85e0175604c354726))
+
 ## [0.11.1](https://github.com/Miragon/bpmnlint-rules/compare/v0.11.0...v0.11.1) (2026-10-02)
 
 
