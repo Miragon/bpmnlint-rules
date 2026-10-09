@@ -1,6 +1,7 @@
 import {
   attachSide,
   bboxDisjoint,
+  circleOverlapsRect,
   gatewayTipSide,
   indexBboxes,
   isOrthogonalPath,
@@ -32,6 +33,23 @@ describe('attachSide', () => {
   it('returns null for a point off the border', () => {
     expect(attachSide({ x: 150, y: 140 }, BOX)).toBeNull(); // the centre
     expect(attachSide({ x: 300, y: 140 }, BOX)).toBeNull(); // far outside
+  });
+});
+
+describe('circleOverlapsRect', () => {
+  it('overlaps when the circle reaches into the rectangle', () => {
+    expect(circleOverlapsRect({ x: 150, y: 190 }, 18, BOX)).toBe(true);
+    expect(circleOverlapsRect({ x: 150, y: 140 }, 18, BOX)).toBe(true);
+  });
+
+  it('does not overlap when the circle only touches the border or stays clear', () => {
+    expect(circleOverlapsRect({ x: 150, y: 198 }, 18, BOX)).toBe(false);
+    expect(circleOverlapsRect({ x: 150, y: 250 }, 18, BOX)).toBe(false);
+  });
+
+  it('measures the distance to a corner diagonally', () => {
+    expect(circleOverlapsRect({ x: 214, y: 194 }, 18, BOX)).toBe(false);
+    expect(circleOverlapsRect({ x: 212, y: 192 }, 18, BOX)).toBe(true);
   });
 });
 

@@ -129,6 +129,14 @@ export function segThroughRect(start: Point, end: Point, rect: Rect): boolean {
   );
 }
 
+/** Does a circle reach into the rectangle (not merely touch its border)? */
+export function circleOverlapsRect(center: Point, radius: number, rect: Rect): boolean {
+  const nearestX = Math.min(Math.max(center.x, rect.x), rect.x + rect.width);
+  const nearestY = Math.min(Math.max(center.y, rect.y), rect.y + rect.height);
+
+  return Math.hypot(center.x - nearestX, center.y - nearestY) < radius;
+}
+
 /** Axis-aligned bounding box of a point set. */
 export const bboxOfPoints = (points: Point[]): Bbox =>
   points.reduce<Bbox>(
