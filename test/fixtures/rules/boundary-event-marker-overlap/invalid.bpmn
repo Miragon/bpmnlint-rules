@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_BoundaryEventMarkerOverlap" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:process id="orderFulfillment" isExecutable="true">
+    <bpmn:startEvent id="startEvent_orderReceived" name="Order received">
+      <bpmn:outgoing>flow_orderReceived</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="serviceTask_checkStock" name="Check stock">
+      <bpmn:incoming>flow_orderReceived</bpmn:incoming>
+      <bpmn:outgoing>flow_stockChecked</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:callActivity id="callActivity_processPayment" name="Process payment">
+      <bpmn:incoming>flow_stockChecked</bpmn:incoming>
+      <bpmn:outgoing>flow_paymentProcessed</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:boundaryEvent id="event_orderCancelled" name="Order cancelled" attachedToRef="callActivity_processPayment">
+      <bpmn:outgoing>flow_orderCancelled</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="messageEventDefinition_orderCancelled" />
+    </bpmn:boundaryEvent>
+    <bpmn:userTask id="userTask_packOrder" name="Pack order">
+      <bpmn:incoming>flow_paymentProcessed</bpmn:incoming>
+      <bpmn:outgoing>flow_orderPacked</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="endEvent_orderShipped" name="Order shipped">
+      <bpmn:incoming>flow_orderPacked</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="endEvent_orderCancelled" name="Order not fulfilled">
+      <bpmn:incoming>flow_orderCancelled</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="flow_orderReceived" sourceRef="startEvent_orderReceived" targetRef="serviceTask_checkStock" />
+    <bpmn:sequenceFlow id="flow_stockChecked" sourceRef="serviceTask_checkStock" targetRef="callActivity_processPayment" />
+    <bpmn:sequenceFlow id="flow_paymentProcessed" sourceRef="callActivity_processPayment" targetRef="userTask_packOrder" />
+    <bpmn:sequenceFlow id="flow_orderPacked" sourceRef="userTask_packOrder" targetRef="endEvent_orderShipped" />
+    <bpmn:sequenceFlow id="flow_orderCancelled" sourceRef="event_orderCancelled" targetRef="endEvent_orderCancelled" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="orderFulfillment">
+      <bpmndi:BPMNShape id="startEvent_orderReceived_di" bpmnElement="startEvent_orderReceived">
+        <dc:Bounds x="160" y="182" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="142" y="225" width="73" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="serviceTask_checkStock_di" bpmnElement="serviceTask_checkStock">
+        <dc:Bounds x="250" y="160" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="callActivity_processPayment_di" bpmnElement="callActivity_processPayment">
+        <dc:Bounds x="410" y="160" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="userTask_packOrder_di" bpmnElement="userTask_packOrder">
+        <dc:Bounds x="570" y="160" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endEvent_orderShipped_di" bpmnElement="endEvent_orderShipped">
+        <dc:Bounds x="730" y="182" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="714" y="225" width="69" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endEvent_orderCancelled_di" bpmnElement="endEvent_orderCancelled">
+        <dc:Bounds x="602" y="302" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="577" y="345" width="87" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="event_orderCancelled_di" bpmnElement="event_orderCancelled">
+        <dc:Bounds x="442" y="222" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="372" y="262" width="78" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="flow_orderReceived_di" bpmnElement="flow_orderReceived">
+        <di:waypoint x="196" y="200" />
+        <di:waypoint x="250" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_stockChecked_di" bpmnElement="flow_stockChecked">
+        <di:waypoint x="350" y="200" />
+        <di:waypoint x="410" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_paymentProcessed_di" bpmnElement="flow_paymentProcessed">
+        <di:waypoint x="510" y="200" />
+        <di:waypoint x="570" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_orderPacked_di" bpmnElement="flow_orderPacked">
+        <di:waypoint x="670" y="200" />
+        <di:waypoint x="730" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_orderCancelled_di" bpmnElement="flow_orderCancelled">
+        <di:waypoint x="460" y="258" />
+        <di:waypoint x="460" y="320" />
+        <di:waypoint x="602" y="320" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

@@ -13,6 +13,7 @@
 import type { BpmnlintConfig, ResolverEntries } from '../../lib/bpmnlint-config';
 import type { RuleFactory } from '../../lib/moddle';
 
+import boundaryEventMarkerOverlap from './boundary-event-marker-overlap';
 import elementIdNaming from './element-id-naming';
 import flowConnectionSide from './flow-connection-side';
 import flowCrossing from './flow-crossing';
@@ -35,6 +36,7 @@ const ruleFactoriesByName = {
   [flowTargetAlignment.ruleName]: flowTargetAlignment,
   [flowCrossing.ruleName]: flowCrossing,
   [flowOrthogonal.ruleName]: flowOrthogonal,
+  [boundaryEventMarkerOverlap.ruleName]: boundaryEventMarkerOverlap,
 };
 
 /** The short (unprefixed) name of a rule this plugin ships, as each rule file declares it. */
@@ -63,6 +65,7 @@ export const miragonRecommendedForModeling: BpmnlintConfig = {
     [`${MIRAGON_NAME}/flow-target-alignment`]: 'warn',
     [`${MIRAGON_NAME}/flow-crossing`]: 'warn',
     [`${MIRAGON_NAME}/flow-orthogonal`]: 'warn',
+    [`${MIRAGON_NAME}/boundary-event-marker-overlap`]: 'warn',
   },
 };
 
@@ -84,6 +87,7 @@ export const miragonRecommendedForAutomation: BpmnlintConfig = {
     [`${MIRAGON_NAME}/flow-target-alignment`]: 'warn',
     [`${MIRAGON_NAME}/flow-crossing`]: 'warn',
     [`${MIRAGON_NAME}/flow-orthogonal`]: 'warn',
+    [`${MIRAGON_NAME}/boundary-event-marker-overlap`]: 'warn',
   },
 };
 
@@ -97,6 +101,7 @@ export const miragonAll: BpmnlintConfig = {
     [`${MIRAGON_NAME}/flow-target-alignment`]: 'error',
     [`${MIRAGON_NAME}/flow-crossing`]: 'error',
     [`${MIRAGON_NAME}/flow-orthogonal`]: 'error',
+    [`${MIRAGON_NAME}/boundary-event-marker-overlap`]: 'error',
   },
 };
 
@@ -114,6 +119,7 @@ export const resolverEntries: ResolverEntries = {
 };
 
 export {
+  boundaryEventMarkerOverlap,
   elementIdNaming,
   flowConnectionSide,
   flowCrossing,

@@ -13,6 +13,7 @@ export const targetTimeMsAt5000Nodes: Record<MiragonRuleName, number> = {
   'flow-target-alignment': 50,
   'flow-crossing': 50,
   'flow-orthogonal': 50,
+  'boundary-event-marker-overlap': 50,
 };
 
 /** 2.5× the nodes: a linear rule lands near 2.5, a quadratic one near 6.25. */

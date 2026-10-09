@@ -27,6 +27,7 @@ export interface ShapeSpec {
    * `<bpmn:messageEventDefinition>`. Turns a plain event into a message/timer/... event.
    */
   eventDefinitions?: string[];
+  hasLoop?: boolean;
   /**
    * Id of the shape this one nests inside (e.g. a `startEvent` inside a `subProcess`). Nests the
    * element in the SEMANTIC tree only — every shape's DI stays flat on the plane, exactly as
@@ -92,7 +93,14 @@ function semanticShape(
     (qualifier) => `      <bpmn:${qualifier}EventDefinition id="def_${shape.id}_${qualifier}" />`,
   );
 
-  if (!connections.length && !children.length && !eventDefinitions.length) {
+  const loopCharacteristics = shape.hasLoop ? ['      <bpmn:standardLoopCharacteristics />'] : [];
+
+  if (
+    !connections.length &&
+    !children.length &&
+    !eventDefinitions.length &&
+    !loopCharacteristics.length
+  ) {
     return `${open} />`;
   }
 
@@ -100,6 +108,7 @@ function semanticShape(
     `${open}>`,
     ...connections.map((connection) => `      <bpmn:${connection}>`),
     ...eventDefinitions,
+    ...loopCharacteristics,
     ...children.map((child) => semanticShape(child, edges, childrenOf)),
     `    </bpmn:${tag}>`,
   ].join('\n');

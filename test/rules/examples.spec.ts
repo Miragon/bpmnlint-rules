@@ -14,6 +14,7 @@ const EXAMPLES = [
   { rule: 'flow-target-alignment', offender: 'flow_archived' },
   { rule: 'flow-crossing', offender: 'flow_orderRevised' },
   { rule: 'flow-orthogonal', offender: 'flow_reject' },
+  { rule: 'boundary-event-marker-overlap', offender: 'event_orderCancelled' },
 ];
 
 describe('example models', () => {

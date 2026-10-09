@@ -24,5 +24,9 @@ and bounds, never on guesswork.
 
 <RulePair rule="flow-orthogonal" />
 
-All five are non-blocking layout hints at `warn` in both recommended presets. See
+## A boundary event covering its host's marker
+
+<RulePair rule="boundary-event-marker-overlap" />
+
+All six are non-blocking layout hints at `warn` in both recommended presets. See
 [Presets](../presets.md).
