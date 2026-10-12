@@ -8,6 +8,8 @@ A [bpmnlint](https://github.com/bpmn-io/bpmnlint) plugin that keeps BPMN diagram
 Miragon naming and layout conventions, plus the standard structural rules and the Camunda 7 / 8
 deployability rules bundled in — so you don't wire up bpmnlint's plugins yourself.
 
+![bpmnlint flags a generated id, two crossing flows and a diagonal flow, then passes on the fixed diagram](docs/assets/demo.gif)
+
 ## Why
 
 A BPMN diagram can be well-formed and still be wrong — a missing start event, a construct the engine
