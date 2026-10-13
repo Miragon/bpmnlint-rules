@@ -84,6 +84,13 @@ verify('element-id-naming', rule, {
       }),
     },
     {
+      name: 'a kebab-case body can be configured',
+      config: { case: 'kebab-case' },
+      moddleElement: model({
+        shapes: [{ id: 'serviceTask_claim-membership', tag: 'serviceTask' }],
+      }),
+    },
+    {
       // An `Object.prototype` key is not a case name: it falls back to PascalCase like any
       // unknown value instead of crashing the rule.
       name: 'a case named after an Object.prototype key falls back to PascalCase',
@@ -209,6 +216,17 @@ verify('element-id-naming', rule, {
       report: {
         id: 'serviceTask_claimMembership',
         message: 'Element id must match the naming convention <serviceTask_PascalCase>',
+      },
+    },
+    {
+      name: 'a camelCase body under a configured kebab-case',
+      config: { case: 'kebab-case' },
+      moddleElement: model({
+        shapes: [{ id: 'serviceTask_claimMembership', tag: 'serviceTask' }],
+      }),
+      report: {
+        id: 'serviceTask_claimMembership',
+        message: 'Element id must match the naming convention <serviceTask_kebab-case>',
       },
     },
     {

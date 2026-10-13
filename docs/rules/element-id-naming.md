@@ -113,7 +113,7 @@ plain wrong-prefix / wrong-case one.
 - `prefixes`: merged over the defaults, so you only state what differs. `false` switches a type
   off entirely.
 - `case`: the shape of the part after the prefix: `camelCase` (default), `PascalCase`,
-  `snake_case` or `any`.
+  `snake_case`, `kebab-case` or `any`.
 - `eventDefinitionQualifier`: whether an event id may name its event definition — `optional`
   (default), `required` or `off`. See [Event-definition qualifiers](#event-definition-qualifiers).
 

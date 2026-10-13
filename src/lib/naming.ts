@@ -186,6 +186,7 @@ const CASES: Record<string, CaseSpec> = {
   PascalCase: { pattern: /^[A-Z][A-Za-z0-9]*$/, label: 'PascalCase' },
   camelCase: { pattern: /^[a-z][A-Za-z0-9]*$/, label: 'camelCase' },
   snake_case: { pattern: /^[a-z0-9]+(_[a-z0-9]+)*$/, label: 'snake_case' },
+  'kebab-case': { pattern: /^[a-z0-9]+(-[a-z0-9]+)*$/, label: 'kebab-case' },
   any: { pattern: /^.+$/, label: 'any' },
 };
 
