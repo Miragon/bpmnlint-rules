@@ -228,7 +228,7 @@ export function resolvePrefix(node: ModdleElement, prefixes: PrefixMap): PrefixC
 }
 
 export function resolveCase(caseName: string): CaseSpec {
-  return CASES[caseName] ?? PASCAL_CASE;
+  return Object.hasOwn(CASES, caseName) ? CASES[caseName]! : PASCAL_CASE;
 }
 
 /** Coerce a config value to a known qualifier mode; an unrecognised value falls back to `optional`. */

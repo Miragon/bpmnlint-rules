@@ -168,6 +168,15 @@ verify('element-id-naming', rule, {
         shapes: [{ id: 'startEvent_membershipRequested', tag: 'startEvent' }],
       }),
     },
+    {
+      // An Object.prototype key used to be read off the prototype chain as a case spec, so the
+      // rule crashed on pattern.test instead of linting. It must fall back to PascalCase.
+      name: 'an Object.prototype key as case falls back to PascalCase instead of crashing',
+      config: { case: 'toString' },
+      moddleElement: model({
+        shapes: [{ id: 'serviceTask_ClaimMembership', tag: 'serviceTask' }],
+      }),
+    },
   ],
 
   invalid: [
@@ -294,6 +303,19 @@ verify('element-id-naming', rule, {
       report: {
         id: 'messageStartEvent_membershipRequested',
         message: 'Element id must match the naming convention <startEvent_camelCase>',
+      },
+    },
+    {
+      // With case resolved to the PascalCase fallback, a lowercase body is still reported
+      // with the fallback convention in the message (and no longer crashes the rule).
+      name: 'an Object.prototype key as case lints against the PascalCase fallback',
+      config: { case: 'toString' },
+      moddleElement: model({
+        shapes: [{ id: 'serviceTask_claimMembership', tag: 'serviceTask' }],
+      }),
+      report: {
+        id: 'serviceTask_claimMembership',
+        message: 'Element id must match the naming convention <serviceTask_PascalCase>',
       },
     },
     {
