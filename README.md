@@ -36,19 +36,16 @@ npm install --save-dev @miragon/bpmnlint-plugin-rules bpmnlint
 
 ## Use it (the bpmnlint way)
 
-Add the plugin to your `.bpmnlintrc` and extend one of its configs, like any other plugin:
+Add the plugin to your `.bpmnlintrc` and extend one of its configs, like any other plugin.
+`bpmnlint:recommended` brings the standard structural rules, and the second entry adds the Miragon
+layer, here `recommended-for-modeling`:
 
-```jsonc
-// .bpmnlintrc
+```json
 {
   "extends": [
-    // standard structural rules
     "bpmnlint:recommended",
-    // the Miragon layer, pick a scope below
-    "plugin:@miragon/rules/recommended-for-<scope>",
-    // optional: Camunda engine rules, see below
-    // "plugin:camunda-compat/camunda-cloud-8-10",
-  ],
+    "plugin:@miragon/rules/recommended-for-modeling"
+  ]
 }
 ```
 
@@ -93,16 +90,16 @@ The Miragon conventions this plugin adds — each with a docs page and a good/ba
 
 Turn any of them on individually, the usual way:
 
-```jsonc
+```json
 {
   "extends": [
     "bpmnlint:recommended",
-    "plugin:@miragon/rules/recommended-for-modeling",
+    "plugin:@miragon/rules/recommended-for-modeling"
   ],
   "rules": {
     "@miragon/rules/no-generated-ids": "error",
-    "@miragon/rules/element-id-naming": "warn",
-  },
+    "@miragon/rules/element-id-naming": "warn"
+  }
 }
 ```
 
@@ -141,33 +138,31 @@ extension for you.
 
 ### Camunda 7
 
-```jsonc
-// .bpmnlintrc
+```json
 {
   "extends": [
     "bpmnlint:recommended",
     "plugin:@miragon/rules/recommended-for-automation",
-    "plugin:camunda-compat/camunda-platform-7-24",
+    "plugin:camunda-compat/camunda-platform-7-24"
   ],
   "moddleExtensions": {
-    "camunda": "camunda-bpmn-moddle/resources/camunda.json",
-  },
+    "camunda": "camunda-bpmn-moddle/resources/camunda.json"
+  }
 }
 ```
 
 ### Camunda 8 (Zeebe)
 
-```jsonc
-// .bpmnlintrc
+```json
 {
   "extends": [
     "bpmnlint:recommended",
     "plugin:@miragon/rules/recommended-for-automation",
-    "plugin:camunda-compat/camunda-cloud-8-10",
+    "plugin:camunda-compat/camunda-cloud-8-10"
   ],
   "moddleExtensions": {
-    "zeebe": "zeebe-bpmn-moddle/resources/zeebe.json",
-  },
+    "zeebe": "zeebe-bpmn-moddle/resources/zeebe.json"
+  }
 }
 ```
 
@@ -222,18 +217,23 @@ bundled resolver. It carries every layer (structural + Camunda + Miragon), so th
 to wire up, and it works offline:
 
 ```ts
-import BpmnModdle from 'bpmn-moddle';
-import Linter from 'bpmnlint/lib/linter';
+import { BpmnModdle } from 'bpmn-moddle';
+import { Linter } from 'bpmnlint';
 import {
   createBundledResolver,
   getDefaultLintConfig,
 } from '@miragon/bpmnlint-plugin-rules';
 
-const { rootElement } = await new BpmnModdle().fromXML(xml);
+// 'c7' | 'c8', omit for structural-only
+const config = getDefaultLintConfig({ engine: 'c8' });
+
+// parse with the config's moddle extensions, or the engine rules
+// cannot see the engine properties
+const moddle = new BpmnModdle(config.moddleExtensions);
+const { rootElement } = await moddle.fromXML(xml);
 
 const linter = new Linter({
-  // 'c7' | 'c8', omit for structural-only
-  config: getDefaultLintConfig({ engine: 'c8' }),
+  config,
   resolver: createBundledResolver(),
 });
 
