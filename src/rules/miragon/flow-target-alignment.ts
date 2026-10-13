@@ -36,7 +36,7 @@ const DEFAULT_EXEMPT_TYPES = ['bpmn:Gateway', 'bpmn:BoundaryEvent'];
  *
  * Configuration (optional):
  *
- *     "miragon/flow-target-alignment": [ "error", {
+ *     "@miragon/rules/flow-target-alignment": [ "error", {
  *       "exemptTypes": ["bpmn:Gateway", "bpmn:BoundaryEvent", "bpmn:SubProcess"]
  *     } ]
  *

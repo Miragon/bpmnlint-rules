@@ -25,7 +25,7 @@ export interface ElementIdNamingConfig {
  *
  * Configuration (all optional):
  *
- *     "miragon/element-id-naming": [ "error", {
+ *     "@miragon/rules/element-id-naming": [ "error", {
  *       "prefixes": { "bpmn:SequenceFlow": "Flow_", "bpmn:ScriptTask": false },
  *       "case": "PascalCase",
  *       "eventDefinitionQualifier": "optional"
