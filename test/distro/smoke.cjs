@@ -4,13 +4,16 @@
  * Distro smoke test — does the *published* package actually work, both ways?
  *
  * Unit tests run through Vite against `src/`. This packs a real tarball, installs it into a
- * throwaway consumer next to `bpmnlint`, and checks the two consumer paths end to end:
+ * throwaway consumer next to `bpmnlint`, and checks the consumer paths end to end:
  *
  *   1. Classic `.bpmnlintrc` + `bpmnlint` CLI — `plugin:@miragon/rules/all` resolves, a known-bad
  *      model trips a Miragon rule, a clean model stays silent. This is the path that a missing
  *      `files` entry, a non-bare rule export, or a wrong config name would silently break.
- *   2. Programmatic — the bundled resolver resolves rules from every layer and the per-engine
- *      config is shaped right.
+ *   2. Programmatic, `require` — the bundled resolver resolves rules from every layer and the
+ *      per-engine config is shaped right.
+ *   3. Programmatic, `import` — `esm-consumer.mjs` loads the ESM build through Node's own loader
+ *      and lints both fixtures through the bundled resolver. A bundler accepts an extension-less
+ *      deep import or a bare JSON import; Node does not, so only this path catches them.
  *
  * Run: `npm run test:distro` (after `npm run build`).
  */
@@ -114,6 +117,13 @@ function main() {
       'c8 config must extend the Camunda 8 layer',
     );
     step('programmatic path: bundled resolver + c8 config OK');
+
+    // (3) ESM path: the same checks through `import`, run from inside the consumer project.
+    fs.copyFileSync(
+      path.join(__dirname, 'esm-consumer.mjs'),
+      path.join(project, 'esm-consumer.mjs'),
+    );
+    execFileSync(process.execPath, ['esm-consumer.mjs'], { cwd: project, stdio: 'inherit' });
 
     console.log('distro smoke OK');
   } finally {

@@ -30,7 +30,7 @@ declare module 'bpmnlint/config/*' {
   export default config;
 }
 
-declare module 'bpmnlint/lib/resolver/static-resolver' {
+declare module 'bpmnlint/lib/resolver/static-resolver.js' {
   /** Resolves rules/configs from a plain `{ 'rule:pkg/name': module }` cache. */
   export default class StaticResolver {
     constructor(cache: Record<string, unknown>);

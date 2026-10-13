@@ -6,41 +6,43 @@
  * as the modeler's old `builtinResolver` did — every built-in rule and config is a *static* import
  * here, and `resolverEntries` maps each to the `rule:`/`config:` cache key bpmnlint asks for. The
  * whole point is that a consumer needs no `bpmnlint` install of its own: the rules are bundled.
+ * Each import names the file with its `.js` extension: bpmnlint has no `exports` map, so Node's
+ * ESM resolver needs the full path.
  */
 import type { ResolverEntries } from '../../lib/bpmnlint-config';
 
-import recommended from 'bpmnlint/config/recommended';
-import all from 'bpmnlint/config/all';
-import correctness from 'bpmnlint/config/correctness';
+import recommended from 'bpmnlint/config/recommended.js';
+import all from 'bpmnlint/config/all.js';
+import correctness from 'bpmnlint/config/correctness.js';
 
-import adHocSubProcess from 'bpmnlint/rules/ad-hoc-sub-process';
-import conditionalEvent from 'bpmnlint/rules/conditional-event';
-import conditionalFlows from 'bpmnlint/rules/conditional-flows';
-import endEventRequired from 'bpmnlint/rules/end-event-required';
-import eventBasedGateway from 'bpmnlint/rules/event-based-gateway';
-import eventSubProcessTypedStartEvent from 'bpmnlint/rules/event-sub-process-typed-start-event';
-import fakeJoin from 'bpmnlint/rules/fake-join';
-import globalRule from 'bpmnlint/rules/global';
-import labelRequired from 'bpmnlint/rules/label-required';
-import linkEvent from 'bpmnlint/rules/link-event';
-import noBpmndi from 'bpmnlint/rules/no-bpmndi';
-import noComplexGateway from 'bpmnlint/rules/no-complex-gateway';
-import noDisconnected from 'bpmnlint/rules/no-disconnected';
-import noDuplicateSequenceFlows from 'bpmnlint/rules/no-duplicate-sequence-flows';
-import noGatewayJoinFork from 'bpmnlint/rules/no-gateway-join-fork';
-import noImplicitEnd from 'bpmnlint/rules/no-implicit-end';
-import noImplicitSplit from 'bpmnlint/rules/no-implicit-split';
-import noImplicitStart from 'bpmnlint/rules/no-implicit-start';
-import noInclusiveGateway from 'bpmnlint/rules/no-inclusive-gateway';
-import noOverlappingElements from 'bpmnlint/rules/no-overlapping-elements';
-import singleBlankStartEvent from 'bpmnlint/rules/single-blank-start-event';
-import singleEventDefinition from 'bpmnlint/rules/single-event-definition';
-import standardSize from 'bpmnlint/rules/standard-size';
-import startEventRequired from 'bpmnlint/rules/start-event-required';
-import subProcessBlankStartEvent from 'bpmnlint/rules/sub-process-blank-start-event';
-import superfluousGateway from 'bpmnlint/rules/superfluous-gateway';
-import superfluousLabel from 'bpmnlint/rules/superfluous-label';
-import superfluousTermination from 'bpmnlint/rules/superfluous-termination';
+import adHocSubProcess from 'bpmnlint/rules/ad-hoc-sub-process.js';
+import conditionalEvent from 'bpmnlint/rules/conditional-event.js';
+import conditionalFlows from 'bpmnlint/rules/conditional-flows.js';
+import endEventRequired from 'bpmnlint/rules/end-event-required.js';
+import eventBasedGateway from 'bpmnlint/rules/event-based-gateway.js';
+import eventSubProcessTypedStartEvent from 'bpmnlint/rules/event-sub-process-typed-start-event.js';
+import fakeJoin from 'bpmnlint/rules/fake-join.js';
+import globalRule from 'bpmnlint/rules/global.js';
+import labelRequired from 'bpmnlint/rules/label-required.js';
+import linkEvent from 'bpmnlint/rules/link-event.js';
+import noBpmndi from 'bpmnlint/rules/no-bpmndi.js';
+import noComplexGateway from 'bpmnlint/rules/no-complex-gateway.js';
+import noDisconnected from 'bpmnlint/rules/no-disconnected.js';
+import noDuplicateSequenceFlows from 'bpmnlint/rules/no-duplicate-sequence-flows.js';
+import noGatewayJoinFork from 'bpmnlint/rules/no-gateway-join-fork.js';
+import noImplicitEnd from 'bpmnlint/rules/no-implicit-end.js';
+import noImplicitSplit from 'bpmnlint/rules/no-implicit-split.js';
+import noImplicitStart from 'bpmnlint/rules/no-implicit-start.js';
+import noInclusiveGateway from 'bpmnlint/rules/no-inclusive-gateway.js';
+import noOverlappingElements from 'bpmnlint/rules/no-overlapping-elements.js';
+import singleBlankStartEvent from 'bpmnlint/rules/single-blank-start-event.js';
+import singleEventDefinition from 'bpmnlint/rules/single-event-definition.js';
+import standardSize from 'bpmnlint/rules/standard-size.js';
+import startEventRequired from 'bpmnlint/rules/start-event-required.js';
+import subProcessBlankStartEvent from 'bpmnlint/rules/sub-process-blank-start-event.js';
+import superfluousGateway from 'bpmnlint/rules/superfluous-gateway.js';
+import superfluousLabel from 'bpmnlint/rules/superfluous-label.js';
+import superfluousTermination from 'bpmnlint/rules/superfluous-termination.js';
 
 /** The `extends` entry a config uses to pull in the structural base. */
 export const extendsLayer = 'bpmnlint:recommended';

@@ -7,7 +7,8 @@
  * resolver cache keys bpmnlint asks for — the per-engine half of the modeler's old
  * `bundledDefaultResolver`. The config also references one bpmnlint built-in
  * (`bpmnlint/start-event-required`); that resolves from the `common` folder, so it is not
- * re-imported here.
+ * re-imported here. Each import names the file with its extension (`/index.js` for a directory):
+ * camunda-compat has no `exports` map, so Node's ESM resolver needs the full path.
  *
  * Kept honest by `test/rules/camunda-sync.spec.ts`: it walks this config's referenced rules and
  * asserts each resolves, so a camunda-compat bump that adds or renames one fails the build.
@@ -17,52 +18,52 @@ import camundaCompat from 'bpmnlint-plugin-camunda-compat';
 
 import type { ResolverEntries } from '../../lib/bpmnlint-config';
 
-import rule_ad_hoc_sub_process from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/ad-hoc-sub-process';
-import rule_agent_fromai_contract from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/agent-fromai-contract';
-import rule_agent_tool_documentation from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/agent-tool-documentation';
-import rule_agent_tool_output_key from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/agent-tool-output-key';
-import rule_before_all_execution_listener from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/before-all-execution-listener';
-import rule_called_element from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/called-element';
-import rule_cancel_execution_listener from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/cancel-execution-listener';
-import rule_connector_properties from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/connector-properties';
-import rule_duplicate_execution_listener_headers from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/duplicate-execution-listener-headers';
-import rule_duplicate_execution_listeners from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/duplicate-execution-listeners';
-import rule_duplicate_task_headers from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/duplicate-task-headers';
-import rule_element_type from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/element-type';
-import rule_error_reference from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/error-reference';
-import rule_escalation_boundary_event_attached_to_ref from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/escalation-boundary-event-attached-to-ref';
-import rule_escalation_reference from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/escalation-reference';
-import rule_event_based_gateway_target from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/event-based-gateway-target';
-import rule_executable_process from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/executable-process';
-import rule_execution_listener from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/execution-listener';
-import rule_feel from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/feel';
-import rule_feel_compatibility from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/feel-compatibility';
-import rule_implementation from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/implementation';
-import rule_io_mapping from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/io-mapping';
-import rule_link_event from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/link-event';
-import rule_loop_characteristics from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/loop-characteristics';
-import rule_message_reference from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/message-reference';
-import rule_no_expression from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/no-expression';
-import rule_no_interrupting_event_subprocess from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/no-interrupting-event-subprocess';
-import rule_no_loop from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/no-loop';
-import rule_no_multiple_none_start_events from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/no-multiple-none-start-events';
-import rule_priority_definition from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/priority-definition';
-import rule_secrets from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/secrets';
-import rule_sequence_flow_condition from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/sequence-flow-condition';
-import rule_signal_reference from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/signal-reference';
-import rule_start_event_form from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/start-event-form';
-import rule_start_event_form_embedded from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/start-event-form-embedded';
-import rule_subscription from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/subscription';
-import rule_task_listener from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/task-listener';
-import rule_task_schedule from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/task-schedule';
-import rule_timer from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/timer';
-import rule_unresolvable_secret_reference from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/unresolvable-secret-reference';
-import rule_user_task_definition from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/user-task-definition';
-import rule_user_task_form from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/user-task-form';
-import rule_variable_name from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/variable-name';
-import rule_version_tag from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/version-tag';
-import rule_wait_for_completion from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/wait-for-completion';
-import rule_zeebe_user_task from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/zeebe-user-task';
+import rule_ad_hoc_sub_process from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/ad-hoc-sub-process.js';
+import rule_agent_fromai_contract from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/agent-fromai-contract.js';
+import rule_agent_tool_documentation from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/agent-tool-documentation.js';
+import rule_agent_tool_output_key from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/agent-tool-output-key.js';
+import rule_before_all_execution_listener from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/before-all-execution-listener.js';
+import rule_called_element from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/called-element.js';
+import rule_cancel_execution_listener from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/cancel-execution-listener.js';
+import rule_connector_properties from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/connector-properties/index.js';
+import rule_duplicate_execution_listener_headers from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/duplicate-execution-listener-headers.js';
+import rule_duplicate_execution_listeners from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/duplicate-execution-listeners.js';
+import rule_duplicate_task_headers from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/duplicate-task-headers.js';
+import rule_element_type from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/element-type/index.js';
+import rule_error_reference from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/error-reference.js';
+import rule_escalation_boundary_event_attached_to_ref from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/escalation-boundary-event-attached-to-ref.js';
+import rule_escalation_reference from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/escalation-reference.js';
+import rule_event_based_gateway_target from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/event-based-gateway-target.js';
+import rule_executable_process from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/executable-process.js';
+import rule_execution_listener from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/execution-listener.js';
+import rule_feel from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/feel.js';
+import rule_feel_compatibility from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/feel-compatibility.js';
+import rule_implementation from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/implementation/index.js';
+import rule_io_mapping from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/io-mapping.js';
+import rule_link_event from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/link-event.js';
+import rule_loop_characteristics from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/loop-characteristics.js';
+import rule_message_reference from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/message-reference.js';
+import rule_no_expression from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/no-expression.js';
+import rule_no_interrupting_event_subprocess from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/no-interrupting-event-subprocess.js';
+import rule_no_loop from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/no-loop.js';
+import rule_no_multiple_none_start_events from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/no-multiple-none-start-events.js';
+import rule_priority_definition from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/priority-definition.js';
+import rule_secrets from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/secrets.js';
+import rule_sequence_flow_condition from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/sequence-flow-condition.js';
+import rule_signal_reference from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/signal-reference.js';
+import rule_start_event_form from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/start-event-form.js';
+import rule_start_event_form_embedded from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/start-event-form-embedded.js';
+import rule_subscription from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/subscription.js';
+import rule_task_listener from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/task-listener.js';
+import rule_task_schedule from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/task-schedule.js';
+import rule_timer from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/timer/index.js';
+import rule_unresolvable_secret_reference from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/unresolvable-secret-reference.js';
+import rule_user_task_definition from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/user-task-definition.js';
+import rule_user_task_form from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/user-task-form.js';
+import rule_variable_name from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/variable-name.js';
+import rule_version_tag from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/version-tag.js';
+import rule_wait_for_completion from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/wait-for-completion.js';
+import rule_zeebe_user_task from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/zeebe-user-task.js';
 
 const PLUGIN = 'bpmnlint-plugin-camunda-compat';
 const CONFIG = 'camunda-cloud-8-10';
