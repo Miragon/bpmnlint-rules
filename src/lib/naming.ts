@@ -239,6 +239,57 @@ export function resolveCase(caseName: string): CaseSpec {
   return (known ? CASES[caseName] : undefined) ?? PASCAL_CASE;
 }
 
+export interface ValueNamingConfig {
+  prefix?: string;
+  separator?: string;
+  case?: string;
+}
+
+export interface ValueNamingScheme {
+  prefix: string;
+  separator: string;
+  case: CaseSpec;
+}
+
+/**
+ * The scheme a free-text technical value (an external task topic, a message name) must follow:
+ * an optional `prefix`, then one or more segments in `case` joined by `separator`. Defaults to
+ * camelCase segments joined by `.`; an unknown case falls back like {@link resolveCase}.
+ */
+export function resolveValueNaming(config?: ValueNamingConfig): ValueNamingScheme {
+  const { prefix = '', separator = '.', case: caseName = 'camelCase' } = config ?? {};
+
+  return { prefix, separator, case: resolveCase(caseName) };
+}
+
+/** `billing.` for the prefix `billing` and the separator `.`; empty without a prefix. */
+function valueLead({ prefix, separator }: ValueNamingScheme): string {
+  return prefix ? `${prefix}${separator}` : '';
+}
+
+/**
+ * Does this value follow the scheme? `billing.validateInvoice` does for `billing` + `.` +
+ * camelCase, and so does the namespaced `billing.invoice.validate`: every segment after the prefix
+ * must match the case.
+ */
+export function matchesValueNaming(value: string, scheme: ValueNamingScheme): boolean {
+  const lead = valueLead(scheme);
+
+  if (!value.startsWith(lead)) {
+    return false;
+  }
+
+  const name = value.slice(lead.length);
+  const segments = scheme.separator ? name.split(scheme.separator) : [name];
+
+  return segments.every((segment) => scheme.case.pattern.test(segment));
+}
+
+/** The scheme as a reader sees it in a report or a hint, e.g. `billing.<camelCase>`. */
+export function describeValueNaming(scheme: ValueNamingScheme): string {
+  return `${valueLead(scheme)}<${scheme.case.label}>`;
+}
+
 /** Coerce a config value to a known qualifier mode; an unrecognised value falls back to `optional`. */
 export function resolveQualifierMode(mode: string | undefined): QualifierMode {
   return mode !== undefined && QUALIFIER_MODES.has(mode as QualifierMode)
