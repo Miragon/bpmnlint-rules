@@ -26,7 +26,7 @@ npm run lint:deps     # dependency-cruiser architecture check
 npm test              # rule specs (Vitest, driving bpmnlint's RuleTester)
 npm run build         # tsup build into dist/ (ESM + CJS + d.ts)
 npm run bench         # build, then time every rule on its own against a large synthetic model
-npm run test:distro   # pack + install the tarball, then drive the bpmnlint CLI + resolver
+npm run test:distro   # pack + install the tarball, then drive the bpmnlint CLI + resolver (require + import)
 ```
 
 All of these run in CI on Node 22 for every push and pull request. Run them locally before
