@@ -42,7 +42,11 @@ function jsonBlocks(file: string): CodeBlock[] {
       continue;
     }
 
-    const end = lines.indexOf('```', index + 1);
+    const end = lines.findIndex((text, position) => position > index && /^```\s*$/.test(text));
+    if (end === -1) {
+      throw new Error(`${file}:${index + 1}: unclosed code fence`);
+    }
+
     blocks.push({
       file,
       line: index + 1,
