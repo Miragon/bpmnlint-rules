@@ -65,9 +65,6 @@ It ships three configs — pick one by who's modeling and why:
 
 <!-- #endregion presets -->
 
-Deploying to a Camunda engine? Also add the engine's deployability config, described under Camunda
-engine rules.
-
 Then lint a diagram:
 
 ```bash
@@ -180,18 +177,23 @@ bundled resolver. It carries every layer (structural + Camunda + Miragon), so th
 to wire up, and it works offline:
 
 ```ts
-import BpmnModdle from 'bpmn-moddle';
-import Linter from 'bpmnlint/lib/linter';
+import { BpmnModdle } from 'bpmn-moddle';
+import { Linter } from 'bpmnlint';
 import {
   createBundledResolver,
   getDefaultLintConfig,
 } from '@miragon/bpmnlint-plugin-rules';
 
-const { rootElement } = await new BpmnModdle().fromXML(xml);
+// 'c7' | 'c8', omit for structural-only
+const config = getDefaultLintConfig({ engine: 'c8' });
+
+// parse with the config's moddle extensions, or the engine rules
+// cannot see the engine properties
+const moddle = new BpmnModdle(config.moddleExtensions);
+const { rootElement } = await moddle.fromXML(xml);
 
 const linter = new Linter({
-  // 'c7' | 'c8', omit for structural-only
-  config: getDefaultLintConfig({ engine: 'c8' }),
+  config,
   resolver: createBundledResolver(),
 });
 

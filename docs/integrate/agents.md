@@ -82,8 +82,8 @@ No coding harness, but your own pipeline that generates BPMN from a model call? 
 `generateModel` stands for your model call.
 
 ```ts
-import BpmnModdle from 'bpmn-moddle';
-import Linter from 'bpmnlint/lib/linter';
+import { BpmnModdle } from 'bpmn-moddle';
+import { Linter } from 'bpmnlint';
 import {
   createBundledResolver,
   getDefaultLintConfig,
