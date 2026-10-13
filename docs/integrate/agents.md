@@ -91,13 +91,15 @@ import {
 
 const config = getDefaultLintConfig({ engine: 'c8' });
 const moddle = new BpmnModdle(config.moddleExtensions);
-const linter = new Linter({
-  config,
-  resolver: createBundledResolver(),
-});
 
 async function errorsIn(xml: string) {
   const { rootElement } = await moddle.fromXML(xml);
+  // a new linter per run: bpmnlint keeps rule state between runs, so
+  // a reused one reports duplicate sequence flows that are not there
+  const linter = new Linter({
+    config,
+    resolver: createBundledResolver(),
+  });
   const results = await linter.lint(rootElement);
   return Object.entries(results).flatMap(([rule, findings]) =>
     findings
