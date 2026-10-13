@@ -84,6 +84,15 @@ verify('element-id-naming', rule, {
       }),
     },
     {
+      // An `Object.prototype` key is not a case name: it falls back to PascalCase like any
+      // unknown value instead of crashing the rule.
+      name: 'a case named after an Object.prototype key falls back to PascalCase',
+      config: { case: 'toString' },
+      moddleElement: model({
+        shapes: [{ id: 'serviceTask_ClaimMembership', tag: 'serviceTask' }],
+      }),
+    },
+    {
       name: 'a type can be switched off with false',
       config: { prefixes: { 'bpmn:ScriptTask': false } },
       moddleElement: model({
@@ -189,6 +198,17 @@ verify('element-id-naming', rule, {
       report: {
         id: 'serviceTask_ClaimMembership',
         message: 'Element id must match the naming convention <serviceTask_camelCase>',
+      },
+    },
+    {
+      name: 'a case named after an Object.prototype key reports against PascalCase',
+      config: { case: '__proto__' },
+      moddleElement: model({
+        shapes: [{ id: 'serviceTask_claimMembership', tag: 'serviceTask' }],
+      }),
+      report: {
+        id: 'serviceTask_claimMembership',
+        message: 'Element id must match the naming convention <serviceTask_PascalCase>',
       },
     },
     {

@@ -227,8 +227,15 @@ export function resolvePrefix(node: ModdleElement, prefixes: PrefixMap): PrefixC
   return null;
 }
 
+/**
+ * The case spec for a configured `case` name; an unknown name falls back to PascalCase. The lookup
+ * reads own properties only, so a name like `toString` or `__proto__` falls back too instead of
+ * returning an `Object.prototype` member.
+ */
 export function resolveCase(caseName: string): CaseSpec {
-  return CASES[caseName] ?? PASCAL_CASE;
+  const known = Object.prototype.hasOwnProperty.call(CASES, caseName);
+
+  return (known ? CASES[caseName] : undefined) ?? PASCAL_CASE;
 }
 
 /** Coerce a config value to a known qualifier mode; an unrecognised value falls back to `optional`. */
