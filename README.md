@@ -36,19 +36,16 @@ npm install --save-dev @miragon/bpmnlint-plugin-rules bpmnlint
 
 ## Use it (the bpmnlint way)
 
-Add the plugin to your `.bpmnlintrc` and extend one of its configs, like any other plugin:
+Add the plugin to your `.bpmnlintrc` and extend one of its configs, like any other plugin.
+`bpmnlint:recommended` brings the standard structural rules, and the second entry adds the Miragon
+layer, here `recommended-for-modeling`:
 
-```jsonc
-// .bpmnlintrc
+```json
 {
   "extends": [
-    // standard structural rules
     "bpmnlint:recommended",
-    // the Miragon layer, pick a scope below
-    "plugin:@miragon/rules/recommended-for-<scope>",
-    // optional: Camunda engine rules, see below
-    // "plugin:camunda-compat/camunda-cloud-8-10",
-  ],
+    "plugin:@miragon/rules/recommended-for-modeling"
+  ]
 }
 ```
 
@@ -67,6 +64,9 @@ It ships three configs — pick one by who's modeling and why:
   into when you want findings to fail the build.
 
 <!-- #endregion presets -->
+
+Deploying to a Camunda engine? Also add the engine's deployability config, described under Camunda
+engine rules.
 
 Then lint a diagram:
 
@@ -93,16 +93,16 @@ The Miragon conventions this plugin adds — each with a docs page and a good/ba
 
 Turn any of them on individually, the usual way:
 
-```jsonc
+```json
 {
   "extends": [
     "bpmnlint:recommended",
-    "plugin:@miragon/rules/recommended-for-modeling",
+    "plugin:@miragon/rules/recommended-for-modeling"
   ],
   "rules": {
     "@miragon/rules/no-generated-ids": "error",
-    "@miragon/rules/element-id-naming": "warn",
-  },
+    "@miragon/rules/element-id-naming": "warn"
+  }
 }
 ```
 
@@ -141,33 +141,31 @@ extension for you.
 
 ### Camunda 7
 
-```jsonc
-// .bpmnlintrc
+```json
 {
   "extends": [
     "bpmnlint:recommended",
     "plugin:@miragon/rules/recommended-for-automation",
-    "plugin:camunda-compat/camunda-platform-7-24",
+    "plugin:camunda-compat/camunda-platform-7-24"
   ],
   "moddleExtensions": {
-    "camunda": "camunda-bpmn-moddle/resources/camunda.json",
-  },
+    "camunda": "camunda-bpmn-moddle/resources/camunda.json"
+  }
 }
 ```
 
 ### Camunda 8 (Zeebe)
 
-```jsonc
-// .bpmnlintrc
+```json
 {
   "extends": [
     "bpmnlint:recommended",
     "plugin:@miragon/rules/recommended-for-automation",
-    "plugin:camunda-compat/camunda-cloud-8-10",
+    "plugin:camunda-compat/camunda-cloud-8-10"
   ],
   "moddleExtensions": {
-    "zeebe": "zeebe-bpmn-moddle/resources/zeebe.json",
-  },
+    "zeebe": "zeebe-bpmn-moddle/resources/zeebe.json"
+  }
 }
 ```
 
