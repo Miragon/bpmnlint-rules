@@ -2,7 +2,7 @@ import { resolveCase } from '../../src/lib/naming';
 
 describe('resolveCase', () => {
   it('returns the spec of every known case name', () => {
-    for (const caseName of ['PascalCase', 'camelCase', 'snake_case', 'any']) {
+    for (const caseName of ['PascalCase', 'camelCase', 'snake_case', 'kebab-case', 'any']) {
       expect(resolveCase(caseName).label).toBe(caseName);
     }
   });

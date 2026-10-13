@@ -32,7 +32,8 @@ export interface ElementIdNamingConfig {
  *     } ]
  *
  * `prefixes` is merged over the defaults, so you only state what differs. `false` switches a
- * type off. `case` is one of `camelCase` (default), `PascalCase`, `snake_case` or `any`.
+ * type off. `case` is one of `camelCase` (default), `PascalCase`, `snake_case`,
+ * `kebab-case` or `any`.
  *
  * `eventDefinitionQualifier` (default `optional`) controls whether an event id may name its event
  * definition: `optional` accepts both `startEvent_` and `messageStartEvent_` on a message start
