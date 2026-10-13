@@ -9,6 +9,8 @@ import { reportedIds } from '../support/lint-file';
 const EXAMPLES = [
   { rule: 'no-generated-ids', offender: 'Activity_0049ryx' },
   { rule: 'element-id-naming', offender: 'ReviewOrder' },
+  { rule: 'external-task-topic-naming', offender: 'serviceTask_reviewOrder' },
+  { rule: 'message-name-naming', offender: 'message_orderReceived' },
   { rule: 'flow-through-element', offender: 'flow_reopen' },
   { rule: 'flow-connection-side', offender: 'flow_toDecision' },
   { rule: 'flow-target-alignment', offender: 'flow_archived' },

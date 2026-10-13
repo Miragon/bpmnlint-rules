@@ -34,8 +34,10 @@ export {
   miragonAll,
   miragonRuleFactories,
   elementIdNaming,
+  externalTaskTopicNaming,
   flowConnectionSide,
   flowThroughElement,
+  messageNameNaming,
   noGeneratedIds,
 } from './rules/miragon';
 

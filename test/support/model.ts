@@ -27,6 +27,10 @@ export interface ShapeSpec {
    * `<bpmn:messageEventDefinition>`. Turns a plain event into a message/timer/... event.
    */
   eventDefinitions?: string[];
+  /** Extension attributes on the shape itself, e.g. `{ 'camunda:type': 'external' }`. */
+  attrs?: Record<string, string>;
+  /** Extension attributes written on every nested event definition. */
+  eventDefinitionAttrs?: Record<string, string>;
   hasLoop?: boolean;
   /**
    * Id of the shape this one nests inside (e.g. a `startEvent` inside a `subProcess`). Nests the
@@ -46,10 +50,19 @@ export interface EdgeSpec {
   condition?: string;
 }
 
+interface MessageSpec {
+  id: string;
+  name?: string;
+}
+
 export interface ModelSpec {
   shapes?: ShapeSpec[];
   edges?: EdgeSpec[];
+  /** Root-level `<bpmn:message>` elements. */
+  messages?: MessageSpec[];
   processId?: string;
+  /** Moddle descriptors to parse with, e.g. `{ camunda: camundaModdle }`. Plain BPMN when omitted. */
+  moddleExtensions?: Record<string, unknown>;
 }
 
 const DEFAULT_SIZE = { width: 100, height: 80 };
@@ -61,6 +74,11 @@ const escapeXml = (value: string): string =>
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/\n/g, '&#10;');
+
+const xmlAttributes = (attrs: Record<string, string> = {}): string =>
+  Object.entries(attrs)
+    .map(([name, value]) => ` ${name}="${escapeXml(value)}"`)
+    .join('');
 
 /**
  * `bpmn:FlowNode#incoming` / `#outgoing` are reference lists moddle reads from explicit child
@@ -77,7 +95,7 @@ function semanticShape(
   const attachedTo = shape.attachedTo ? ` attachedToRef="${shape.attachedTo}"` : '';
   const name = shape.name === undefined ? '' : ` name="${escapeXml(shape.name)}"`;
   const defaultFlow = shape.default ? ` default="${shape.default}"` : '';
-  const open = `    <bpmn:${tag} id="${shape.id}"${attachedTo}${name}${defaultFlow}`;
+  const open = `    <bpmn:${tag} id="${shape.id}"${attachedTo}${name}${defaultFlow}${xmlAttributes(shape.attrs)}`;
 
   const connections = [
     ...edges
@@ -90,7 +108,8 @@ function semanticShape(
 
   const children = childrenOf.get(shape.id) || [];
   const eventDefinitions = (shape.eventDefinitions || []).map(
-    (qualifier) => `      <bpmn:${qualifier}EventDefinition id="def_${shape.id}_${qualifier}" />`,
+    (qualifier) =>
+      `      <bpmn:${qualifier}EventDefinition id="def_${shape.id}_${qualifier}"${xmlAttributes(shape.eventDefinitionAttrs)} />`,
   );
 
   const loopCharacteristics = shape.hasLoop ? ['      <bpmn:standardLoopCharacteristics />'] : [];
@@ -162,7 +181,18 @@ function diEdge(edge: EdgeSpec, index: number): string {
   ].join('\n');
 }
 
-function modelXml({ shapes = [], edges = [], processId = 'process_Test' }: ModelSpec): string {
+function semanticMessage(message: MessageSpec): string {
+  const name = message.name === undefined ? '' : ` name="${escapeXml(message.name)}"`;
+
+  return `  <bpmn:message id="${message.id}"${name} />`;
+}
+
+function modelXml({
+  shapes = [],
+  edges = [],
+  messages = [],
+  processId = 'process_Test',
+}: ModelSpec): string {
   // Semantic tree: nest children under their parent, render only the roots. DI stays flat (below).
   const childrenOf = new Map<string, ShapeSpec[]>();
   for (const shape of shapes) {
@@ -181,8 +211,11 @@ function modelXml({ shapes = [], edges = [], processId = 'process_Test' }: Model
     xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
     xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+    xmlns:operaton="http://operaton.org/schema/1.0/bpmn"
     id="definitions_Test"
     targetNamespace="http://bpmn.io/schema/bpmn">
+${messages.map(semanticMessage).join('\n')}
   <bpmn:process id="${processId}" isExecutable="true">
 ${roots.map((shape) => semanticShape(shape, edges, childrenOf)).join('\n')}
 ${edges.map(semanticEdge).join('\n')}
@@ -198,5 +231,5 @@ ${edges.map(diEdge).join('\n')}
 
 /** A moddle root, ready for bpmnlint's RuleTester. */
 export function model(spec: ModelSpec): Promise<unknown> {
-  return createModdle(modelXml(spec));
+  return createModdle(modelXml(spec), spec.moddleExtensions);
 }
