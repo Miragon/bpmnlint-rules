@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.12.1](https://github.com/Miragon/bpmnlint-rules/compare/v0.12.0...v0.12.1) (2026-10-13)
+
+
+### Bug Fixes
+
+* **element-id-naming:** fall back for a case named after an Object.prototype key ([#79](https://github.com/Miragon/bpmnlint-rules/issues/79)) ([0aa61f1](https://github.com/Miragon/bpmnlint-rules/commit/0aa61f16b3725b238ffeba827f5d85acaa90dd15)), closes [#77](https://github.com/Miragon/bpmnlint-rules/issues/77)
+* load the ESM build in plain Node ([#78](https://github.com/Miragon/bpmnlint-rules/issues/78)) ([8eec416](https://github.com/Miragon/bpmnlint-rules/commit/8eec416ac591f006d951dc9cf013bd389f3d1899)), closes [#74](https://github.com/Miragon/bpmnlint-rules/issues/74)
+* require bpmnlint &gt;= 11.14.0 and use the full rule names in doc comments ([#71](https://github.com/Miragon/bpmnlint-rules/issues/71)) ([1e787a2](https://github.com/Miragon/bpmnlint-rules/commit/1e787a246a9620dd7990931c9f4a269c8b626ccf))
+
 ## [0.12.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.11.1...v0.12.0) (2026-10-09)
 
 
