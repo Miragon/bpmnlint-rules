@@ -8,7 +8,7 @@
  * resolver-chaining. Everything resolves from bundled modules, so no `bpmnlint` install is needed
  * and it works offline.
  */
-import StaticResolver from 'bpmnlint/lib/resolver/static-resolver';
+import StaticResolver from 'bpmnlint/lib/resolver/static-resolver.js';
 
 import type { ResolverEntries } from '../lib/bpmnlint-config';
 import type { Resolver } from './Resolver';

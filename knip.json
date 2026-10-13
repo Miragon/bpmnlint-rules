@@ -2,8 +2,8 @@
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "workspaces": {
     ".": {
-      "entry": ["src/rules/miragon/*.ts!", "test/**/*.spec.ts", "test/distro/*.cjs"],
-      "project": ["src/**/*.ts", "test/**/*.{ts,cjs}"]
+      "entry": ["src/rules/miragon/*.ts!", "test/**/*.spec.ts", "test/distro/*.{cjs,mjs}"],
+      "project": ["src/**/*.ts", "test/**/*.{ts,cjs,mjs}"]
     },
     "docs": {
       "entry": ["scripts/*.mjs", ".vitepress/theme/*.data.ts"],

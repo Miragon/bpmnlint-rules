@@ -19,14 +19,24 @@
   ],
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
     },
     "./rules/*": {
-      "types": "./dist/rules/miragon/*.d.ts",
-      "import": "./dist/rules/miragon/*.js",
-      "require": "./dist/rules/miragon/*.cjs"
+      "import": {
+        "types": "./dist/rules/miragon/*.d.ts",
+        "default": "./dist/rules/miragon/*.js"
+      },
+      "require": {
+        "types": "./dist/rules/miragon/*.d.cts",
+        "default": "./dist/rules/miragon/*.cjs"
+      }
     },
     "./package.json": "./package.json"
   },

@@ -8,9 +8,15 @@ import { defineConfig } from 'tsup';
  * — that lets the plugin's classic `rules` map point at real, individually `require`-able files
  * (bpmnlint's node-resolver `require()`s a rule by path), and lets consumers import a single rule.
  *
- * The bundled upstream packages (bpmnlint, camunda-compat, the moddle descriptors) are external:
- * they are declared dependencies and resolved from the consumer's `node_modules`, so a rule
- * instance we import and a `Linter` the consumer constructs share one copy.
+ * The bundled upstream packages (bpmnlint, camunda-compat) are external: they are declared
+ * dependencies and resolved from the consumer's `node_modules`, so a rule instance we import and a
+ * `Linter` the consumer constructs share one copy.
+ *
+ * The two moddle descriptor JSONs are the exception: they are inlined (`noExternal`). Node's ESM
+ * loader only imports JSON with `with { type: 'json' }`, and the build cannot emit that attribute:
+ * esbuild drops it at `target: 'es2022'`, and tsup's rollup tree-shake pass rewrites it to the
+ * `assert` form that Node 22 rejects. The descriptors are plain data, so the consumer does not need
+ * to share our copy.
  */
 export default defineConfig({
   entry: ['src/index.ts', 'src/rules/miragon/*.ts'],
@@ -28,4 +34,5 @@ export default defineConfig({
     'camunda-bpmn-moddle',
     'zeebe-bpmn-moddle',
   ],
+  noExternal: [/^(camunda|zeebe)-bpmn-moddle\/resources\/[^/]+\.json$/],
 });

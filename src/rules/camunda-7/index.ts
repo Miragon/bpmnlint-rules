@@ -10,7 +10,7 @@ import camundaCompat from 'bpmnlint-plugin-camunda-compat';
 
 import type { ResolverEntries } from '../../lib/bpmnlint-config';
 
-import rule_history_time_to_live from 'bpmnlint-plugin-camunda-compat/rules/camunda-platform/history-time-to-live';
+import rule_history_time_to_live from 'bpmnlint-plugin-camunda-compat/rules/camunda-platform/history-time-to-live.js';
 
 const PLUGIN = 'bpmnlint-plugin-camunda-compat';
 const CONFIG = 'camunda-platform-7-24';
