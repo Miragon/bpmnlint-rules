@@ -28,12 +28,14 @@ npm run typecheck && npm run lint && npm run format:check && npm run knip \
 - **New rules ship `error` in `miragonAll` and a non-blocking `warn` in
   `miragonRecommendedForAutomation`; in `miragonRecommendedForModeling` a rule is `off` unless it is
   a non-blocking layout hint, which ships at `warn`** (all in `src/rules/miragon/index.ts`). The two
-  `recommended-for-*` layers never fail a build on their own — only `all` is `error`. The modeling
+  `recommended-for-*` layers never fail a build on their own — only `all` is `error`. The one
+  exception is `exclusive-gateway-marker-visible`, `error` in the modeling layer, because a gateway
+  without its marker is misdrawn. The modeling
   layer must also stay usable on hand-drawn diagrams — never block a modeler on execution-only
   conventions.
 - **Preset-aware Conventional Commits.** A change is breaking (`feat!:`) only if it can turn a
   consumer's green build red — i.e. it introduces or raises an `error`-level finding. Since the two
-  `recommended-for-*` layers emit only `warn`, adding a rule there is not breaking; raising a rule to
+  `recommended-for-*` layers emit only `warn` (bar that one exception), adding a rule there is not breaking; raising a rule to
   `error` (in `all`, or a consumer's own config) is. Adding a rule at `warn`, or lowering a severity
   → not breaking.
 - **Exact dependency versions.** No `^`, no `~` (`.npmrc` `save-exact=true`, CI-verified).

@@ -15,6 +15,7 @@ import type { RuleFactory } from '../../lib/moddle';
 
 import boundaryEventMarkerOverlap from './boundary-event-marker-overlap';
 import elementIdNaming from './element-id-naming';
+import exclusiveGatewayMarkerVisible from './exclusive-gateway-marker-visible';
 import flowConnectionSide from './flow-connection-side';
 import flowCrossing from './flow-crossing';
 import flowOrthogonal from './flow-orthogonal';
@@ -37,6 +38,7 @@ const ruleFactoriesByName = {
   [flowCrossing.ruleName]: flowCrossing,
   [flowOrthogonal.ruleName]: flowOrthogonal,
   [boundaryEventMarkerOverlap.ruleName]: boundaryEventMarkerOverlap,
+  [exclusiveGatewayMarkerVisible.ruleName]: exclusiveGatewayMarkerVisible,
 };
 
 /** The short (unprefixed) name of a rule this plugin ships, as each rule file declares it. */
@@ -50,7 +52,8 @@ export const miragonRuleFactories: Record<string, RuleFactory> = ruleFactoriesBy
  * `plugin:@miragon/rules/recommended-for-modeling`.
  *
  * Tuned for hand-drawn, human-facing diagrams: bpmnlint's own `standard-size` at `warn`, the layout
- * rules at `warn` (non-blocking layout hints), and the naming/id rules `off` — a modeler shouldn't
+ * rules at `warn` (non-blocking layout hints) except `exclusive-gateway-marker-visible` at `error`
+ * (a gateway without its marker is misdrawn, not merely untidy), and the naming/id rules `off` — a modeler shouldn't
  * be blocked on id conventions that only matter once a process is wired up for execution.
  */
 export const miragonRecommendedForModeling: BpmnlintConfig = {
@@ -66,6 +69,7 @@ export const miragonRecommendedForModeling: BpmnlintConfig = {
     [`${MIRAGON_NAME}/flow-crossing`]: 'warn',
     [`${MIRAGON_NAME}/flow-orthogonal`]: 'warn',
     [`${MIRAGON_NAME}/boundary-event-marker-overlap`]: 'warn',
+    [`${MIRAGON_NAME}/exclusive-gateway-marker-visible`]: 'error',
   },
 };
 
@@ -88,6 +92,7 @@ export const miragonRecommendedForAutomation: BpmnlintConfig = {
     [`${MIRAGON_NAME}/flow-crossing`]: 'warn',
     [`${MIRAGON_NAME}/flow-orthogonal`]: 'warn',
     [`${MIRAGON_NAME}/boundary-event-marker-overlap`]: 'warn',
+    [`${MIRAGON_NAME}/exclusive-gateway-marker-visible`]: 'warn',
   },
 };
 
@@ -102,6 +107,7 @@ export const miragonAll: BpmnlintConfig = {
     [`${MIRAGON_NAME}/flow-crossing`]: 'error',
     [`${MIRAGON_NAME}/flow-orthogonal`]: 'error',
     [`${MIRAGON_NAME}/boundary-event-marker-overlap`]: 'error',
+    [`${MIRAGON_NAME}/exclusive-gateway-marker-visible`]: 'error',
   },
 };
 
@@ -121,6 +127,7 @@ export const resolverEntries: ResolverEntries = {
 export {
   boundaryEventMarkerOverlap,
   elementIdNaming,
+  exclusiveGatewayMarkerVisible,
   flowConnectionSide,
   flowCrossing,
   flowOrthogonal,

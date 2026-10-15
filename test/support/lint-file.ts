@@ -16,6 +16,7 @@ import flowTargetAlignment from '../../src/rules/miragon/flow-target-alignment';
 import flowCrossing from '../../src/rules/miragon/flow-crossing';
 import flowOrthogonal from '../../src/rules/miragon/flow-orthogonal';
 import boundaryEventMarkerOverlap from '../../src/rules/miragon/boundary-event-marker-overlap';
+import exclusiveGatewayMarkerVisible from '../../src/rules/miragon/exclusive-gateway-marker-visible';
 
 const RULES: Record<string, RuleFactory> = {
   'no-generated-ids': noGeneratedIds,
@@ -26,6 +27,7 @@ const RULES: Record<string, RuleFactory> = {
   'flow-crossing': flowCrossing,
   'flow-orthogonal': flowOrthogonal,
   'boundary-event-marker-overlap': boundaryEventMarkerOverlap,
+  'exclusive-gateway-marker-visible': exclusiveGatewayMarkerVisible,
 };
 
 const EXAMPLES_DIR = fileURLToPath(new URL('../fixtures/rules', import.meta.url));
