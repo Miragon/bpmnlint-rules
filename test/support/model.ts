@@ -20,6 +20,7 @@ export interface ShapeSpec {
   height?: number;
   attachedTo?: string;
   isExpanded?: boolean;
+  isMarkerVisible?: boolean;
   name?: string;
   default?: string;
   /**
@@ -133,11 +134,13 @@ function semanticEdge(edge: EdgeSpec): string {
 function diShape(shape: ShapeSpec, index: number): string {
   const { width, height } = { ...DEFAULT_SIZE, ...shape };
   const expanded = shape.isExpanded === undefined ? '' : ` isExpanded="${shape.isExpanded}"`;
+  const markerVisible =
+    shape.isMarkerVisible === undefined ? '' : ` isMarkerVisible="${shape.isMarkerVisible}"`;
   const posX = shape.x === undefined ? 100 + index * 200 : shape.x;
   const posY = shape.y === undefined ? 100 : shape.y;
 
   return [
-    `      <bpmndi:BPMNShape id="di_${shape.id}" bpmnElement="${shape.id}"${expanded}>`,
+    `      <bpmndi:BPMNShape id="di_${shape.id}" bpmnElement="${shape.id}"${expanded}${markerVisible}>`,
     `        <dc:Bounds x="${posX}" y="${posY}" width="${width}" height="${height}" />`,
     '      </bpmndi:BPMNShape>',
   ].join('\n');

@@ -28,5 +28,10 @@ and bounds, never on guesswork.
 
 <RulePair rule="boundary-event-marker-overlap" />
 
-All six are non-blocking layout hints at `warn` in both recommended presets. See
+## An exclusive gateway without its marker
+
+<RulePair rule="exclusive-gateway-marker-visible" />
+
+All seven are non-blocking layout hints at `warn` in both recommended presets, except the gateway
+marker, which is an `error` in `recommended-for-modeling`. See
 [Presets](../presets.md).
