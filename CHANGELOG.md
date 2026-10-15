@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.13.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.12.1...v0.13.0) (2026-10-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* **exclusive-gateway-marker-visible:** report exclusive gateways drawn without their X marker ([#86](https://github.com/Miragon/bpmnlint-rules/issues/86))
+
+### Features
+
+* **element-id-naming:** support kebab-case as a case option ([#83](https://github.com/Miragon/bpmnlint-rules/issues/83)) ([25c9a49](https://github.com/Miragon/bpmnlint-rules/commit/25c9a498136d197f7cdea14c61cd431dd9ecea9d))
+* **exclusive-gateway-marker-visible:** report exclusive gateways drawn without their X marker ([#86](https://github.com/Miragon/bpmnlint-rules/issues/86)) ([fe00067](https://github.com/Miragon/bpmnlint-rules/commit/fe00067219a698fb4b18f2615e84c8aa997aba12))
+
 ## [0.12.1](https://github.com/Miragon/bpmnlint-rules/compare/v0.12.0...v0.12.1) (2026-10-13)
 
 
