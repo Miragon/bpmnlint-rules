@@ -10,7 +10,14 @@
   "packages": {
     ".": {
       "package-name": "@miragon/bpmnlint-plugin-rules",
-      "initial-version": "0.1.0"
+      "initial-version": "0.1.0",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "plugins/bpmnlint-rules/.claude-plugin/plugin.json",
+          "jsonpath": "$.version"
+        }
+      ]
     }
   }
 }

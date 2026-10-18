@@ -1,0 +1,14 @@
+{
+  "name": "bpmnlint-rules",
+  "displayName": "BPMN Style Guide",
+  "version": "0.13.0",
+  "description": "Agent skills for BPMN modeling conventions with @miragon/bpmnlint-plugin-rules: define your team's conventions and check BPMN models against them.",
+  "author": {
+    "name": "Miragon GmbH",
+    "url": "https://www.miragon.io"
+  },
+  "homepage": "https://github.com/Miragon/bpmnlint-rules/tree/main/plugins/bpmnlint-rules#readme",
+  "repository": "https://github.com/Miragon/bpmnlint-rules",
+  "license": "MIT",
+  "keywords": ["bpmn", "bpmnlint", "style-guide", "conventions", "naming", "camunda", "lint"]
+}
