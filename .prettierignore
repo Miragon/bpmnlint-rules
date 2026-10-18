@@ -12,3 +12,6 @@ CHANGELOG.md
 docs/rules/assets
 docs/.vitepress/dist
 docs/.vitepress/cache
+
+# Rewritten by release-please (extra-files), which re-serialises the JSON in its own style.
+plugins/bpmnlint-rules/.claude-plugin/plugin.json
