@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.13.0...v0.14.0) (2026-10-18)
+
+
+### Features
+
+* **plugin:** ship the BPMN style-guide skills as a Claude Code plugin ([#89](https://github.com/Miragon/bpmnlint-rules/issues/89)) ([6bbd9ab](https://github.com/Miragon/bpmnlint-rules/commit/6bbd9ab32092e9c5c7efc176744fb350aad86c96))
+
 ## [0.13.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.12.1...v0.13.0) (2026-10-15)
 
 
