@@ -2,7 +2,7 @@
   "name": "bpmnlint-rules",
   "displayName": "BPMN Style Guide",
   "version": "0.13.0",
-  "description": "Write a team BPMN style guide and check models against it: the guide is a readable handbook, emits a .bpmnlintrc for its deterministic rules with @miragon/bpmnlint-plugin-rules, and an AI check covers the conventions a linter can't judge.",
+  "description": "Agent skills for BPMN modeling conventions with @miragon/bpmnlint-plugin-rules: define your team's conventions and check BPMN models against them.",
   "author": {
     "name": "Miragon GmbH",
     "url": "https://www.miragon.io"
