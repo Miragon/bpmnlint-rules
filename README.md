@@ -287,6 +287,9 @@ and its [process testing](https://github.com/Miragon/bpmn-to-code/pull/79) are t
 - **[Miragon BPMN Modeler](https://github.com/Miragon/bpmn-modeler)** — in-editor linting via the
   programmatic API, flagging issues live while you model.
 
+- **[Claude Code plugin](plugins/bpmnlint-rules)** — skills that write a team BPMN style guide, generate
+  the matching `.bpmnlintrc` and check models against the guide.
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md).

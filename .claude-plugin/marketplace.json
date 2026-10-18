@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-marketplace.json",
+  "name": "miragon-bpmnlint",
+  "description": "Miragon's Claude Code plugin for BPMN conventions: write a team style guide and enforce it with bpmnlint.",
+  "owner": {
+    "name": "Miragon GmbH",
+    "url": "https://www.miragon.io"
+  },
+  "plugins": [
+    {
+      "name": "bpmnlint-rules",
+      "source": "./plugins/bpmnlint-rules",
+      "description": "Write a BPMN_STYLE_GUIDE.md with your team's conventions, generate the matching .bpmnlintrc, and check .bpmn files against the guide.",
+      "category": "modeling",
+      "tags": ["bpmn", "bpmnlint", "style-guide", "camunda", "camunda-7", "camunda-8"]
+    }
+  ]
+}

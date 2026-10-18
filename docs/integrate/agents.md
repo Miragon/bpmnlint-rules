@@ -75,6 +75,19 @@ naming and layout findings are `warn`: the agent sees them, the hook does not bl
 them blocking for agents, extend `plugin:@miragon/rules/all` in the config the agent lints with. See
 [Presets](../presets.md).
 
+## Write the conventions down first
+
+Which ID scheme, which names, which layout your team expects is a decision, not a default. The
+[`bpmnlint-rules` Claude Code plugin](https://github.com/Miragon/bpmnlint-rules/tree/main/plugins/bpmnlint-rules)
+asks for those decisions and writes them into a `BPMN_STYLE_GUIDE.md`, together with the matching
+`.bpmnlintrc`. Its `validate-bpmn-style` skill then checks models against the whole guide, including
+the conventions a linter can't judge.
+
+```bash
+/plugin marketplace add Miragon/skills
+/plugin install bpmnlint-rules@miragon-agent-skills
+```
+
 ## Building your own agent
 
 No coding harness, but your own pipeline that generates BPMN from a model call? Use the

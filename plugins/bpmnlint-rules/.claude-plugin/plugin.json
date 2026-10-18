@@ -1,0 +1,14 @@
+{
+  "name": "bpmnlint-rules",
+  "displayName": "BPMN Style Guide",
+  "version": "0.13.0",
+  "description": "Write a team BPMN style guide and check models against it: the guide is a readable handbook, emits a .bpmnlintrc for its deterministic rules with @miragon/bpmnlint-plugin-rules, and an AI check covers the conventions a linter can't judge.",
+  "author": {
+    "name": "Miragon GmbH",
+    "url": "https://www.miragon.io"
+  },
+  "homepage": "https://github.com/Miragon/bpmnlint-rules/tree/main/plugins/bpmnlint-rules#readme",
+  "repository": "https://github.com/Miragon/bpmnlint-rules",
+  "license": "MIT",
+  "keywords": ["bpmn", "bpmnlint", "style-guide", "conventions", "naming", "camunda", "lint"]
+}
