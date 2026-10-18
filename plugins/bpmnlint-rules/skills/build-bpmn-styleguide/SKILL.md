@@ -152,6 +152,7 @@ If the user declines everything, omit the `## ⚠️ Special Cases` section enti
 5. Suggest next steps:
    - `npm i -D bpmnlint @miragon/bpmnlint-plugin-rules` (plus `bpmnlint-plugin-camunda-compat` and, for C7, `camunda-bpmn-moddle` when the rc uses them), then `npx bpmnlint <file>` — locally, in CI and in a coding-agent hook.
    - `/validate-bpmn-style` to check BPMN files against the whole guide, including the `llm` rules.
+   - `/verify-model-visually` after editing a model, to check its drawing against the layout rules.
    - If the project uses bpmn-to-code: its `/generate-rules-to-enforce-bpmn-styleguide` skill turns the `pattern` rules into Kotlin tests for `bpmn-to-code-testing`.
 
 ## Authoring Tips

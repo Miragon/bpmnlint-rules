@@ -81,7 +81,8 @@ Which ID scheme, which names, which layout your team expects is a decision, not 
 [`bpmnlint-rules` Claude Code plugin](https://github.com/Miragon/bpmnlint-rules/tree/main/plugins/bpmnlint-rules)
 asks for those decisions and writes them into a `BPMN_STYLE_GUIDE.md`, together with the matching
 `.bpmnlintrc`. Its `validate-bpmn-style` skill then checks models against the whole guide, including
-the conventions a linter can't judge.
+the conventions a linter can't judge. `verify-model-visually` reviews a model's drawing with the
+layout rules and the rendered image, and `fix-model-layout` repairs what it finds.
 
 ```bash
 /plugin marketplace add Miragon/skills

@@ -10,7 +10,7 @@
     {
       "name": "bpmnlint-rules",
       "source": "./plugins/bpmnlint-rules",
-      "description": "Write a BPMN_STYLE_GUIDE.md with your team's conventions, generate the matching .bpmnlintrc, and check .bpmn files against the guide.",
+      "description": "Write a BPMN_STYLE_GUIDE.md with your team's conventions, generate the matching .bpmnlintrc, check .bpmn files against the guide, and review and fix their layout.",
       "category": "modeling",
       "tags": ["bpmn", "bpmnlint", "style-guide", "camunda", "camunda-7", "camunda-8"]
     }

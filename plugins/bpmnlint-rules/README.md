@@ -6,7 +6,9 @@ tools can parse. It also writes a `.bpmnlintrc` for the rules bpmnlint can check
 [`@miragon/bpmnlint-plugin-rules`](https://github.com/Miragon/bpmnlint-rules). The modeler, CI and
 [`@miragon/bpmn-cli`](https://github.com/Miragon/bpmn-cli) then all read the same conventions.
 `validate-bpmn-style` checks models against the whole guide. That includes the conventions only
-judgement can check, such as whether a task name is verb + noun.
+judgement can check, such as whether a task name is verb + noun. `verify-model-visually` and
+`fix-model-layout` review and repair the drawing itself: bpmnlint's layout rules plus a look at the
+rendered image.
 
 ## Installation
 
@@ -32,14 +34,18 @@ npm i -D bpmnlint @miragon/bpmnlint-plugin-rules
 
 ## Included skills
 
-| Skill                   | Description                                                                                                                                                           |
-| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `build-bpmn-styleguide` | Interactively create a `BPMN_STYLE_GUIDE.md` with team conventions for naming, IDs, layout and engine special cases, plus the matching `.bpmnlintrc`.                 |
-| `validate-bpmn-style`   | Check BPMN files against `BPMN_STYLE_GUIDE.md`: bpmnlint for the mapped rules, regex or judgement for the rest. Reports each violation with the convention it breaks. |
+| Skill                   | Description                                                                                                                                                            |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `build-bpmn-styleguide` | Interactively create a `BPMN_STYLE_GUIDE.md` with team conventions for naming, IDs, layout and engine special cases, plus the matching `.bpmnlintrc`.                  |
+| `validate-bpmn-style`   | Check BPMN files against `BPMN_STYLE_GUIDE.md`: bpmnlint for the mapped rules, regex or judgement for the rest. Reports each violation with the convention it breaks.  |
+| `verify-model-visually` | Review a model's drawing: `npx bpmnlint` for geometry, then the rendered image (`bpmn-to-image`) for layout that needs judgement. Reports a combined, located verdict. |
+| `fix-model-layout`      | Fix what bpmnlint or `verify-model-visually` found, in the diagram only. Uses the bpmn CLI's format commands when available; a full redraw only with approval.         |
 
 ```
 /bpmnlint-rules:build-bpmn-styleguide
 /bpmnlint-rules:validate-bpmn-style [path/to/file.bpmn]
+/bpmnlint-rules:verify-model-visually [path/to/file.bpmn]
+/bpmnlint-rules:fix-model-layout [path/to/file.bpmn]
 ```
 
 Or describe what you need and Claude picks the skill.

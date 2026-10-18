@@ -47,7 +47,7 @@ test/                   RuleTester specs, the resolver integration + sync specs,
 test/fixtures/rules/    valid.bpmn / invalid.bpmn pairs per rule (rendered to the docs SVGs)
 test/bench/             the per-rule benchmark: synthetic model, target times, the benchmark itself
 docs/rules/             one documentation page per rule
-plugins/bpmnlint-rules/ the Claude Code plugin: style-guide skills that generate a .bpmnlintrc (not published to npm)
+plugins/bpmnlint-rules/ the Claude Code plugin: style-guide and layout skills built on the rules (not published to npm)
 ```
 
 Only `src/rules/miragon/` holds rule source we author; `common`, `camunda-7` and `camunda-8` just
