@@ -59,7 +59,8 @@ itself a finding — call it out.
    extends `bpmnlint:recommended` and `plugin:@miragon/rules/recommended-for-modeling` (or
    `/build-bpmn-styleguide`), and continue with the visual pass alone. **Skip this step only when
    geometry was already linted in this run** (CI's lint job, a pre-commit hook); note that lint ran
-   upstream.
+   upstream. An example CI workflow that runs the lint job and then this skill:
+   <https://miragon.github.io/bpmnlint-rules/integrate/ci>.
 
 3. **Render the model to PNG** with [bpmn-to-image](https://github.com/bpmn-io/bpmn-to-image). Write
    to a scratch directory outside the project:
