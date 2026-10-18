@@ -48,6 +48,7 @@ export default defineConfig({
         items: [
           { text: 'CI & programmatic API', link: '/integrate/api' },
           { text: 'Coding agents', link: '/integrate/agents' },
+          { text: 'CI quality gates', link: '/integrate/ci' },
         ],
       },
       {
