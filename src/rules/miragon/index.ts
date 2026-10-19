@@ -14,7 +14,7 @@ import type { BpmnlintConfig, ResolverEntries } from '../../lib/bpmnlint-config'
 import type { RuleFactory } from '../../lib/moddle';
 
 import boundaryEventMarkerOverlap from './boundary-event-marker-overlap';
-import camunda7AsyncContinuations from './camunda-7-async-continuations';
+import asyncContinuations from './camunda-7-async-continuations';
 import elementIdNaming from './element-id-naming';
 import exclusiveGatewayMarkerVisible from './exclusive-gateway-marker-visible';
 import flowConnectionSide from './flow-connection-side';
@@ -40,7 +40,7 @@ const ruleFactoriesByName = {
   [flowOrthogonal.ruleName]: flowOrthogonal,
   [boundaryEventMarkerOverlap.ruleName]: boundaryEventMarkerOverlap,
   [exclusiveGatewayMarkerVisible.ruleName]: exclusiveGatewayMarkerVisible,
-  [camunda7AsyncContinuations.ruleName]: camunda7AsyncContinuations,
+  [asyncContinuations.ruleName]: asyncContinuations,
 };
 
 /** The short (unprefixed) name of a rule this plugin ships, as each rule file declares it. */
@@ -131,8 +131,8 @@ export const resolverEntries: ResolverEntries = {
 };
 
 export {
+  asyncContinuations,
   boundaryEventMarkerOverlap,
-  camunda7AsyncContinuations,
   elementIdNaming,
   exclusiveGatewayMarkerVisible,
   flowConnectionSide,

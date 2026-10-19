@@ -2,7 +2,7 @@ import { is, isAny } from 'bpmnlint-utils';
 
 import type { ModdleElement, Reporter, Rule } from '../../lib/moddle';
 
-export interface Camunda7AsyncContinuationsConfig {
+export interface AsyncContinuationsConfig {
   serviceTasks?: boolean;
   userTasks?: boolean;
   startEvents?: boolean;
@@ -60,9 +60,7 @@ const MESSAGES = {
  * Only Camunda 7 diagrams are checked: `modeler:executionPlatform="Camunda Platform"`, or no
  * execution platform but the `camunda:` namespace declared. External tasks count as wait states.
  */
-export default function camunda7AsyncContinuations(
-  config?: Camunda7AsyncContinuationsConfig,
-): Rule {
+export default function asyncContinuations(config?: AsyncContinuationsConfig): Rule {
   const {
     serviceTasks = true,
     userTasks = true,
@@ -194,4 +192,4 @@ export default function camunda7AsyncContinuations(
   return { check };
 }
 
-camunda7AsyncContinuations.ruleName = 'camunda-7-async-continuations' as const;
+asyncContinuations.ruleName = 'camunda-7-async-continuations' as const;
