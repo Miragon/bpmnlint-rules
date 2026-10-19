@@ -1,10 +1,6 @@
-// Renders every rule's test fixtures (`test/fixtures/rules/<rule>/{valid,invalid}.bpmn`) to
-// `docs/rules/assets/<rule>-<kind>.svg` with the bpmn-js viewer in headless Chromium, so the docs
-// show exactly the models the tests lint. Camunda 7 models also show where Camunda 7 commits:
-// `camunda-transaction-boundaries` draws HTML overlays, which `saveSVG()` leaves out, so each one is
-// measured in the page and added as a red bar.
-//
-//   npm run docs:examples   (first run on a machine: npx playwright install chromium)
+// Renders the rule fixtures to `docs/rules/assets/<rule>-<kind>.svg`. Camunda 7 models get their
+// transaction boundaries as red bars (HTML overlays that `saveSVG()` would leave out).
+// First run on a machine: npx playwright install chromium
 
 import { globSync, readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
