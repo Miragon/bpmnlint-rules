@@ -14,6 +14,7 @@ import type { BpmnlintConfig, ResolverEntries } from '../../lib/bpmnlint-config'
 import type { RuleFactory } from '../../lib/moddle';
 
 import boundaryEventMarkerOverlap from './boundary-event-marker-overlap';
+import camunda7AsyncContinuations from './camunda-7-async-continuations';
 import elementIdNaming from './element-id-naming';
 import exclusiveGatewayMarkerVisible from './exclusive-gateway-marker-visible';
 import flowConnectionSide from './flow-connection-side';
@@ -39,6 +40,7 @@ const ruleFactoriesByName = {
   [flowOrthogonal.ruleName]: flowOrthogonal,
   [boundaryEventMarkerOverlap.ruleName]: boundaryEventMarkerOverlap,
   [exclusiveGatewayMarkerVisible.ruleName]: exclusiveGatewayMarkerVisible,
+  [camunda7AsyncContinuations.ruleName]: camunda7AsyncContinuations,
 };
 
 /** The short (unprefixed) name of a rule this plugin ships, as each rule file declares it. */
@@ -70,6 +72,7 @@ export const miragonRecommendedForModeling: BpmnlintConfig = {
     [`${MIRAGON_NAME}/flow-orthogonal`]: 'warn',
     [`${MIRAGON_NAME}/boundary-event-marker-overlap`]: 'warn',
     [`${MIRAGON_NAME}/exclusive-gateway-marker-visible`]: 'error',
+    [`${MIRAGON_NAME}/camunda-7-async-continuations`]: 'off',
   },
 };
 
@@ -77,9 +80,10 @@ export const miragonRecommendedForModeling: BpmnlintConfig = {
  * The Miragon opinion layer for **automation**, exposed as
  * `plugin:@miragon/rules/recommended-for-automation`.
  *
- * Tuned for executable processes: every Miragon rule on, but as a non-blocking `warn` (clean ids and
- * layout matter once a diagram is deployed and diffed, without failing the build), alongside
- * `standard-size` at `warn`.
+ * Tuned for executable processes: every engine-agnostic Miragon rule on, but as a non-blocking `warn`
+ * (clean ids and layout matter once a diagram is deployed and diffed, without failing the build),
+ * alongside `standard-size` at `warn`. Engine-specific rules (`camunda-7-*`) stay `off` here; they
+ * are opt-in via `all` or a consumer's own config.
  */
 export const miragonRecommendedForAutomation: BpmnlintConfig = {
   rules: {
@@ -93,6 +97,7 @@ export const miragonRecommendedForAutomation: BpmnlintConfig = {
     [`${MIRAGON_NAME}/flow-orthogonal`]: 'warn',
     [`${MIRAGON_NAME}/boundary-event-marker-overlap`]: 'warn',
     [`${MIRAGON_NAME}/exclusive-gateway-marker-visible`]: 'warn',
+    [`${MIRAGON_NAME}/camunda-7-async-continuations`]: 'off',
   },
 };
 
@@ -108,6 +113,7 @@ export const miragonAll: BpmnlintConfig = {
     [`${MIRAGON_NAME}/flow-orthogonal`]: 'error',
     [`${MIRAGON_NAME}/boundary-event-marker-overlap`]: 'error',
     [`${MIRAGON_NAME}/exclusive-gateway-marker-visible`]: 'error',
+    [`${MIRAGON_NAME}/camunda-7-async-continuations`]: 'error',
   },
 };
 
@@ -126,6 +132,7 @@ export const resolverEntries: ResolverEntries = {
 
 export {
   boundaryEventMarkerOverlap,
+  camunda7AsyncContinuations,
   elementIdNaming,
   exclusiveGatewayMarkerVisible,
   flowConnectionSide,

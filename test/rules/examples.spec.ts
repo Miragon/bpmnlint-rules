@@ -16,6 +16,7 @@ const EXAMPLES = [
   { rule: 'flow-orthogonal', offender: 'flow_reject' },
   { rule: 'boundary-event-marker-overlap', offender: 'event_orderCancelled' },
   { rule: 'exclusive-gateway-marker-visible', offender: 'gateway_approved' },
+  { rule: 'camunda-7-async-continuations', offender: 'serviceTask_chargeCard' },
 ];
 
 describe('example models', () => {

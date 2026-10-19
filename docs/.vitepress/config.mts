@@ -12,7 +12,9 @@ const repositoryUrl = 'https://github.com/Miragon/bpmnlint-rules';
 
 const isLayoutHint = (ruleName: string) =>
   miragonRecommendedForModeling.rules?.[`${MIRAGON_NAME}/${ruleName}`] !== 'off';
+const isCamunda7Rule = (ruleName: string) => ruleName.startsWith('camunda-7-');
 const ruleNames = Object.keys(miragonRuleFactories);
+const engineAgnosticRuleNames = ruleNames.filter((name) => !isCamunda7Rule(name));
 const toSidebarItem = (ruleName: string) => ({ text: ruleName, link: `/rules/${ruleName}` });
 
 export default defineConfig({
@@ -58,12 +60,16 @@ export default defineConfig({
           {
             text: 'Naming',
             link: '/rules/naming',
-            items: ruleNames.filter((name) => !isLayoutHint(name)).map(toSidebarItem),
+            items: engineAgnosticRuleNames.filter((name) => !isLayoutHint(name)).map(toSidebarItem),
           },
           {
             text: 'Layout',
             link: '/rules/layout',
-            items: ruleNames.filter(isLayoutHint).map(toSidebarItem),
+            items: engineAgnosticRuleNames.filter(isLayoutHint).map(toSidebarItem),
+          },
+          {
+            text: 'Camunda 7',
+            items: ruleNames.filter(isCamunda7Rule).map(toSidebarItem),
           },
         ],
       },

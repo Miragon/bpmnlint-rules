@@ -29,6 +29,9 @@ export interface ShapeSpec {
    */
   eventDefinitions?: string[];
   hasLoop?: boolean;
+  isMultiInstance?: boolean;
+  /** Extra attributes written verbatim onto the semantic element, e.g. `camunda:asyncBefore`. */
+  attributes?: Record<string, string>;
   /**
    * Id of the shape this one nests inside (e.g. a `startEvent` inside a `subProcess`). Nests the
    * element in the SEMANTIC tree only — every shape's DI stays flat on the plane, exactly as
@@ -51,6 +54,8 @@ export interface ModelSpec {
   shapes?: ShapeSpec[];
   edges?: EdgeSpec[];
   processId?: string;
+  /** Extra attributes on `<bpmn:definitions>`, e.g. a namespace or `modeler:executionPlatform`. */
+  definitionsAttributes?: Record<string, string>;
 }
 
 const DEFAULT_SIZE = { width: 100, height: 80 };
@@ -62,6 +67,11 @@ const escapeXml = (value: string): string =>
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/\n/g, '&#10;');
+
+const xmlAttributes = (attributes: Record<string, string> = {}): string =>
+  Object.entries(attributes)
+    .map(([name, value]) => ` ${name}="${escapeXml(value)}"`)
+    .join('');
 
 /**
  * `bpmn:FlowNode#incoming` / `#outgoing` are reference lists moddle reads from explicit child
@@ -78,7 +88,7 @@ function semanticShape(
   const attachedTo = shape.attachedTo ? ` attachedToRef="${shape.attachedTo}"` : '';
   const name = shape.name === undefined ? '' : ` name="${escapeXml(shape.name)}"`;
   const defaultFlow = shape.default ? ` default="${shape.default}"` : '';
-  const open = `    <bpmn:${tag} id="${shape.id}"${attachedTo}${name}${defaultFlow}`;
+  const open = `    <bpmn:${tag} id="${shape.id}"${attachedTo}${name}${defaultFlow}${xmlAttributes(shape.attributes)}`;
 
   const connections = [
     ...edges
@@ -94,7 +104,10 @@ function semanticShape(
     (qualifier) => `      <bpmn:${qualifier}EventDefinition id="def_${shape.id}_${qualifier}" />`,
   );
 
-  const loopCharacteristics = shape.hasLoop ? ['      <bpmn:standardLoopCharacteristics />'] : [];
+  const loopCharacteristics = [
+    ...(shape.hasLoop ? ['      <bpmn:standardLoopCharacteristics />'] : []),
+    ...(shape.isMultiInstance ? ['      <bpmn:multiInstanceLoopCharacteristics />'] : []),
+  ];
 
   if (
     !connections.length &&
@@ -165,7 +178,12 @@ function diEdge(edge: EdgeSpec, index: number): string {
   ].join('\n');
 }
 
-function modelXml({ shapes = [], edges = [], processId = 'process_Test' }: ModelSpec): string {
+function modelXml({
+  shapes = [],
+  edges = [],
+  processId = 'process_Test',
+  definitionsAttributes,
+}: ModelSpec): string {
   // Semantic tree: nest children under their parent, render only the roots. DI stays flat (below).
   const childrenOf = new Map<string, ShapeSpec[]>();
   for (const shape of shapes) {
@@ -185,7 +203,7 @@ function modelXml({ shapes = [], edges = [], processId = 'process_Test' }: Model
     xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     id="definitions_Test"
-    targetNamespace="http://bpmn.io/schema/bpmn">
+    targetNamespace="http://bpmn.io/schema/bpmn"${xmlAttributes(definitionsAttributes)}>
   <bpmn:process id="${processId}" isExecutable="true">
 ${roots.map((shape) => semanticShape(shape, edges, childrenOf)).join('\n')}
 ${edges.map(semanticEdge).join('\n')}
