@@ -3,6 +3,7 @@ import Linter from 'bpmnlint/lib/linter';
 import {
   createBundledResolver,
   getDefaultLintConfig,
+  miragonAll,
   miragonRecommendedForAutomation,
   miragonRecommendedForModeling,
   miragonRuleFactories,
@@ -83,6 +84,14 @@ describe('getDefaultLintConfig preset selection', () => {
       expect(miragonRecommendedForModeling.rules?.[ruleName]).toBe('off');
       expect(miragonRecommendedForAutomation.rules?.[ruleName]).toBe('off');
     }
+  });
+
+  it('sets every Miragon rule to error in all', () => {
+    const everyRuleAtError = Object.fromEntries(
+      Object.keys(miragonRuleFactories).map((name) => [`@miragon/rules/${name}`, 'error']),
+    );
+
+    expect(miragonAll.rules).toEqual(everyRuleAtError);
   });
 
   it('keeps the engine deployability layer when the modeling preset is forced', () => {

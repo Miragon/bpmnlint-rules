@@ -107,20 +107,15 @@ export const miragonRecommendedForAutomation: BpmnlintConfig = {
   },
 };
 
-/** Every Miragon rule at `error` — the opt-in `plugin:@miragon/rules/all`. */
+/**
+ * Every Miragon rule at `error`, derived from {@link miragonRuleFactories} — the opt-in
+ * `plugin:@miragon/rules/all`. Like `eslint:all` it is not semver-stable: it grows with every new
+ * rule, so extending it opts into every future rule at `error`.
+ */
 export const miragonAll: BpmnlintConfig = {
-  rules: {
-    [`${MIRAGON_NAME}/no-generated-ids`]: 'error',
-    [`${MIRAGON_NAME}/element-id-naming`]: 'error',
-    [`${MIRAGON_NAME}/flow-through-element`]: 'error',
-    [`${MIRAGON_NAME}/flow-connection-side`]: 'error',
-    [`${MIRAGON_NAME}/flow-target-alignment`]: 'error',
-    [`${MIRAGON_NAME}/flow-crossing`]: 'error',
-    [`${MIRAGON_NAME}/flow-orthogonal`]: 'error',
-    [`${MIRAGON_NAME}/boundary-event-marker-overlap`]: 'error',
-    [`${MIRAGON_NAME}/exclusive-gateway-marker-visible`]: 'error',
-    [`${MIRAGON_NAME}/async-continuations`]: 'error',
-  },
+  rules: Object.fromEntries(
+    Object.keys(miragonRuleFactories).map((name) => [`${MIRAGON_NAME}/${name}`, 'error']),
+  ),
 };
 
 /** This folder's fragment of the bundled StaticResolver cache. */

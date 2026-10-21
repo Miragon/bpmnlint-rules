@@ -60,8 +60,12 @@ It ships three configs — pick one by who's modeling and why:
 - `plugin:@miragon/rules/recommended-for-automation` — for **developers automating processes**, locally
   and in CI, on models wired up to a Camunda engine. Every Miragon rule on but as a non-blocking `warn`
   (`standard-size` too), so ids and layout get flagged without failing the build.
-- `plugin:@miragon/rules/all` — every Miragon rule at `error`, engine-agnostic. The strict gate to opt
-  into when you want findings to fail the build.
+- `plugin:@miragon/rules/all` — every Miragon rule at `error`, including the engine-specific ones (they
+  skip diagrams for other engines). The strict gate to opt into when you want findings to fail the
+  build. Like `eslint:all` it is **not semver-stable**: every new rule lands here at `error` in a
+  minor release. Pick it when you want to follow the full style guide and fix new findings on
+  upgrade (greenfield projects, agents iterating against a hard gate). For a stable gate, extend
+  `recommended-for-automation` and raise the rules you care about to `error`.
 
 <!-- #endregion presets -->
 
