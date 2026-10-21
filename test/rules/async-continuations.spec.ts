@@ -2,7 +2,7 @@ import { verify } from 'bpmnlint/lib/testers/rule-tester';
 import { createModdle } from 'bpmnlint/lib/testers/helper';
 import camundaModdle from 'camunda-bpmn-moddle/resources/camunda.json';
 
-import rule from '../../src/rules/miragon/camunda-7-async-continuations';
+import rule from '../../src/rules/miragon/async-continuations';
 import type { EdgeSpec, ShapeSpec } from '../support/model';
 import { model } from '../support/model';
 
@@ -85,7 +85,7 @@ ${process}
     moddleExtensions,
   );
 
-verify('camunda-7-async-continuations', rule, {
+verify('async-continuations', rule, {
   valid: [
     {
       name: 'every save point sits where Camunda recommends it',

@@ -29,7 +29,7 @@ export interface Finding {
 export interface RuleDoc {
   name: string;
   catches: string;
-  category: 'naming' | 'layout' | 'camunda 7';
+  category: 'naming' | 'layout' | 'automation';
   severities: Record<'modeling' | 'automation' | 'all', Severity>;
   findings: Finding[];
 }
@@ -103,7 +103,7 @@ function flatten(results: LintResults): Finding[] {
 }
 
 function readCatchesByRule(): Map<string, string> {
-  const rowPattern = /^\| \[`@miragon\/rules\/([a-z0-9-]+)`\]\([^)]*\)\s*\| (.+?)\s*\|$/gm;
+  const rowPattern = /^\| \[`@miragon\/rules\/([a-z-]+)`\]\([^)]*\)\s*\| (.+?)\s*\|$/gm;
   const readme = readFileSync(readmePath, 'utf8');
   return new Map(
     [...readme.matchAll(rowPattern)].map(([, name, catches]) => [
@@ -116,10 +116,8 @@ function readCatchesByRule(): Map<string, string> {
 type RuleConfig = { rules?: Record<string, unknown> };
 
 function categoryOf(name: string, severities: RuleDoc['severities']): RuleDoc['category'] {
-  if (name.startsWith('camunda-7-')) {
-    return 'camunda 7';
-  }
-  return severities.modeling === 'off' ? 'naming' : 'layout';
+  const fallbackCategory = severities.modeling === 'off' ? 'naming' : 'layout';
+  return miragonRuleFactories[name]?.category ?? fallbackCategory;
 }
 
 function severityOf(config: RuleConfig, qualifiedRuleName: string): Severity {

@@ -1,4 +1,4 @@
-# `@miragon/rules/camunda-7-async-continuations`
+# `@miragon/rules/async-continuations`
 
 > This rule is **off** in both `plugin:@miragon/rules/recommended-for-modeling` and `plugin:@miragon/rules/recommended-for-automation` (it is a Camunda 7 execution concern, and Camunda names legitimate exceptions). It is an `error` in `plugin:@miragon/rules/all`. Set it to `warn`, `error` or `off` yourself to override.
 
@@ -66,7 +66,7 @@ Every check is on by default. Switch one off where your process deliberately dif
 ```json
 {
   "rules": {
-    "@miragon/rules/camunda-7-async-continuations": [
+    "@miragon/rules/async-continuations": [
       "error",
       {
         "serviceTasks": true,
@@ -99,11 +99,11 @@ commits there and a new transaction starts.
 
 👎 Invalid: no boundary in front of "Charge card", so a failing payment shows up as an incident on the job after "Approve order" instead of on "Charge card"
 
-![Invalid model: no transaction boundary before Charge card](./assets/camunda-7-async-continuations-invalid.svg)
+![Invalid model: no transaction boundary before Charge card](./assets/async-continuations-invalid.svg)
 
 👍 Valid: "Charge card" starts behind its own boundary, so its retries and incidents belong to it
 
-![Valid model: a transaction boundary before Charge card](./assets/camunda-7-async-continuations-valid.svg)
+![Valid model: a transaction boundary before Charge card](./assets/async-continuations-valid.svg)
 
 The same, as XML. 👎 wrong:
 

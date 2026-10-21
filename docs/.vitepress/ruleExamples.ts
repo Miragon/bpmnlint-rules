@@ -1,6 +1,6 @@
 import type { Plugin } from 'vite';
 
-const RULE_PAGE = /\/docs\/rules\/(?!(?:index|naming|layout)\.md$)[a-z0-9-]+\.md$/;
+const RULE_PAGE = /\/docs\/rules\/(?!(?:index|naming|layout)\.md$)[a-z-]+\.md$/;
 const SEVERITY_NOTE = /^> This rule is .*\n\n/m;
 const EXAMPLES_SECTION = /^## Examples\n[\s\S]*?(?=^## )/m;
 const FIRST_SECTION = /^## /m;

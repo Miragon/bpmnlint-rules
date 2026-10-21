@@ -7,8 +7,7 @@ example, the reasoning and its options.
 
 Start with the group pages for the reasoning and side-by-side examples: [Naming](./naming.md) and
 [Layout](./layout.md). Rules for one engine only, such as
-[`camunda-7-async-continuations`](./camunda-7-async-continuations.md), are grouped under their
-engine in the sidebar.
+[`async-continuations`](./async-continuations.md), are grouped under Automation in the sidebar.
 
 ## Bundled layers
 

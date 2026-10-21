@@ -88,7 +88,7 @@ The Miragon conventions this plugin adds — each with a docs page and a good/ba
 | [`@miragon/rules/flow-orthogonal`](docs/rules/flow-orthogonal.md)                                   | A sequence flow that runs diagonally instead of horizontal and vertical   |
 | [`@miragon/rules/boundary-event-marker-overlap`](docs/rules/boundary-event-marker-overlap.md)       | A boundary event drawn over a marker or icon of its host activity         |
 | [`@miragon/rules/exclusive-gateway-marker-visible`](docs/rules/exclusive-gateway-marker-visible.md) | An exclusive gateway drawn without its X marker                           |
-| [`@miragon/rules/camunda-7-async-continuations`](docs/rules/camunda-7-async-continuations.md)       | Camunda 7 save points missing where Camunda recommends them, or redundant |
+| [`@miragon/rules/async-continuations`](docs/rules/async-continuations.md)                           | Camunda 7 save points missing where Camunda recommends them, or redundant |
 
 Turn any of them on individually, the usual way:
 

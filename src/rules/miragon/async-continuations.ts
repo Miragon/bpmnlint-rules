@@ -48,7 +48,7 @@ const MESSAGES = {
  *
  * Configuration (all optional, every check defaults to `true`):
  *
- *     "@miragon/rules/camunda-7-async-continuations": [ "error", {
+ *     "@miragon/rules/async-continuations": [ "error", {
  *       "serviceTasks": true,   // asyncBefore on service, script, send tasks and message throws
  *       "userTasks": true,      // asyncAfter on user tasks
  *       "startEvents": true,    // asyncBefore on process start events
@@ -192,4 +192,5 @@ export default function asyncContinuations(config?: AsyncContinuationsConfig): R
   return { check };
 }
 
-asyncContinuations.ruleName = 'camunda-7-async-continuations' as const;
+asyncContinuations.ruleName = 'async-continuations' as const;
+asyncContinuations.category = 'automation' as const;
