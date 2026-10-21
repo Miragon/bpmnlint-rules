@@ -67,7 +67,9 @@ file. Make four edits:
 2. Add to `ruleFactoriesByName`: `[<camelName>.ruleName]: <camelName>,`
 3. Add it at `'error'` to `miragonAll` and at `'warn'` to `miragonRecommendedForAutomation`. In
    `miragonRecommendedForModeling` add it `'off'`, unless it is a non-blocking layout hint safe on
-   hand-drawn diagrams (those ship at `'warn'`). All keyed `` `${MIRAGON_NAME}/<name>` ``. Each
+   hand-drawn diagrams (those ship at `'warn'`). An engine-specific rule sets `<camelName>.targetEngine = 'c7' as const;` (and
+   `category = 'automation'`) next to its `ruleName`, is `'off'`
+   in both recommended layers and must skip diagrams for other engines. All keyed `` `${MIRAGON_NAME}/<name>` ``. Each
    config lists its rules explicitly — no shared spread — so severities stay obvious per config.
 4. Add to the matching tag set (`visualRules` for layout/geometry, `namingRules` for id/naming), and
    re-export the factory in the trailing `export { ... }`.

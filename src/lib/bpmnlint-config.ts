@@ -26,3 +26,6 @@ export interface BpmnlintConfig {
  * contributes one of these; {@link createBundledResolver} merges them.
  */
 export type ResolverEntries = Record<string, unknown>;
+
+/** A supported execution platform. `undefined` selects the structural base only. */
+export type Engine = 'c7' | 'c8';

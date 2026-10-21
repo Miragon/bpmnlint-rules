@@ -10,10 +10,11 @@
  * (`@miragon/rules`), while the resolver cache keys use the expanded {@link MIRAGON_PLUGIN}
  * (`@miragon/bpmnlint-plugin-rules`) that bpmnlint normalises to before calling the resolver.
  */
-import type { BpmnlintConfig, ResolverEntries } from '../../lib/bpmnlint-config';
+import type { BpmnlintConfig, Engine, ResolverEntries } from '../../lib/bpmnlint-config';
 import type { RuleFactory } from '../../lib/moddle';
 
 import boundaryEventMarkerOverlap from './boundary-event-marker-overlap';
+import asyncContinuations from './async-continuations';
 import elementIdNaming from './element-id-naming';
 import exclusiveGatewayMarkerVisible from './exclusive-gateway-marker-visible';
 import flowConnectionSide from './flow-connection-side';
@@ -39,13 +40,20 @@ const ruleFactoriesByName = {
   [flowOrthogonal.ruleName]: flowOrthogonal,
   [boundaryEventMarkerOverlap.ruleName]: boundaryEventMarkerOverlap,
   [exclusiveGatewayMarkerVisible.ruleName]: exclusiveGatewayMarkerVisible,
+  [asyncContinuations.ruleName]: asyncContinuations,
 };
 
 /** The short (unprefixed) name of a rule this plugin ships, as each rule file declares it. */
 export type MiragonRuleName = keyof typeof ruleFactoriesByName;
 
+/**
+ * A Miragon rule factory; rules for executable processes only declare the `automation` category,
+ * rules for one engine only its `targetEngine`.
+ */
+type MiragonRuleFactory = RuleFactory & { category?: 'automation'; targetEngine?: Engine };
+
 /** The rule factories this plugin ships, keyed by their short (unprefixed) name. */
-export const miragonRuleFactories: Record<string, RuleFactory> = ruleFactoriesByName;
+export const miragonRuleFactories: Record<string, MiragonRuleFactory> = ruleFactoriesByName;
 
 /**
  * The Miragon opinion layer for **modeling**, exposed as
@@ -70,6 +78,7 @@ export const miragonRecommendedForModeling: BpmnlintConfig = {
     [`${MIRAGON_NAME}/flow-orthogonal`]: 'warn',
     [`${MIRAGON_NAME}/boundary-event-marker-overlap`]: 'warn',
     [`${MIRAGON_NAME}/exclusive-gateway-marker-visible`]: 'error',
+    [`${MIRAGON_NAME}/async-continuations`]: 'off',
   },
 };
 
@@ -77,9 +86,10 @@ export const miragonRecommendedForModeling: BpmnlintConfig = {
  * The Miragon opinion layer for **automation**, exposed as
  * `plugin:@miragon/rules/recommended-for-automation`.
  *
- * Tuned for executable processes: every Miragon rule on, but as a non-blocking `warn` (clean ids and
- * layout matter once a diagram is deployed and diffed, without failing the build), alongside
- * `standard-size` at `warn`.
+ * Tuned for executable processes: every engine-agnostic Miragon rule on, but as a non-blocking `warn`
+ * (clean ids and layout matter once a diagram is deployed and diffed, without failing the build),
+ * alongside `standard-size` at `warn`. Engine-specific rules (those with a `targetEngine`) stay `off` here; they
+ * are opt-in via `all` or a consumer's own config.
  */
 export const miragonRecommendedForAutomation: BpmnlintConfig = {
   rules: {
@@ -93,6 +103,7 @@ export const miragonRecommendedForAutomation: BpmnlintConfig = {
     [`${MIRAGON_NAME}/flow-orthogonal`]: 'warn',
     [`${MIRAGON_NAME}/boundary-event-marker-overlap`]: 'warn',
     [`${MIRAGON_NAME}/exclusive-gateway-marker-visible`]: 'warn',
+    [`${MIRAGON_NAME}/async-continuations`]: 'off',
   },
 };
 
@@ -108,6 +119,7 @@ export const miragonAll: BpmnlintConfig = {
     [`${MIRAGON_NAME}/flow-orthogonal`]: 'error',
     [`${MIRAGON_NAME}/boundary-event-marker-overlap`]: 'error',
     [`${MIRAGON_NAME}/exclusive-gateway-marker-visible`]: 'error',
+    [`${MIRAGON_NAME}/async-continuations`]: 'error',
   },
 };
 
@@ -125,6 +137,7 @@ export const resolverEntries: ResolverEntries = {
 };
 
 export {
+  asyncContinuations,
   boundaryEventMarkerOverlap,
   elementIdNaming,
   exclusiveGatewayMarkerVisible,

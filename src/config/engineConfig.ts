@@ -16,15 +16,12 @@
  * The engine layer's moddle descriptor is embedded directly (not referenced by module path) so a
  * config-less host can still parse the typed `zeebe:`/`camunda:` properties those rules inspect.
  */
-import type { BpmnlintConfig } from '../lib/bpmnlint-config';
+import type { BpmnlintConfig, Engine } from '../lib/bpmnlint-config';
 
 import { extendsLayer as structuralLayer, commonRules } from '../rules/common';
 import { MIRAGON_NAME } from '../rules/miragon';
 import * as camunda7 from '../rules/camunda-7';
 import * as camunda8 from '../rules/camunda-8';
-
-/** A supported execution platform. `undefined` selects the structural base only. */
-export type Engine = 'c7' | 'c8';
 
 /**
  * The Miragon opinion layer to apply, decoupled from the engine:

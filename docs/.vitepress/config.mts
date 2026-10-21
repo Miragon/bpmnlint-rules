@@ -12,7 +12,10 @@ const repositoryUrl = 'https://github.com/Miragon/bpmnlint-rules';
 
 const isLayoutHint = (ruleName: string) =>
   miragonRecommendedForModeling.rules?.[`${MIRAGON_NAME}/${ruleName}`] !== 'off';
+const isAutomationRule = (ruleName: string) =>
+  miragonRuleFactories[ruleName]?.category === 'automation';
 const ruleNames = Object.keys(miragonRuleFactories);
+const engineAgnosticRuleNames = ruleNames.filter((name) => !isAutomationRule(name));
 const toSidebarItem = (ruleName: string) => ({ text: ruleName, link: `/rules/${ruleName}` });
 
 export default defineConfig({
@@ -58,12 +61,16 @@ export default defineConfig({
           {
             text: 'Naming',
             link: '/rules/naming',
-            items: ruleNames.filter((name) => !isLayoutHint(name)).map(toSidebarItem),
+            items: engineAgnosticRuleNames.filter((name) => !isLayoutHint(name)).map(toSidebarItem),
           },
           {
             text: 'Layout',
             link: '/rules/layout',
-            items: ruleNames.filter(isLayoutHint).map(toSidebarItem),
+            items: engineAgnosticRuleNames.filter(isLayoutHint).map(toSidebarItem),
+          },
+          {
+            text: 'Automation',
+            items: ruleNames.filter(isAutomationRule).map(toSidebarItem),
           },
         ],
       },

@@ -6,6 +6,7 @@ import Linter from 'bpmnlint/lib/linter';
 import { createModdle } from 'bpmnlint/lib/testers/helper';
 
 import type * as BpmnlintRules from '../../../src';
+import type { Engine } from '../../../src';
 
 const {
   all,
@@ -29,7 +30,8 @@ export interface Finding {
 export interface RuleDoc {
   name: string;
   catches: string;
-  category: 'naming' | 'layout';
+  category: 'naming' | 'layout' | 'automation';
+  targetEngine?: Engine;
   severities: Record<'modeling' | 'automation' | 'all', Severity>;
   findings: Finding[];
 }
@@ -115,6 +117,11 @@ function readCatchesByRule(): Map<string, string> {
 
 type RuleConfig = { rules?: Record<string, unknown> };
 
+function categoryOf(name: string, severities: RuleDoc['severities']): RuleDoc['category'] {
+  const fallbackCategory = severities.modeling === 'off' ? 'naming' : 'layout';
+  return miragonRuleFactories[name]?.category ?? fallbackCategory;
+}
+
 function severityOf(config: RuleConfig, qualifiedRuleName: string): Severity {
   return (config.rules?.[qualifiedRuleName] ?? 'off') as Severity;
 }
@@ -154,7 +161,8 @@ export default {
         return {
           name,
           catches: catchesByRule.get(name) ?? '',
-          category: severities.modeling === 'off' ? 'naming' : 'layout',
+          category: categoryOf(name, severities),
+          targetEngine: miragonRuleFactories[name]?.targetEngine,
           severities,
           findings: await lintInvalidFixture(name),
         };

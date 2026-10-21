@@ -6,7 +6,8 @@ example, the reasoning and its options.
 <PresetTable />
 
 Start with the group pages for the reasoning and side-by-side examples: [Naming](./naming.md) and
-[Layout](./layout.md).
+[Layout](./layout.md). Rules for one engine only, such as
+[`async-continuations`](./async-continuations.md), are grouped under Automation in the sidebar.
 
 ## Bundled layers
 

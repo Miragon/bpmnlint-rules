@@ -6,6 +6,7 @@ import { data } from '../rules.data';
 const categories = [
   { key: 'naming', label: 'Naming' },
   { key: 'layout', label: 'Layout' },
+  { key: 'automation', label: 'Automation' },
 ] as const;
 const presets = ['modeling', 'automation', 'all'] as const;
 </script>
