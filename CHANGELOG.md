@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.15.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.14.0...v0.15.0) (2026-10-21)
+
+
+### Features
+
+* **async-continuations:** check Camunda 7 save points ([#94](https://github.com/Miragon/bpmnlint-rules/issues/94)) ([135fb40](https://github.com/Miragon/bpmnlint-rules/commit/135fb400f2ec5f91be883dd46b3d06a1fba5362a))
+
 ## [0.14.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.13.0...v0.14.0) (2026-10-18)
 
 
