@@ -65,12 +65,14 @@ file. Make four edits:
 
 1. `import <camelName> from './<name>';`
 2. Add to `ruleFactoriesByName`: `[<camelName>.ruleName]: <camelName>,`
-3. Add it at `'error'` to `miragonAll` and at `'warn'` to `miragonRecommendedForAutomation`. In
+3. Add it at `'warn'` to `miragonRecommendedForAutomation` (`miragonAll` derives every rule at
+   `'error'` from `ruleFactoriesByName` — no edit there). In
    `miragonRecommendedForModeling` add it `'off'`, unless it is a non-blocking layout hint safe on
    hand-drawn diagrams (those ship at `'warn'`). An engine-specific rule sets `<camelName>.targetEngine = 'c7' as const;` (and
    `category = 'automation'`) next to its `ruleName`, is `'off'`
    in both recommended layers and must skip diagrams for other engines. All keyed `` `${MIRAGON_NAME}/<name>` ``. Each
-   config lists its rules explicitly — no shared spread — so severities stay obvious per config.
+   recommended config lists its rules explicitly — no shared spread — so severities stay obvious
+   per config.
 4. Add to the matching tag set (`visualRules` for layout/geometry, `namingRules` for id/naming), and
    re-export the factory in the trailing `export { ... }`.
 
@@ -155,6 +157,7 @@ Optionally `npm run docs:examples` first, and `npm run lint:bpmn` after building
 
 ## 7. Commit
 
-Conventional Commits. A new rule added only to `all` is `feat:`; adding it to `recommended` or
-raising a severity is `feat!:` (it can turn a consumer's build red). Keep dependency versions exact
+Conventional Commits. A new rule is `feat:`: it lands at `error` only in `all`, which is not
+semver-stable, and at `warn` in the `recommended-for-*` layers. Raising a rule to `error` in a
+`recommended-for-*` layer is `feat!:` (it can turn a consumer's build red). Keep dependency versions exact
 (no `^`/`~`).

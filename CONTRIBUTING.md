@@ -93,8 +93,8 @@ dependencies in `package.json`.
    `ruleFactoriesByName` as `[<factory>.ruleName]: <factory>` — `miragonRuleFactories`,
    `resolverEntries` and the `MiragonRuleName` type pick it up automatically, and the bundled
    resolver with it.
-5. **Severity.** List it in `miragonAll` at `error` and in `miragonRecommendedForAutomation` at
-   `warn`. In `miragonRecommendedForModeling` ship it `off`, unless it is a non-blocking layout hint
+5. **Severity.** List it in `miragonRecommendedForAutomation` at `warn` (`miragonAll` derives every
+   rule at `error` on its own). In `miragonRecommendedForModeling` ship it `off`, unless it is a non-blocking layout hint
    safe on hand-drawn diagrams — those ship at `warn` (all in `src/rules/miragon/index.ts`). The two
    `recommended-for-*` layers stay non-blocking (only `all` is `error`; the one exception is
    `exclusive-gateway-marker-visible`, `error` in the modeling layer because a gateway without its
@@ -140,8 +140,10 @@ measured and listed, not enforced: they cannot be fixed here.
   [release-please](https://github.com/googleapis/release-please). For a lint preset "breaking" is
   not the same as for a library: only a change that can turn a consumer's green build red — one that
   introduces or raises an `error`-level finding — is breaking (`feat!:`). The `recommended-for-*`
-  layers emit only `warn` (bar that one exception), so adding a rule there is not breaking; raising a rule to `error` (in
-  `all`, or a consumer's config) is. Adding a rule at `warn`, or lowering a severity, is not.
+  layers emit only `warn` (bar that one exception), so adding a rule there is not breaking; raising a
+  rule to `error` in them is. `all` is exempt, like `eslint:all`: it is not semver-stable, so a new
+  rule landing there at `error` is `feat:`. Adding a rule at `warn`, or lowering a severity, is not
+  breaking.
 - **Exact dependency versions.** No `^`, no `~`. `.npmrc` sets `save-exact=true` and CI verifies
   it — a floating transitive bump must never be able to change what the rules catch.
 
