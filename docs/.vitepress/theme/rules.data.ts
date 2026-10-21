@@ -6,6 +6,7 @@ import Linter from 'bpmnlint/lib/linter';
 import { createModdle } from 'bpmnlint/lib/testers/helper';
 
 import type * as BpmnlintRules from '../../../src';
+import type { Engine } from '../../../src';
 
 const {
   all,
@@ -30,6 +31,7 @@ export interface RuleDoc {
   name: string;
   catches: string;
   category: 'naming' | 'layout' | 'automation';
+  targetEngine?: Engine;
   severities: Record<'modeling' | 'automation' | 'all', Severity>;
   findings: Finding[];
 }
@@ -160,6 +162,7 @@ export default {
           name,
           catches: catchesByRule.get(name) ?? '',
           category: categoryOf(name, severities),
+          targetEngine: miragonRuleFactories[name]?.targetEngine,
           severities,
           findings: await lintInvalidFixture(name),
         };

@@ -7,6 +7,7 @@ const presets = [
   { key: 'automation', label: 'recommended-for-automation' },
   { key: 'all', label: 'all' },
 ] as const;
+const engineLabels = { c7: 'Camunda 7', c8: 'Camunda 8' } as const;
 </script>
 
 <template>
@@ -16,6 +17,10 @@ const presets = [
       <div>
         <dt>Category</dt>
         <dd class="category">{{ rule.category }}</dd>
+      </div>
+      <div v-if="rule.targetEngine">
+        <dt>Engine</dt>
+        <dd>{{ engineLabels[rule.targetEngine] }}</dd>
       </div>
       <div v-for="preset in presets" :key="preset.key">
         <dt class="mono">{{ preset.label }}</dt>

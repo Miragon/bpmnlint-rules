@@ -10,7 +10,7 @@
  * (`@miragon/rules`), while the resolver cache keys use the expanded {@link MIRAGON_PLUGIN}
  * (`@miragon/bpmnlint-plugin-rules`) that bpmnlint normalises to before calling the resolver.
  */
-import type { BpmnlintConfig, ResolverEntries } from '../../lib/bpmnlint-config';
+import type { BpmnlintConfig, Engine, ResolverEntries } from '../../lib/bpmnlint-config';
 import type { RuleFactory } from '../../lib/moddle';
 
 import boundaryEventMarkerOverlap from './boundary-event-marker-overlap';
@@ -46,8 +46,11 @@ const ruleFactoriesByName = {
 /** The short (unprefixed) name of a rule this plugin ships, as each rule file declares it. */
 export type MiragonRuleName = keyof typeof ruleFactoriesByName;
 
-/** A Miragon rule factory; rules for executable processes only declare the `automation` category. */
-type MiragonRuleFactory = RuleFactory & { category?: 'automation' };
+/**
+ * A Miragon rule factory; rules for executable processes only declare the `automation` category,
+ * rules for one engine only its `targetEngine`.
+ */
+type MiragonRuleFactory = RuleFactory & { category?: 'automation'; targetEngine?: Engine };
 
 /** The rule factories this plugin ships, keyed by their short (unprefixed) name. */
 export const miragonRuleFactories: Record<string, MiragonRuleFactory> = ruleFactoriesByName;
@@ -85,7 +88,7 @@ export const miragonRecommendedForModeling: BpmnlintConfig = {
  *
  * Tuned for executable processes: every engine-agnostic Miragon rule on, but as a non-blocking `warn`
  * (clean ids and layout matter once a diagram is deployed and diffed, without failing the build),
- * alongside `standard-size` at `warn`. Engine-specific rules (e.g. `async-continuations`) stay `off` here; they
+ * alongside `standard-size` at `warn`. Engine-specific rules (those with a `targetEngine`) stay `off` here; they
  * are opt-in via `all` or a consumer's own config.
  */
 export const miragonRecommendedForAutomation: BpmnlintConfig = {

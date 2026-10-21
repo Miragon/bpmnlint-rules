@@ -15,7 +15,7 @@ export type { Resolver } from './resolver/Resolver';
 
 // Config building — the zero-config default, layered per engine.
 export { getDefaultLintConfig, getRulesForEngine } from './config/engineConfig';
-export type { Engine, Preset, DefaultLintConfigOptions } from './config/engineConfig';
+export type { Preset, DefaultLintConfigOptions } from './config/engineConfig';
 
 // Ready-to-use presets (structural base + Miragon layer).
 export { recommendedForModeling, recommendedForAutomation } from './presets/recommended';
@@ -47,6 +47,7 @@ export { camunda8Rules } from './rules/camunda-8';
 // Shared types + rule-authoring helpers, for consumers writing their own rules.
 export type {
   BpmnlintConfig,
+  Engine,
   ResolverEntries,
   RuleSet,
   RuleSetting,

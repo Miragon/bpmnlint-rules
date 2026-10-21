@@ -1,6 +1,12 @@
 import Linter from 'bpmnlint/lib/linter';
 
-import { createBundledResolver, getDefaultLintConfig } from '../../src';
+import {
+  createBundledResolver,
+  getDefaultLintConfig,
+  miragonRecommendedForAutomation,
+  miragonRecommendedForModeling,
+  miragonRuleFactories,
+} from '../../src';
 import type { DefaultLintConfigOptions, Engine } from '../../src';
 import { model } from '../support/model';
 
@@ -65,6 +71,18 @@ describe('getDefaultLintConfig preset selection', () => {
   it('honours an explicit preset regardless of the engine', () => {
     expect(extendsOf({ preset: 'automation' })).toContain(AUTOMATION);
     expect(extendsOf({ engine: 'c8', preset: 'modeling' })).toContain(MODELING);
+  });
+
+  it('keeps every engine-specific Miragon rule off in both recommended presets', () => {
+    const engineSpecificRuleNames = Object.entries(miragonRuleFactories)
+      .filter(([, factory]) => factory.targetEngine)
+      .map(([name]) => `@miragon/rules/${name}`);
+
+    expect(engineSpecificRuleNames).not.toHaveLength(0);
+    for (const ruleName of engineSpecificRuleNames) {
+      expect(miragonRecommendedForModeling.rules?.[ruleName]).toBe('off');
+      expect(miragonRecommendedForAutomation.rules?.[ruleName]).toBe('off');
+    }
   });
 
   it('keeps the engine deployability layer when the modeling preset is forced', () => {

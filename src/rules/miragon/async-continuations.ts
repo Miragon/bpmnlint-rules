@@ -194,3 +194,4 @@ export default function asyncContinuations(config?: AsyncContinuationsConfig): R
 
 asyncContinuations.ruleName = 'async-continuations' as const;
 asyncContinuations.category = 'automation' as const;
+asyncContinuations.targetEngine = 'c7' as const;
