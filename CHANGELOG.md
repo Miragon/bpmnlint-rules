@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.16.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.15.0...v0.16.0) (2026-10-22)
+
+
+### ⚠ BREAKING CHANGES
+
+* plugin:@miragon/rules/all now reports worker topics and message names that are not camelCase segments joined by a dot.
+
+### Features
+
+* add message-name-naming and worker-topic-naming rules ([#84](https://github.com/Miragon/bpmnlint-rules/issues/84)) ([6a64f23](https://github.com/Miragon/bpmnlint-rules/commit/6a64f23ec023ee60cf23c16c41bf9ff7113e2209)), closes [#68](https://github.com/Miragon/bpmnlint-rules/issues/68)
+
 ## [0.15.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.14.0...v0.15.0) (2026-10-21)
 
 
