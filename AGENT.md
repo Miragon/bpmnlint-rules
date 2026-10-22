@@ -33,7 +33,9 @@ npm run typecheck && npm run lint && npm run format:check && npm run knip \
   without its marker is misdrawn. The modeling
   layer must also stay usable on hand-drawn diagrams — never block a modeler on execution-only
   conventions. Engine-specific rules (they set `targetEngine` next to `ruleName`) are `off` in both `recommended-for-*` layers
-  and `error` only in `all`, and skip diagrams for other engines.
+  and `error` only in `all`, and skip diagrams for other engines. The scheme rules `worker-topic-naming` and
+  `message-name-naming` follow the same `off` / `off` / `error` pattern, because a project has to
+  choose its scheme before they can say anything useful.
 - **Preset-aware Conventional Commits.** A change is breaking (`feat!:`) only if it can turn a
   consumer's green build red — i.e. it introduces or raises an `error`-level finding. Since the two
   `recommended-for-*` layers emit only `warn` (bar that one exception), adding a rule there is not breaking; raising a rule to

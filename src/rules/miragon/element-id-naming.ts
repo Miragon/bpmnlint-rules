@@ -1,12 +1,12 @@
+import { resolveCase } from '../../lib/naming-cases';
 import {
   DEFAULT_PREFIXES,
   acceptedPrefixes,
   detectLyingQualifier,
-  resolveCase,
   resolvePrefix,
   resolveQualifierMode,
-} from '../../lib/naming';
-import type { PrefixMap, QualifierMode } from '../../lib/naming';
+} from '../../lib/naming-ids';
+import type { PrefixMap, QualifierMode } from '../../lib/naming-ids';
 import type { ModdleElement, Reporter, Rule } from '../../lib/moddle';
 
 export interface ElementIdNamingConfig {

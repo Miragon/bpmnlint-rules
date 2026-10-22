@@ -8,6 +8,8 @@ import type { MiragonRuleName } from '../../src/rules/miragon';
 export const targetTimeMsAt5000Nodes: Record<MiragonRuleName, number> = {
   'no-generated-ids': 50,
   'element-id-naming': 100,
+  'worker-topic-naming': 50,
+  'message-name-naming': 50,
   'flow-through-element': 50,
   'flow-connection-side': 50,
   'flow-target-alignment': 50,

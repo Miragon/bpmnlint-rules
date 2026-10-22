@@ -10,6 +10,8 @@ import { all } from '../../src/presets/all';
 import { createBundledResolver } from '../../src/resolver/createBundledResolver';
 import noGeneratedIds from '../../src/rules/miragon/no-generated-ids';
 import elementIdNaming from '../../src/rules/miragon/element-id-naming';
+import workerTopicNaming from '../../src/rules/miragon/worker-topic-naming';
+import messageNameNaming from '../../src/rules/miragon/message-name-naming';
 import flowThroughElement from '../../src/rules/miragon/flow-through-element';
 import flowConnectionSide from '../../src/rules/miragon/flow-connection-side';
 import flowTargetAlignment from '../../src/rules/miragon/flow-target-alignment';
@@ -22,6 +24,8 @@ import asyncContinuations from '../../src/rules/miragon/async-continuations';
 const RULES: Record<string, RuleFactory> = {
   'no-generated-ids': noGeneratedIds,
   'element-id-naming': elementIdNaming,
+  'worker-topic-naming': workerTopicNaming,
+  'message-name-naming': messageNameNaming,
   'flow-through-element': flowThroughElement,
   'flow-connection-side': flowConnectionSide,
   'flow-target-alignment': flowTargetAlignment,
