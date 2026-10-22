@@ -111,7 +111,7 @@ helpers added to `src/lib/` get their own direct unit `verify`/`expect` cases.
   folder — no wiring), which lints each through `bpmnlint:recommended` + `plugin:@miragon/rules/all`:
   - `valid.bpmn` must be **clean against every rule** — a complete, labeled process (start/end
     events, nothing disconnected, labels on tasks/events/forking gateways and conditional flows),
-    with ids on the `<typePrefix>_<camelCase>` convention (`src/lib/naming.ts`). Not just clean w.r.t.
+    with ids on the `<typePrefix>_<camelCase>` convention (`src/lib/naming-ids.ts`). Not just clean w.r.t.
     the new rule.
   - `invalid.bpmn` is the same clean model with **exactly one intentional defect**: it must trip the
     new rule (on the element the doc points at) and nothing may be flagged on any other element.

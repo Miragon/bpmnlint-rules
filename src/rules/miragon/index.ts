@@ -22,7 +22,9 @@ import flowCrossing from './flow-crossing';
 import flowOrthogonal from './flow-orthogonal';
 import flowTargetAlignment from './flow-target-alignment';
 import flowThroughElement from './flow-through-element';
+import messageNameNaming from './message-name-naming';
 import noGeneratedIds from './no-generated-ids';
+import workerTopicNaming from './worker-topic-naming';
 
 /** The expanded plugin package name — the prefix every resolver cache key uses. */
 export const MIRAGON_PLUGIN = '@miragon/bpmnlint-plugin-rules';
@@ -33,6 +35,8 @@ export const MIRAGON_NAME = '@miragon/rules';
 const ruleFactoriesByName = {
   [noGeneratedIds.ruleName]: noGeneratedIds,
   [elementIdNaming.ruleName]: elementIdNaming,
+  [workerTopicNaming.ruleName]: workerTopicNaming,
+  [messageNameNaming.ruleName]: messageNameNaming,
   [flowThroughElement.ruleName]: flowThroughElement,
   [flowConnectionSide.ruleName]: flowConnectionSide,
   [flowTargetAlignment.ruleName]: flowTargetAlignment,
@@ -71,6 +75,8 @@ export const miragonRecommendedForModeling: BpmnlintConfig = {
     'bpmnlint/standard-size': 'warn',
     [`${MIRAGON_NAME}/no-generated-ids`]: 'off',
     [`${MIRAGON_NAME}/element-id-naming`]: 'off',
+    [`${MIRAGON_NAME}/worker-topic-naming`]: 'off',
+    [`${MIRAGON_NAME}/message-name-naming`]: 'off',
     [`${MIRAGON_NAME}/flow-through-element`]: 'warn',
     [`${MIRAGON_NAME}/flow-connection-side`]: 'warn',
     [`${MIRAGON_NAME}/flow-target-alignment`]: 'warn',
@@ -89,13 +95,16 @@ export const miragonRecommendedForModeling: BpmnlintConfig = {
  * Tuned for executable processes: every engine-agnostic Miragon rule on, but as a non-blocking `warn`
  * (clean ids and layout matter once a diagram is deployed and diffed, without failing the build),
  * alongside `standard-size` at `warn`. Engine-specific rules (those with a `targetEngine`) stay `off` here; they
- * are opt-in via `all` or a consumer's own config.
+ * are opt-in via `all` or a consumer's own config. So do `worker-topic-naming` and
+ * `message-name-naming`: their scheme is a project decision, configured before they are switched on.
  */
 export const miragonRecommendedForAutomation: BpmnlintConfig = {
   rules: {
     'bpmnlint/standard-size': 'warn',
     [`${MIRAGON_NAME}/no-generated-ids`]: 'warn',
     [`${MIRAGON_NAME}/element-id-naming`]: 'warn',
+    [`${MIRAGON_NAME}/worker-topic-naming`]: 'off',
+    [`${MIRAGON_NAME}/message-name-naming`]: 'off',
     [`${MIRAGON_NAME}/flow-through-element`]: 'warn',
     [`${MIRAGON_NAME}/flow-connection-side`]: 'warn',
     [`${MIRAGON_NAME}/flow-target-alignment`]: 'warn',
@@ -112,6 +121,8 @@ export const miragonAll: BpmnlintConfig = {
   rules: {
     [`${MIRAGON_NAME}/no-generated-ids`]: 'error',
     [`${MIRAGON_NAME}/element-id-naming`]: 'error',
+    [`${MIRAGON_NAME}/worker-topic-naming`]: 'error',
+    [`${MIRAGON_NAME}/message-name-naming`]: 'error',
     [`${MIRAGON_NAME}/flow-through-element`]: 'error',
     [`${MIRAGON_NAME}/flow-connection-side`]: 'error',
     [`${MIRAGON_NAME}/flow-target-alignment`]: 'error',
@@ -146,5 +157,7 @@ export {
   flowOrthogonal,
   flowTargetAlignment,
   flowThroughElement,
+  messageNameNaming,
   noGeneratedIds,
+  workerTopicNaming,
 };

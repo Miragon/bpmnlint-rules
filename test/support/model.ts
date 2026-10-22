@@ -28,6 +28,10 @@ export interface ShapeSpec {
    * `<bpmn:messageEventDefinition>`. Turns a plain event into a message/timer/... event.
    */
   eventDefinitions?: string[];
+  /** Raw XML placed in `<bpmn:extensionElements>`, e.g. `<zeebe:taskDefinition type="…" />`. */
+  extensionElements?: string;
+  /** Extra attributes written onto every nested event definition, e.g. `camunda:topic`. */
+  eventDefinitionAttributes?: Record<string, string>;
   hasLoop?: boolean;
   isMultiInstance?: boolean;
   /** Extra attributes written verbatim onto the semantic element, e.g. `camunda:asyncBefore`. */
@@ -50,12 +54,21 @@ export interface EdgeSpec {
   condition?: string;
 }
 
+interface MessageSpec {
+  id: string;
+  name?: string;
+}
+
 export interface ModelSpec {
   shapes?: ShapeSpec[];
   edges?: EdgeSpec[];
+  /** Root-level `<bpmn:message>` elements. */
+  messages?: MessageSpec[];
   processId?: string;
   /** Extra attributes on `<bpmn:definitions>`, e.g. a namespace or `modeler:executionPlatform`. */
   definitionsAttributes?: Record<string, string>;
+  /** Moddle descriptors to parse with, e.g. `{ camunda: camundaModdle }`. Plain BPMN when omitted. */
+  moddleExtensions?: Record<string, unknown>;
 }
 
 const DEFAULT_SIZE = { width: 100, height: 80 };
@@ -101,8 +114,14 @@ function semanticShape(
 
   const children = childrenOf.get(shape.id) || [];
   const eventDefinitions = (shape.eventDefinitions || []).map(
-    (qualifier) => `      <bpmn:${qualifier}EventDefinition id="def_${shape.id}_${qualifier}" />`,
+    (qualifier) =>
+      `      <bpmn:${qualifier}EventDefinition id="def_${shape.id}_${qualifier}"${xmlAttributes(shape.eventDefinitionAttributes)} />`,
   );
+
+  const extensionElements =
+    shape.extensionElements === undefined
+      ? []
+      : [`      <bpmn:extensionElements>${shape.extensionElements}</bpmn:extensionElements>`];
 
   const loopCharacteristics = [
     ...(shape.hasLoop ? ['      <bpmn:standardLoopCharacteristics />'] : []),
@@ -110,6 +129,7 @@ function semanticShape(
   ];
 
   if (
+    !extensionElements.length &&
     !connections.length &&
     !children.length &&
     !eventDefinitions.length &&
@@ -120,6 +140,7 @@ function semanticShape(
 
   return [
     `${open}>`,
+    ...extensionElements,
     ...connections.map((connection) => `      <bpmn:${connection}>`),
     ...eventDefinitions,
     ...loopCharacteristics,
@@ -178,9 +199,16 @@ function diEdge(edge: EdgeSpec, index: number): string {
   ].join('\n');
 }
 
+function semanticMessage(message: MessageSpec): string {
+  const name = message.name === undefined ? '' : ` name="${escapeXml(message.name)}"`;
+
+  return `  <bpmn:message id="${message.id}"${name} />`;
+}
+
 function modelXml({
   shapes = [],
   edges = [],
+  messages = [],
   processId = 'process_Test',
   definitionsAttributes,
 }: ModelSpec): string {
@@ -204,6 +232,7 @@ function modelXml({
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     id="definitions_Test"
     targetNamespace="http://bpmn.io/schema/bpmn"${xmlAttributes(definitionsAttributes)}>
+${messages.map(semanticMessage).join('\n')}
   <bpmn:process id="${processId}" isExecutable="true">
 ${roots.map((shape) => semanticShape(shape, edges, childrenOf)).join('\n')}
 ${edges.map(semanticEdge).join('\n')}
@@ -219,5 +248,5 @@ ${edges.map(diEdge).join('\n')}
 
 /** A moddle root, ready for bpmnlint's RuleTester. */
 export function model(spec: ModelSpec): Promise<unknown> {
-  return createModdle(modelXml(spec));
+  return createModdle(modelXml(spec), spec.moddleExtensions);
 }

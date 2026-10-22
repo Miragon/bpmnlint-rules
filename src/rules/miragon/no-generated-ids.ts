@@ -1,6 +1,6 @@
 import { isAny } from 'bpmnlint-utils';
 
-import { isGeneratedId } from '../../lib/naming';
+import { isGeneratedId } from '../../lib/naming-ids';
 import type { ModdleElement, Reporter, Rule } from '../../lib/moddle';
 
 /**
