@@ -7,7 +7,15 @@
     },
     "docs": {
       "entry": ["scripts/*.mjs", ".vitepress/theme/*.data.ts"],
-      "project": ["scripts/*.mjs", ".vitepress/**/*.{ts,mts,vue}"]
+      "project": ["scripts/*.mjs", ".vitepress/**/*.{ts,mts,vue}"],
+      "ignore": [".vitepress/miragon/**"],
+      "ignoreDependencies": [
+        "@braintree/sanitize-url",
+        "cytoscape",
+        "cytoscape-cose-bilkent",
+        "dayjs",
+        "debug"
+      ]
     }
   }
 }

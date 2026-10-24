@@ -13,5 +13,8 @@ docs/rules/assets
 docs/.vitepress/dist
 docs/.vitepress/cache
 
+# The Miragon docs kit, vendored byte-exact from Miragon/corporate-identity (check.mjs verifies it).
+docs/.vitepress/miragon
+
 # Rewritten by release-please (extra-files), which re-serialises the JSON in its own style.
 plugins/bpmnlint-rules/.claude-plugin/plugin.json
