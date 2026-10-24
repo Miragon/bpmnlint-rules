@@ -19,16 +19,8 @@ import { resolverEntries as camunda7Entries } from '../rules/camunda-7';
 import { resolverEntries as camunda8Entries } from '../rules/camunda-8';
 import { resolverEntries as miragonEntries } from '../rules/miragon';
 
-/** The merged StaticResolver cache — exported so a consumer can compose or inspect it. */
-export const bundledResolverEntries: ResolverEntries = {
-  ...commonEntries,
-  ...camunda7Entries,
-  ...camunda8Entries,
-  ...miragonEntries,
-};
-
 /**
- * A fresh bpmnlint resolver backed by {@link bundledResolverEntries}.
+ * The bpmnlint resolver over {@link BundledResolver.entries}.
  *
  * Of camunda-compat's configs it carries only the latest per engine: `camunda-platform-7-24` and
  * `camunda-cloud-8-10`. To lint against an older engine version in Node, chain bpmnlint's
@@ -36,6 +28,17 @@ export const bundledResolverEntries: ResolverEntries = {
  * the installed `bpmnlint-plugin-camunda-compat`. The README's Camunda engine rules section shows
  * how.
  */
-export function createBundledResolver(): Resolver {
-  return new StaticResolver(bundledResolverEntries) as Resolver;
+export class BundledResolver {
+  /** The merged StaticResolver cache — exported so a consumer can compose or inspect it. */
+  static readonly entries: ResolverEntries = {
+    ...commonEntries,
+    ...camunda7Entries,
+    ...camunda8Entries,
+    ...miragonEntries,
+  };
+
+  /** A fresh bpmnlint resolver backed by {@link BundledResolver.entries}. */
+  static create(this: void): Resolver {
+    return new StaticResolver(BundledResolver.entries) as Resolver;
+  }
 }

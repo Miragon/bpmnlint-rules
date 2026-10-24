@@ -1,7 +1,9 @@
-import { collectByPlane, flowEndpointIds } from '../../lib/di';
-import { bboxOfPoints, indexBboxes, segments, segmentsCross } from '../../lib/geometry';
+import { flowEndpointIds, PlaneRule } from '../../lib/di';
+import type { DiagramPlane } from '../../lib/di';
+import { BboxIndex, bboxOfPoints, segments, segmentsCross } from '../../lib/geometry';
 import type { Bbox, Point } from '../../lib/geometry';
-import type { ModdleElement, Reporter, Rule } from '../../lib/moddle';
+import type { ModdleElement, Reporter } from '../../lib/moddle';
+import { defineRule } from '../../lib/utils/defineRule';
 
 interface Flow {
   el: ModdleElement;
@@ -19,55 +21,54 @@ interface Flow {
  *
  * Deliberately conservative, so it never fires on a clean diagram:
  * - Two flows that only run ON TOP OF each other (collinear overlap) are allowed. The strict
- *   crossing test in `lib/geometry.ts#segmentsCross` reports an X, not an overlap.
+ *   crossing test {@link segmentsCross} reports an X, not an overlap.
  * - A pair of flows that share a node (both leave or enter the same gateway) is skipped entirely,
  *   so a fan-out/fan-in never reports itself even when its waypoints splay near the gateway tip.
  */
-export default function flowCrossing(): Rule {
-  function check(node: ModdleElement, reporter: Reporter): void {
-    if (node.$type !== 'bpmn:Definitions') {
-      return;
-    }
+class FlowCrossing extends PlaneRule {
+  protected checkPlane(plane: DiagramPlane, reporter: Reporter): void {
+    const flows: Flow[] = plane.sequenceFlows.map((edge) => ({
+      el: edge.el,
+      endpoints: new Set<string>(flowEndpointIds(edge.el)),
+      bbox: bboxOfPoints(edge.waypoints),
+      segments: segments(edge.waypoints),
+    }));
 
-    for (const plane of collectByPlane(node)) {
-      const flows: Flow[] = plane.sequenceFlows.map((edge) => ({
-        el: edge.el,
-        endpoints: new Set<string>(flowEndpointIds(edge.el)),
-        bbox: bboxOfPoints(edge.waypoints),
-        segments: segments(edge.waypoints),
-      }));
+    const flowIndex = new BboxIndex(flows.map((flow) => flow.bbox));
 
-      const flowsOverlapping = indexBboxes(flows.map((flow) => flow.bbox));
+    for (let outer = 0; outer < flows.length; outer++) {
+      const first = flows[outer]!;
+      const laterOverlappingFlows = flowIndex
+        .overlapping(first.bbox)
+        .filter((inner) => inner > outer);
 
-      for (let outer = 0; outer < flows.length; outer++) {
-        const first = flows[outer]!;
-        const laterOverlappingFlows = flowsOverlapping(first.bbox).filter((inner) => inner > outer);
+      for (const inner of laterOverlappingFlows) {
+        const second = flows[inner]!;
 
-        for (const inner of laterOverlappingFlows) {
-          const second = flows[inner]!;
+        if (this.shareNode(first, second)) {
+          continue;
+        }
 
-          // Flows sharing a node fan out from / into it — never a crossing.
-          if ([...first.endpoints].some((nodeId) => second.endpoints.has(nodeId))) {
-            continue;
-          }
-
-          const cross = first.segments.some(([firstStart, firstEnd]) =>
-            second.segments.some(([secondStart, secondEnd]) =>
-              segmentsCross(firstStart, firstEnd, secondStart, secondEnd),
-            ),
-          );
-
-          if (cross) {
-            reporter.report(first.el.id, `Sequence flow crosses <${second.el.id}>`);
-            reporter.report(second.el.id, `Sequence flow crosses <${first.el.id}>`);
-          }
+        if (this.cross(first, second)) {
+          reporter.report(first.el.id, `Sequence flow crosses <${second.el.id}>`);
+          reporter.report(second.el.id, `Sequence flow crosses <${first.el.id}>`);
         }
       }
     }
   }
 
-  return { check };
+  /** Flows sharing a node fan out from / into it — never a crossing. */
+  private shareNode(first: Flow, second: Flow): boolean {
+    return [...first.endpoints].some((nodeId) => second.endpoints.has(nodeId));
+  }
+
+  private cross(first: Flow, second: Flow): boolean {
+    return first.segments.some(([firstStart, firstEnd]) =>
+      second.segments.some(([secondStart, secondEnd]) =>
+        segmentsCross(firstStart, firstEnd, secondStart, secondEnd),
+      ),
+    );
+  }
 }
 
-flowCrossing.ruleName = 'flow-crossing' as const;
-flowCrossing.kind = 'layout-hint' as const;
+export default defineRule({ ruleName: 'flow-crossing', kind: 'layout-hint' }, FlowCrossing);

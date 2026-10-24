@@ -1,6 +1,6 @@
 import camundaCompat from 'bpmnlint-plugin-camunda-compat';
 
-import { bundledResolverEntries } from '../../src/resolver/createBundledResolver';
+import { BundledResolver } from '../../src/resolver/BundledResolver';
 import { configName as camunda7Config } from '../../src/rules/camunda-7';
 import { configName as camunda8Config } from '../../src/rules/camunda-8';
 
@@ -56,14 +56,14 @@ describe('bundled resolver stays in sync with camunda-compat', () => {
       for (const ruleName of ruleNames) {
         const key = ruleKey(ruleName);
         expect(
-          bundledResolverEntries,
+          BundledResolver.entries,
           `rule <${ruleName}> from ${configName} is not bundled (missing ${key})`,
         ).toHaveProperty([key]);
       }
     });
 
     it(`bundles the ${configName} config itself`, () => {
-      expect(bundledResolverEntries).toHaveProperty([
+      expect(BundledResolver.entries).toHaveProperty([
         `config:bpmnlint-plugin-camunda-compat/${configName}`,
       ]);
     });

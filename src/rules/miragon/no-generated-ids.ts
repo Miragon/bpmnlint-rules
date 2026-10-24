@@ -1,7 +1,10 @@
 import { isAny } from 'bpmnlint-utils';
 
-import { isGeneratedId } from '../../lib/naming-ids';
 import type { ModdleElement, Reporter, Rule } from '../../lib/moddle';
+import { isGeneratedId } from '../../lib/naming';
+import { defineRule } from '../../lib/utils/defineRule';
+
+const CHECKED = ['bpmn:FlowNode', 'bpmn:SequenceFlow', 'bpmn:Participant', 'bpmn:Lane'];
 
 /**
  * Reports IDs that were generated rather than chosen — `Activity_0049ryx`, `Gateway_1x9j8k7`,
@@ -16,10 +19,8 @@ import type { ModdleElement, Reporter, Rule } from '../../lib/moddle';
  * Scoped to flow nodes, sequence flows, participants and lanes: the things a reviewer points at.
  * Message, error and signal names are technical correlation keys and belong to the engine.
  */
-const CHECKED = ['bpmn:FlowNode', 'bpmn:SequenceFlow', 'bpmn:Participant', 'bpmn:Lane'];
-
-export default function noGeneratedIds(): Rule {
-  function check(node: ModdleElement, reporter: Reporter): void {
+class NoGeneratedIds implements Rule {
+  check(node: ModdleElement, reporter: Reporter): void {
     if (!node.id || !isAny(node, CHECKED)) {
       return;
     }
@@ -28,9 +29,6 @@ export default function noGeneratedIds(): Rule {
       reporter.report(node.id, 'Element id looks generated — give it a readable, stable name');
     }
   }
-
-  return { check };
 }
 
-noGeneratedIds.ruleName = 'no-generated-ids' as const;
-noGeneratedIds.kind = 'convention' as const;
+export default defineRule({ ruleName: 'no-generated-ids', kind: 'convention' }, NoGeneratedIds);

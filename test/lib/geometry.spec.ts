@@ -3,9 +3,9 @@ import {
   bboxDisjoint,
   circleOverlapsRect,
   gatewayTipSide,
-  indexBboxes,
   isOrthogonalPath,
 } from '../../src/lib/geometry';
+import { BboxIndex } from '../../src/lib/geometry';
 import type { Bbox } from '../../src/lib/geometry';
 
 // A 100×80 box at the origin-ish: left x=100, right x=200, top y=100, bottom y=180, centre (150,140).
@@ -157,7 +157,7 @@ function randomBoxes(random: () => number, count: number, canvasSize: number): B
   });
 }
 
-describe('indexBboxes', () => {
+describe('BboxIndex', () => {
   it('finds the boxes a query overlaps or touches, in ascending order', () => {
     const boxes: Bbox[] = [
       { minX: 0, minY: 0, maxX: 100, maxY: 80 },
@@ -167,12 +167,16 @@ describe('indexBboxes', () => {
       { minX: 50, minY: 40, maxX: 60, maxY: 50 },
     ];
 
-    expect(indexBboxes(boxes)({ minX: 20, minY: 20, maxX: 100, maxY: 80 })).toEqual([0, 2, 4]);
-    expect(indexBboxes(boxes)({ minX: 250, minY: 200, maxX: 300, maxY: 300 })).toEqual([]);
+    expect(new BboxIndex(boxes).overlapping({ minX: 20, minY: 20, maxX: 100, maxY: 80 })).toEqual([
+      0, 2, 4,
+    ]);
+    expect(
+      new BboxIndex(boxes).overlapping({ minX: 250, minY: 200, maxX: 300, maxY: 300 }),
+    ).toEqual([]);
   });
 
   it('finds nothing in an empty index', () => {
-    expect(indexBboxes([])({ minX: 0, minY: 0, maxX: 10, maxY: 10 })).toEqual([]);
+    expect(new BboxIndex([]).overlapping({ minX: 0, minY: 0, maxX: 10, maxY: 10 })).toEqual([]);
   });
 
   it('matches the linear scan on randomised layouts, sprawling and malformed boxes included', () => {
@@ -181,10 +185,10 @@ describe('indexBboxes', () => {
     for (let layout = 0; layout < 200; layout++) {
       const canvasSize = layout % 10 === 0 ? 0 : 2000;
       const boxes = randomBoxes(random, Math.floor(random() * 150), canvasSize);
-      const overlapping = indexBboxes(boxes);
+      const index = new BboxIndex(boxes);
 
       for (const query of [...boxes, ...randomBoxes(random, 25, canvasSize)]) {
-        expect(overlapping(query)).toEqual(linearScan(boxes, query));
+        expect(index.overlapping(query)).toEqual(linearScan(boxes, query));
       }
     }
   });

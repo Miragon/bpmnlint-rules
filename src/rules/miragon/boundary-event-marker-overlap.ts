@@ -1,7 +1,8 @@
-import { markerZones } from '../../lib/activity-markers';
-import { collectByPlane, inst } from '../../lib/di';
+import { inst, markerZones, PlaneRule } from '../../lib/di';
+import type { DiagramPlane } from '../../lib/di';
 import { circleOverlapsRect } from '../../lib/geometry';
-import type { ModdleElement, Reporter, Rule } from '../../lib/moddle';
+import type { Reporter } from '../../lib/moddle';
+import { defineRule } from '../../lib/utils/defineRule';
 
 const GRAZE_TOLERANCE = 3;
 
@@ -13,40 +14,33 @@ const GRAZE_TOLERANCE = 3;
  * task is left alone, and the event has to reach at least `GRAZE_TOLERANCE` px into a zone, so one
  * that merely grazes it is not reported. Comparison is scoped per BPMNPlane.
  */
-export default function boundaryEventMarkerOverlap(): Rule {
-  function check(node: ModdleElement, reporter: Reporter): void {
-    if (node.$type !== 'bpmn:Definitions') {
-      return;
-    }
+class BoundaryEventMarkerOverlap extends PlaneRule {
+  protected checkPlane(plane: DiagramPlane, reporter: Reporter): void {
+    const boundaryEvents = plane.shapes.filter((shape) => inst(shape.el, 'bpmn:BoundaryEvent'));
 
-    for (const plane of collectByPlane(node)) {
-      const shapesById = new Map(plane.shapes.map((shape) => [shape.el.id, shape]));
-      const boundaryEvents = plane.shapes.filter((shape) => inst(shape.el, 'bpmn:BoundaryEvent'));
+    for (const { el, bounds } of boundaryEvents) {
+      const host = plane.shapeOf(el.attachedToRef?.id);
 
-      for (const { el, bounds } of boundaryEvents) {
-        const host = shapesById.get(el.attachedToRef?.id);
+      if (!host) {
+        continue;
+      }
 
-        if (!host) {
-          continue;
-        }
+      const center = { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 };
+      const coveringRadius = bounds.width / 2 - GRAZE_TOLERANCE;
 
-        const center = { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 };
-        const coveringRadius = bounds.width / 2 - GRAZE_TOLERANCE;
-
-        for (const { label, zone } of markerZones(host)) {
-          if (circleOverlapsRect(center, coveringRadius, zone)) {
-            reporter.report(
-              el.id,
-              `Boundary event covers the ${label} of <${host.el.id}>; move it along the border`,
-            );
-          }
+      for (const { label, zone } of markerZones(host)) {
+        if (circleOverlapsRect(center, coveringRadius, zone)) {
+          reporter.report(
+            el.id,
+            `Boundary event covers the ${label} of <${host.el.id}>; move it along the border`,
+          );
         }
       }
     }
   }
-
-  return { check };
 }
 
-boundaryEventMarkerOverlap.ruleName = 'boundary-event-marker-overlap' as const;
-boundaryEventMarkerOverlap.kind = 'layout-hint' as const;
+export default defineRule(
+  { ruleName: 'boundary-event-marker-overlap', kind: 'layout-hint' },
+  BoundaryEventMarkerOverlap,
+);

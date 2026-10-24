@@ -2,7 +2,7 @@ import bpmnlintRecommended from 'bpmnlint/config/recommended';
 import bpmnlintAll from 'bpmnlint/config/all';
 import bpmnlintCorrectness from 'bpmnlint/config/correctness';
 
-import { bundledResolverEntries } from '../../src/resolver/createBundledResolver';
+import { BundledResolver } from '../../src/resolver/BundledResolver';
 
 /**
  * The `common` folder statically bundles bpmnlint's own built-in rules and configs so
@@ -22,14 +22,14 @@ const BPMNLINT_CONFIGS = {
 describe('bundled resolver stays in sync with bpmnlint built-ins', () => {
   for (const [configName, config] of Object.entries(BPMNLINT_CONFIGS)) {
     it(`bundles the bpmnlint:${configName} config and every rule it references`, () => {
-      expect(bundledResolverEntries).toHaveProperty([`config:bpmnlint/${configName}`]);
+      expect(BundledResolver.entries).toHaveProperty([`config:bpmnlint/${configName}`]);
 
       const ruleNames = Object.keys(config.rules ?? {});
       expect(ruleNames.length).toBeGreaterThan(0);
 
       for (const ruleName of ruleNames) {
         expect(
-          bundledResolverEntries,
+          BundledResolver.entries,
           `bpmnlint rule <${ruleName}> (from bpmnlint:${configName}) is not bundled — ` +
             `import it in src/rules/common/index.ts`,
         ).toHaveProperty([`rule:bpmnlint/${ruleName}`]);

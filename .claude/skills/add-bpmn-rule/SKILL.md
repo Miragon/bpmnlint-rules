@@ -20,58 +20,60 @@ Templates to copy from, by shape:
 
 - `src/rules/miragon/no-generated-ids.ts` — simplest (per-element, no config).
 - `src/rules/miragon/element-id-naming.ts` — takes config.
-- `src/rules/miragon/flow-through-element.ts` — DI/geometry (dispatches on `bpmn:Definitions`, walks
-  planes via `src/lib/di.ts#collectByPlane`, uses `src/lib/geometry.ts`).
+- `src/rules/miragon/flow-through-element.ts` — DI/geometry (extends `PlaneRule` from
+  `src/lib/di/`, which runs once on `bpmn:Definitions` and hands it one `DiagramPlane` at a time).
 
 ## 1. Rule file — `src/rules/miragon/<name>.ts`
 
-`export default` a factory returning `{ check(node, reporter) }`. Filter by type inside `check`;
-early-return means no report. Put reusable, linter-free logic in `src/lib/` (typed against
-`ModdleElement`/`Reporter`/`Rule` from `src/lib/moddle.ts`) — never import another rule.
+The rule is a class implementing `Rule` (`check(node, reporter)`); the file's only export is
+`defineRule({ ruleName, kind }, RuleClass)` — the factory bpmnlint calls. Filter by type inside
+`check`; early-return means no report. Put reusable, linter-free logic in `src/lib/` (typed against
+`ModdleElement`/`Reporter`/`Rule` from `src/lib/moddle.ts`) — never import another rule. Classes
+first: no top-level functions outside a `utils/` folder (ESLint enforces it), so a rule's helpers
+are private methods.
 
 ```ts
 import { isAny } from 'bpmnlint-utils';
 
 import type { ModdleElement, Reporter, Rule } from '../../lib/moddle';
+import { defineRule } from '../../lib/utils/defineRule';
 
 /** One sentence: what this reports and why. */
-export default function <name>(): Rule {
-  function check(node: ModdleElement, reporter: Reporter): void {
+class <ClassName> implements Rule {
+  check(node: ModdleElement, reporter: Reporter): void {
     if (!isAny(node, ['bpmn:FlowNode'])) {
       return;
     }
     // ...decide from node / DI coordinates...
     reporter.report(node.id, 'Human-readable, actionable message');
   }
-
-  return { check };
 }
 
-<name>.ruleName = '<name>' as const;
+export default defineRule({ ruleName: '<name>', kind: 'convention' }, <ClassName>);
 ```
 
-The `ruleName` line is how the rule declares its own name: `index.ts` keys the registry by it and
-the `MiragonRuleName` type derives from it. Keep it a property — a named export would break the bare
-`module.exports = factory` shape bpmnlint's classic resolver needs.
+The declaration is how the rule states its own name and kind: `index.ts` keys the registry by
+`ruleName` and the `MiragonRuleName` type derives from it. A configurable rule takes its config in
+the constructor.
 
-For a geometry rule, gate on `node.$type === 'bpmn:Definitions'` and iterate `collectByPlane(node)`
-instead — see `flow-through-element.ts`. Geometry math belongs in `src/lib/geometry.ts` (pure, no
-BPMN), DI reading in `src/lib/di.ts`.
+For a geometry rule, extend `PlaneRule` and implement `checkPlane(plane, reporter)` instead — see
+`flow-through-element.ts`. Geometry math belongs in `src/lib/geometry/` (pure, no BPMN), DI reading
+in `src/lib/di/`.
 
 ## 2. Wire it in — `src/rules/miragon/index.ts`
 
 Everything else (`plugin.ts` path map, `resolverEntries`, the tsup entry glob) derives from this
-file. Make four edits:
+file. Make three edits:
 
 1. `import <camelName> from './<name>';`
 2. Add to `ruleFactoriesByName`: `[<camelName>.ruleName]: <camelName>,`
-3. Give the rule its `kind` next to its `ruleName` (`<camelName>.kind = 'layout-hint' as const;`).
-   The layers derive every severity from it via `SEVERITY_BY_KIND` in `index.ts`: `layout-hint`
-   (warn/warn/error), `misdrawn` (error/warn/error), `convention` (off/warn/error), `scheme`
-   (off/off/error), `engine-specific` (off/off/error — also set `<camelName>.targetEngine = 'c7' as
-const;` and skip diagrams for other engines). Columns are modeling/automation/all.
-4. Add to the matching tag set (`visualRules` for layout/geometry, `namingRules` for id/naming), and
-   re-export the factory in the trailing `export { ... }`.
+3. Re-export the factory in the trailing `export { ... }`.
+
+The `kind` in the rule's `defineRule` declaration sets its severity in every layer via
+`SEVERITY_BY_KIND` in `src/lib/SeverityPolicy.ts`: `layout-hint` (warn/warn/error), `misdrawn`
+(error/warn/error), `convention` (off/warn/error), `scheme` (off/off/error), `engine-specific`
+(off/off/error — also declare `targetEngine: 'c7'` and skip diagrams for other engines). Columns
+are modeling/automation/all.
 
 ## 3. Spec — `test/rules/<name>.spec.ts`
 
@@ -110,7 +112,7 @@ helpers added to `src/lib/` get their own direct unit `verify`/`expect` cases.
   folder — no wiring), which lints each through `bpmnlint:recommended` + `plugin:@miragon/rules/all`:
   - `valid.bpmn` must be **clean against every rule** — a complete, labeled process (start/end
     events, nothing disconnected, labels on tasks/events/forking gateways and conditional flows),
-    with ids on the `<typePrefix>_<camelCase>` convention (`src/lib/naming-ids.ts`). Not just clean w.r.t.
+    with ids on the `<typePrefix>_<camelCase>` convention (`src/lib/naming/ElementIdConvention.ts`). Not just clean w.r.t.
     the new rule.
   - `invalid.bpmn` is the same clean model with **exactly one intentional defect**: it must trip the
     new rule (on the element the doc points at) and nothing may be flagged on any other element.
@@ -142,7 +144,7 @@ entry exists. Then run `npm run bench` and read the rule's row:
 - **`5,000` over the target:** make the rule faster. Raise the target only with a measured reason
   (e.g. the rule reports on every element of the benchmark model).
 - **`5k / 2k` at 4 or above:** the rule is not linear (linear is about 2.5, quadratic about 6.25).
-  Replace the pairwise loop with an index, see `indexBboxes` in `src/lib/geometry.ts`.
+  Replace the pairwise loop with an index, see `BboxIndex` in `src/lib/geometry/`.
 
 ## 6. Verify gate (must be green)
 
