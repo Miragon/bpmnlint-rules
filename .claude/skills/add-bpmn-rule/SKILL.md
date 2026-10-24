@@ -114,8 +114,9 @@ helpers added to `src/lib/` get their own direct unit `verify`/`expect` cases.
     the new rule.
   - `invalid.bpmn` is the same clean model with **exactly one intentional defect**: it must trip the
     new rule (on the element the doc points at) and nothing may be flagged on any other element.
-- Register the pair in `test/rules/examples.spec.ts`: add `{ rule: '<name>', offender: '<id>' }` to
-  `EXAMPLES` (the offender id the `invalid` model reports).
+- Register the pair in `test/rules/examples.spec.ts`: add `'<name>': '<id>'` to `OFFENDER_BY_RULE`
+  (the offender id the `invalid` model reports). It is keyed by `MiragonRuleName`, so
+  `npm run typecheck` fails until you do.
 - `docs/rules/<name>.md` — **copy the template** at
   [`docs/assets/rule-doc-template.md`](../../../docs/assets/rule-doc-template.md), fill the
   placeholders, and delete its guidance block. The template is the single source of truth for a
