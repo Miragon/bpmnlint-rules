@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.17.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.16.0...v0.17.0) (2026-10-24)
+
+
+### ⚠ BREAKING CHANGES
+
+* the naming, geometry and di helper namespaces export classes instead of some functions: ValueNamingScheme replaces resolveValueNaming/matchesValueNaming/describeValueNaming, ElementIdConvention replaces createElementIdCheck and its helpers, BboxIndex replaces indexBboxes and DiagramPlane.allOf replaces collectByPlane.
+
+### Code Refactoring
+
+* move to a classes-first architecture with deep lib modules ([#102](https://github.com/Miragon/bpmnlint-rules/issues/102)) ([30a2f22](https://github.com/Miragon/bpmnlint-rules/commit/30a2f223b6d00bcb538dcf1a8b5e829c40e64a6c))
+
 ## [0.16.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.15.0...v0.16.0) (2026-10-22)
 
 
