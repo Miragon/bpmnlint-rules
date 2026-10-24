@@ -117,9 +117,16 @@ function readCatchesByRule(): Map<string, string> {
 
 type RuleConfig = { rules?: Record<string, unknown> };
 
-function categoryOf(name: string, severities: RuleDoc['severities']): RuleDoc['category'] {
-  const fallbackCategory = severities.modeling === 'off' ? 'naming' : 'layout';
-  return miragonRuleFactories[name]?.category ?? fallbackCategory;
+function categoryOf(name: string): RuleDoc['category'] {
+  switch (miragonRuleFactories[name]?.kind) {
+    case 'engine-specific':
+      return 'automation';
+    case 'convention':
+    case 'scheme':
+      return 'naming';
+    default:
+      return 'layout';
+  }
 }
 
 function severityOf(config: RuleConfig, qualifiedRuleName: string): Severity {
@@ -161,7 +168,7 @@ export default {
         return {
           name,
           catches: catchesByRule.get(name) ?? '',
-          category: categoryOf(name, severities),
+          category: categoryOf(name),
           targetEngine: miragonRuleFactories[name]?.targetEngine,
           severities,
           findings: await lintInvalidFixture(name),

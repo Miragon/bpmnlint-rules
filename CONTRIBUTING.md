@@ -93,9 +93,10 @@ dependencies in `package.json`.
    `ruleFactoriesByName` as `[<factory>.ruleName]: <factory>` — `miragonRuleFactories`,
    `resolverEntries` and the `MiragonRuleName` type pick it up automatically, and the bundled
    resolver with it.
-5. **Severity.** List it in `miragonAll` at `error` and in `miragonRecommendedForAutomation` at
-   `warn`. In `miragonRecommendedForModeling` ship it `off`, unless it is a non-blocking layout hint
-   safe on hand-drawn diagrams — those ship at `warn` (all in `src/rules/miragon/index.ts`). The two
+5. **Severity.** Declare the rule's `kind` next to its `ruleName`; `SEVERITY_BY_KIND` in
+   `src/rules/miragon/index.ts` turns it into its severity in every layer: `error` in `miragonAll`,
+   `warn` in `miragonRecommendedForAutomation`, and in `miragonRecommendedForModeling` `off` unless it
+   is a non-blocking `layout-hint` safe on hand-drawn diagrams, which ships at `warn`. The two
    `recommended-for-*` layers stay non-blocking (only `all` is `error`; the one exception is
    `exclusive-gateway-marker-visible`, `error` in the modeling layer because a gateway without its
    marker is misdrawn), and the modeling layer must

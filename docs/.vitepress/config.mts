@@ -13,7 +13,7 @@ const repositoryUrl = 'https://github.com/Miragon/bpmnlint-rules';
 const isLayoutHint = (ruleName: string) =>
   miragonRecommendedForModeling.rules?.[`${MIRAGON_NAME}/${ruleName}`] !== 'off';
 const isAutomationRule = (ruleName: string) =>
-  miragonRuleFactories[ruleName]?.category === 'automation';
+  miragonRuleFactories[ruleName]?.kind === 'engine-specific';
 const ruleNames = Object.keys(miragonRuleFactories);
 const engineAgnosticRuleNames = ruleNames.filter((name) => !isAutomationRule(name));
 const toSidebarItem = (ruleName: string) => ({ text: ruleName, link: `/rules/${ruleName}` });

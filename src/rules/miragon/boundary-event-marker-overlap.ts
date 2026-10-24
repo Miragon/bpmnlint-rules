@@ -49,3 +49,4 @@ export default function boundaryEventMarkerOverlap(): Rule {
 }
 
 boundaryEventMarkerOverlap.ruleName = 'boundary-event-marker-overlap' as const;
+boundaryEventMarkerOverlap.kind = 'layout-hint' as const;

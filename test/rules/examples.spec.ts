@@ -1,3 +1,4 @@
+import type { MiragonRuleName } from '../../src/rules/miragon';
 import { reportedIds } from '../support/lint-file';
 
 /**
@@ -6,23 +7,23 @@ import { reportedIds } from '../support/lint-file';
  * the invalid model must trip the rule on the element the doc points at, and the valid model must
  * stay silent — so the "good" picture in the docs is genuinely clean, not merely plausible.
  */
-const EXAMPLES = [
-  { rule: 'no-generated-ids', offender: 'Activity_0049ryx' },
-  { rule: 'element-id-naming', offender: 'ReviewOrder' },
-  { rule: 'worker-topic-naming', offender: 'serviceTask_reviewOrder' },
-  { rule: 'message-name-naming', offender: 'message_orderReceived' },
-  { rule: 'flow-through-element', offender: 'flow_reopen' },
-  { rule: 'flow-connection-side', offender: 'flow_toDecision' },
-  { rule: 'flow-target-alignment', offender: 'flow_archived' },
-  { rule: 'flow-crossing', offender: 'flow_orderRevised' },
-  { rule: 'flow-orthogonal', offender: 'flow_reject' },
-  { rule: 'boundary-event-marker-overlap', offender: 'event_orderCancelled' },
-  { rule: 'exclusive-gateway-marker-visible', offender: 'gateway_approved' },
-  { rule: 'async-continuations', offender: 'serviceTask_chargeCard' },
-];
+const OFFENDER_BY_RULE: Record<MiragonRuleName, string> = {
+  'no-generated-ids': 'Activity_0049ryx',
+  'element-id-naming': 'ReviewOrder',
+  'worker-topic-naming': 'serviceTask_reviewOrder',
+  'message-name-naming': 'message_orderReceived',
+  'flow-through-element': 'flow_reopen',
+  'flow-connection-side': 'flow_toDecision',
+  'flow-target-alignment': 'flow_archived',
+  'flow-crossing': 'flow_orderRevised',
+  'flow-orthogonal': 'flow_reject',
+  'boundary-event-marker-overlap': 'event_orderCancelled',
+  'exclusive-gateway-marker-visible': 'gateway_approved',
+  'async-continuations': 'serviceTask_chargeCard',
+};
 
 describe('example models', () => {
-  for (const { rule, offender } of EXAMPLES) {
+  for (const [rule, offender] of Object.entries(OFFENDER_BY_RULE)) {
     describe(rule, () => {
       it('the invalid model reports the offending element', async () => {
         expect(await reportedIds(rule, 'invalid')).toContain(offender);

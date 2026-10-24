@@ -30,14 +30,12 @@ export default function flowCrossing(): Rule {
     }
 
     for (const plane of collectByPlane(node)) {
-      const flows: Flow[] = plane.edges
-        .filter((edge) => edge.el.$type === 'bpmn:SequenceFlow')
-        .map((edge) => ({
-          el: edge.el,
-          endpoints: new Set<string>(flowEndpointIds(edge.el)),
-          bbox: bboxOfPoints(edge.waypoints),
-          segments: segments(edge.waypoints),
-        }));
+      const flows: Flow[] = plane.sequenceFlows.map((edge) => ({
+        el: edge.el,
+        endpoints: new Set<string>(flowEndpointIds(edge.el)),
+        bbox: bboxOfPoints(edge.waypoints),
+        segments: segments(edge.waypoints),
+      }));
 
       const flowsOverlapping = indexBboxes(flows.map((flow) => flow.bbox));
 
@@ -72,3 +70,4 @@ export default function flowCrossing(): Rule {
 }
 
 flowCrossing.ruleName = 'flow-crossing' as const;
+flowCrossing.kind = 'layout-hint' as const;

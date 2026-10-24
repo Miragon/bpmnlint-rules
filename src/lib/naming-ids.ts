@@ -5,6 +5,7 @@
  */
 import { is } from 'bpmnlint-utils';
 
+import { resolveCase } from './naming-cases';
 import type { ModdleElement } from './moddle';
 
 export type PrefixMap = Record<string, string | false | null>;
@@ -240,4 +241,57 @@ export function isGeneratedId(id: string): boolean {
   const counter = /^[A-Za-z][A-Za-z0-9]*_[0-9]+$/;
 
   return random.test(id) || counter.test(id);
+}
+
+export interface ElementIdNamingConfig {
+  prefixes?: PrefixMap;
+  case?: string;
+  eventDefinitionQualifier?: QualifierMode;
+}
+
+/**
+ * The element-id check for a config: given an element, the reason its id breaks the convention, or
+ * `null` when it follows it — or is not checked at all (no id, or a type without a prefix). An id
+ * that claims an event definition the element lacks gets a message naming that lie.
+ */
+export function createElementIdCheck(
+  config?: ElementIdNamingConfig,
+): (node: ModdleElement) => string | null {
+  const { prefixes: overrides = {}, case: caseName = 'camelCase' } = config ?? {};
+
+  const prefixes = { ...DEFAULT_PREFIXES, ...overrides };
+  const { pattern, label: caseLabel } = resolveCase(caseName);
+  const mode = resolveQualifierMode(config?.eventDefinitionQualifier);
+
+  return (node) => {
+    // Elements without an ID are `no-bpmndi`'s / the engine's problem, not this check's.
+    if (!node.id) {
+      return null;
+    }
+
+    const convention = resolvePrefix(node, prefixes);
+
+    if (!convention) {
+      return null;
+    }
+
+    const { prefix } = convention;
+    const accepted = acceptedPrefixes(node, prefix, mode);
+
+    const matches = (candidate: string): boolean =>
+      node.id.startsWith(candidate) && pattern.test(node.id.slice(candidate.length));
+
+    if (accepted.some(matches)) {
+      return null;
+    }
+
+    const lie = mode !== 'off' ? detectLyingQualifier(node, prefix) : null;
+
+    if (lie) {
+      return `Element id claims a ${lie} event, but this element has no ${lie} event definition`;
+    }
+
+    const conventions = accepted.map((candidate) => `<${candidate}${caseLabel}>`).join(' or ');
+    return `Element id must match the naming convention ${conventions}`;
+  };
 }

@@ -93,3 +93,4 @@ export default function workerTopicNaming(config?: ValueNamingConfig): Rule {
 }
 
 workerTopicNaming.ruleName = 'worker-topic-naming' as const;
+workerTopicNaming.kind = 'scheme' as const;

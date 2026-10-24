@@ -6,7 +6,7 @@
  *  - `bpmnlint:recommended` — shared generic BPMN correctness, identical for every engine;
  *  - the Miragon opinion layer (see `rules/miragon`), chosen by `preset`: a *modeling* diagram
  *    (`recommended-for-modeling`, layout hints only, safe on hand-drawn diagrams) or *automation*
- *    (`recommended-for-automation`, every Miragon rule at `error`). When `preset` is omitted it is
+ *    (`recommended-for-automation`, engine-agnostic Miragon rules at `warn`). When `preset` is omitted it is
  *    derived from `engine` for backwards compatibility — an engine-bound document defaults to
  *    automation, an engine-less one to modeling;
  *  - `plugin:camunda-compat/<platform-version>` — the engine deployability matrix, added **only**
@@ -26,7 +26,7 @@ import * as camunda8 from '../rules/camunda-8';
 /**
  * The Miragon opinion layer to apply, decoupled from the engine:
  *  - `modeling` — layout hints only, safe on hand-drawn diagrams;
- *  - `automation` — every Miragon rule at `error`, the execution-ready bar.
+ *  - `automation` — engine-agnostic Miragon rules at a non-blocking `warn`.
  */
 export type Preset = 'modeling' | 'automation';
 
@@ -38,6 +38,19 @@ const MIRAGON_LAYER: Record<Preset, string> = {
   modeling: MIRAGON_LAYER_MODELING,
   automation: MIRAGON_LAYER_AUTOMATION,
 };
+
+const ENGINE_LAYER = {
+  c7: {
+    extendsLayer: camunda7.extendsLayer,
+    moddleExtension: camunda7.moddleExtension,
+    rules: camunda7.camunda7Rules,
+  },
+  c8: {
+    extendsLayer: camunda8.extendsLayer,
+    moddleExtension: camunda8.moddleExtension,
+    rules: camunda8.camunda8Rules,
+  },
+} satisfies Record<Engine, unknown>;
 
 export interface DefaultLintConfigOptions {
   /**
@@ -63,24 +76,15 @@ export function getDefaultLintConfig(options: DefaultLintConfigOptions = {}): Bp
 
   const base = [structuralLayer, MIRAGON_LAYER[preset]];
 
-  switch (engine) {
-    case 'c7':
-      return {
-        extends: [...base, camunda7.extendsLayer],
-        moddleExtensions: {
-          [camunda7.moddleExtension.prefix]: camunda7.moddleExtension.descriptor,
-        },
-      };
-    case 'c8':
-      return {
-        extends: [...base, camunda8.extendsLayer],
-        moddleExtensions: {
-          [camunda8.moddleExtension.prefix]: camunda8.moddleExtension.descriptor,
-        },
-      };
-    default:
-      return { extends: base };
+  if (!engine) {
+    return { extends: base };
   }
+
+  const { extendsLayer, moddleExtension } = ENGINE_LAYER[engine];
+  return {
+    extends: [...base, extendsLayer],
+    moddleExtensions: { [moddleExtension.prefix]: moddleExtension.descriptor },
+  };
 }
 
 /**
@@ -88,12 +92,5 @@ export function getDefaultLintConfig(options: DefaultLintConfigOptions = {}): Bp
  * structural rule-set when no engine is given.
  */
 export function getRulesForEngine(engine?: Engine): unknown {
-  switch (engine) {
-    case 'c7':
-      return camunda7.camunda7Rules;
-    case 'c8':
-      return camunda8.camunda8Rules;
-    default:
-      return commonRules;
-  }
+  return engine ? ENGINE_LAYER[engine].rules : commonRules;
 }

@@ -10,7 +10,13 @@
  * (`@miragon/rules`), while the resolver cache keys use the expanded {@link MIRAGON_PLUGIN}
  * (`@miragon/bpmnlint-plugin-rules`) that bpmnlint normalises to before calling the resolver.
  */
-import type { BpmnlintConfig, Engine, ResolverEntries } from '../../lib/bpmnlint-config';
+import type {
+  BpmnlintConfig,
+  Engine,
+  ResolverEntries,
+  RuleSet,
+  RuleSeverity,
+} from '../../lib/bpmnlint-config';
 import type { RuleFactory } from '../../lib/moddle';
 
 import boundaryEventMarkerOverlap from './boundary-event-marker-overlap';
@@ -51,94 +57,104 @@ const ruleFactoriesByName = {
 export type MiragonRuleName = keyof typeof ruleFactoriesByName;
 
 /**
- * A Miragon rule factory; rules for executable processes only declare the `automation` category,
- * rules for one engine only its `targetEngine`.
+ * What a rule is, as far as the opinion layers care — the one fact each rule declares (`kind`)
+ * from which its severity in every layer follows (see {@link SEVERITY_BY_KIND}):
+ *  - `layout-hint` — a non-blocking layout hint, safe on hand-drawn diagrams;
+ *  - `misdrawn` — a drawing defect, not merely untidy, so it blocks even while modeling;
+ *  - `convention` — an execution-only convention a modeler shouldn't be blocked on;
+ *  - `scheme` — needs a project-chosen scheme before it can say anything useful;
+ *  - `engine-specific` — applies to one engine only (the rule also sets `targetEngine`).
  */
-type MiragonRuleFactory = RuleFactory & { category?: 'automation'; targetEngine?: Engine };
+type MiragonRuleKind = 'layout-hint' | 'misdrawn' | 'convention' | 'scheme' | 'engine-specific';
+
+/** A Miragon rule factory: every rule declares its `kind`, engine-specific ones their `targetEngine`. */
+type MiragonRuleFactory = RuleFactory & { kind: MiragonRuleKind; targetEngine?: Engine };
+
+/** The Miragon opinion layers, keyed by the config name they are exposed under. */
+type MiragonLayerName = 'recommended-for-modeling' | 'recommended-for-automation' | 'all';
+
+/**
+ * The severity policy: per rule kind, its severity in each layer. Only `all` blocks; the two
+ * `recommended-for-*` layers stay non-blocking bar `misdrawn` in the modeling layer.
+ */
+const SEVERITY_BY_KIND: Record<MiragonRuleKind, Record<MiragonLayerName, RuleSeverity>> = {
+  'layout-hint': {
+    'recommended-for-modeling': 'warn',
+    'recommended-for-automation': 'warn',
+    all: 'error',
+  },
+  misdrawn: {
+    'recommended-for-modeling': 'error',
+    'recommended-for-automation': 'warn',
+    all: 'error',
+  },
+  convention: {
+    'recommended-for-modeling': 'off',
+    'recommended-for-automation': 'warn',
+    all: 'error',
+  },
+  scheme: { 'recommended-for-modeling': 'off', 'recommended-for-automation': 'off', all: 'error' },
+  'engine-specific': {
+    'recommended-for-modeling': 'off',
+    'recommended-for-automation': 'off',
+    all: 'error',
+  },
+};
 
 /** The rule factories this plugin ships, keyed by their short (unprefixed) name. */
 export const miragonRuleFactories: Record<string, MiragonRuleFactory> = ruleFactoriesByName;
+
+function miragonLayer(layerName: MiragonLayerName): RuleSet {
+  return Object.fromEntries(
+    Object.entries(miragonRuleFactories).map(([name, factory]) => [
+      `${MIRAGON_NAME}/${name}`,
+      SEVERITY_BY_KIND[factory.kind][layerName],
+    ]),
+  );
+}
 
 /**
  * The Miragon opinion layer for **modeling**, exposed as
  * `plugin:@miragon/rules/recommended-for-modeling`.
  *
- * Tuned for hand-drawn, human-facing diagrams: bpmnlint's own `standard-size` at `warn`, the layout
- * rules at `warn` (non-blocking layout hints) except `exclusive-gateway-marker-visible` at `error`
- * (a gateway without its marker is misdrawn, not merely untidy), and the naming/id rules `off` — a modeler shouldn't
- * be blocked on id conventions that only matter once a process is wired up for execution.
+ * Tuned for hand-drawn, human-facing diagrams: bpmnlint's own `standard-size` at `warn` (a superset
+ * of what a custom sizing rule would do, kept in sync with bpmn-js upstream), layout hints at `warn`,
+ * misdrawn elements at `error`, and everything execution-only `off`.
  */
 export const miragonRecommendedForModeling: BpmnlintConfig = {
-  rules: {
-    // Element sizing is bpmnlint's own `standard-size` (a superset of what a custom rule would do,
-    // kept in sync with bpmn-js upstream) — enabled here at `warn`.
-    'bpmnlint/standard-size': 'warn',
-    [`${MIRAGON_NAME}/no-generated-ids`]: 'off',
-    [`${MIRAGON_NAME}/element-id-naming`]: 'off',
-    [`${MIRAGON_NAME}/worker-topic-naming`]: 'off',
-    [`${MIRAGON_NAME}/message-name-naming`]: 'off',
-    [`${MIRAGON_NAME}/flow-through-element`]: 'warn',
-    [`${MIRAGON_NAME}/flow-connection-side`]: 'warn',
-    [`${MIRAGON_NAME}/flow-target-alignment`]: 'warn',
-    [`${MIRAGON_NAME}/flow-crossing`]: 'warn',
-    [`${MIRAGON_NAME}/flow-orthogonal`]: 'warn',
-    [`${MIRAGON_NAME}/boundary-event-marker-overlap`]: 'warn',
-    [`${MIRAGON_NAME}/exclusive-gateway-marker-visible`]: 'error',
-    [`${MIRAGON_NAME}/async-continuations`]: 'off',
-  },
+  rules: { 'bpmnlint/standard-size': 'warn', ...miragonLayer('recommended-for-modeling') },
 };
 
 /**
  * The Miragon opinion layer for **automation**, exposed as
  * `plugin:@miragon/rules/recommended-for-automation`.
  *
- * Tuned for executable processes: every engine-agnostic Miragon rule on, but as a non-blocking `warn`
- * (clean ids and layout matter once a diagram is deployed and diffed, without failing the build),
- * alongside `standard-size` at `warn`. Engine-specific rules (those with a `targetEngine`) stay `off` here; they
- * are opt-in via `all` or a consumer's own config. So do `worker-topic-naming` and
- * `message-name-naming`: their scheme is a project decision, configured before they are switched on.
+ * Tuned for executable processes: every engine-agnostic Miragon rule on, but as a non-blocking
+ * `warn`, alongside `standard-size` at `warn`. Engine-specific and scheme rules stay `off` — opt-in
+ * via `all` or a consumer's own config.
  */
 export const miragonRecommendedForAutomation: BpmnlintConfig = {
-  rules: {
-    'bpmnlint/standard-size': 'warn',
-    [`${MIRAGON_NAME}/no-generated-ids`]: 'warn',
-    [`${MIRAGON_NAME}/element-id-naming`]: 'warn',
-    [`${MIRAGON_NAME}/worker-topic-naming`]: 'off',
-    [`${MIRAGON_NAME}/message-name-naming`]: 'off',
-    [`${MIRAGON_NAME}/flow-through-element`]: 'warn',
-    [`${MIRAGON_NAME}/flow-connection-side`]: 'warn',
-    [`${MIRAGON_NAME}/flow-target-alignment`]: 'warn',
-    [`${MIRAGON_NAME}/flow-crossing`]: 'warn',
-    [`${MIRAGON_NAME}/flow-orthogonal`]: 'warn',
-    [`${MIRAGON_NAME}/boundary-event-marker-overlap`]: 'warn',
-    [`${MIRAGON_NAME}/exclusive-gateway-marker-visible`]: 'warn',
-    [`${MIRAGON_NAME}/async-continuations`]: 'off',
-  },
+  rules: { 'bpmnlint/standard-size': 'warn', ...miragonLayer('recommended-for-automation') },
 };
 
 /** Every Miragon rule at `error` — the opt-in `plugin:@miragon/rules/all`. */
-export const miragonAll: BpmnlintConfig = {
-  rules: {
-    [`${MIRAGON_NAME}/no-generated-ids`]: 'error',
-    [`${MIRAGON_NAME}/element-id-naming`]: 'error',
-    [`${MIRAGON_NAME}/worker-topic-naming`]: 'error',
-    [`${MIRAGON_NAME}/message-name-naming`]: 'error',
-    [`${MIRAGON_NAME}/flow-through-element`]: 'error',
-    [`${MIRAGON_NAME}/flow-connection-side`]: 'error',
-    [`${MIRAGON_NAME}/flow-target-alignment`]: 'error',
-    [`${MIRAGON_NAME}/flow-crossing`]: 'error',
-    [`${MIRAGON_NAME}/flow-orthogonal`]: 'error',
-    [`${MIRAGON_NAME}/boundary-event-marker-overlap`]: 'error',
-    [`${MIRAGON_NAME}/exclusive-gateway-marker-visible`]: 'error',
-    [`${MIRAGON_NAME}/async-continuations`]: 'error',
-  },
+export const miragonAll: BpmnlintConfig = { rules: miragonLayer('all') };
+
+/** The Miragon opinion layers, keyed by the config name they are exposed under. */
+export const miragonLayers: Record<MiragonLayerName, BpmnlintConfig> = {
+  'recommended-for-modeling': miragonRecommendedForModeling,
+  'recommended-for-automation': miragonRecommendedForAutomation,
+  all: miragonAll,
 };
 
 /** This folder's fragment of the bundled StaticResolver cache. */
 export const resolverEntries: ResolverEntries = {
-  [`config:${MIRAGON_PLUGIN}/recommended-for-modeling`]: miragonRecommendedForModeling,
-  [`config:${MIRAGON_PLUGIN}/recommended-for-automation`]: miragonRecommendedForAutomation,
-  [`config:${MIRAGON_PLUGIN}/all`]: miragonAll,
+  ...Object.fromEntries(
+    Object.entries(miragonLayers).map(([layerName, layer]) => [
+      `config:${MIRAGON_PLUGIN}/${layerName}`,
+      layer,
+    ]),
+  ),
   ...Object.fromEntries(
     Object.entries(miragonRuleFactories).map(([name, factory]) => [
       `rule:${MIRAGON_PLUGIN}/${name}`,

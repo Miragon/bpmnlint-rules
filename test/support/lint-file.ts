@@ -8,33 +8,7 @@ import type { RuleFactory } from '../../src/lib/moddle';
 
 import { all } from '../../src/presets/all';
 import { createBundledResolver } from '../../src/resolver/createBundledResolver';
-import noGeneratedIds from '../../src/rules/miragon/no-generated-ids';
-import elementIdNaming from '../../src/rules/miragon/element-id-naming';
-import workerTopicNaming from '../../src/rules/miragon/worker-topic-naming';
-import messageNameNaming from '../../src/rules/miragon/message-name-naming';
-import flowThroughElement from '../../src/rules/miragon/flow-through-element';
-import flowConnectionSide from '../../src/rules/miragon/flow-connection-side';
-import flowTargetAlignment from '../../src/rules/miragon/flow-target-alignment';
-import flowCrossing from '../../src/rules/miragon/flow-crossing';
-import flowOrthogonal from '../../src/rules/miragon/flow-orthogonal';
-import boundaryEventMarkerOverlap from '../../src/rules/miragon/boundary-event-marker-overlap';
-import exclusiveGatewayMarkerVisible from '../../src/rules/miragon/exclusive-gateway-marker-visible';
-import asyncContinuations from '../../src/rules/miragon/async-continuations';
-
-const RULES: Record<string, RuleFactory> = {
-  'no-generated-ids': noGeneratedIds,
-  'element-id-naming': elementIdNaming,
-  'worker-topic-naming': workerTopicNaming,
-  'message-name-naming': messageNameNaming,
-  'flow-through-element': flowThroughElement,
-  'flow-connection-side': flowConnectionSide,
-  'flow-target-alignment': flowTargetAlignment,
-  'flow-crossing': flowCrossing,
-  'flow-orthogonal': flowOrthogonal,
-  'boundary-event-marker-overlap': boundaryEventMarkerOverlap,
-  'exclusive-gateway-marker-visible': exclusiveGatewayMarkerVisible,
-  'async-continuations': asyncContinuations,
-};
+import { miragonRuleFactories } from '../../src/rules/miragon';
 
 const EXAMPLES_DIR = fileURLToPath(new URL('../fixtures/rules', import.meta.url));
 
@@ -57,7 +31,7 @@ function singleRuleResolver(rule: RuleFactory) {
  * reported.
  */
 export async function reportedIds(ruleName: string, kind: 'valid' | 'invalid'): Promise<string[]> {
-  const rule = RULES[ruleName];
+  const rule = miragonRuleFactories[ruleName];
   if (!rule) {
     throw new Error(`unknown rule <${ruleName}>`);
   }

@@ -65,12 +65,11 @@ file. Make four edits:
 
 1. `import <camelName> from './<name>';`
 2. Add to `ruleFactoriesByName`: `[<camelName>.ruleName]: <camelName>,`
-3. Add it at `'error'` to `miragonAll` and at `'warn'` to `miragonRecommendedForAutomation`. In
-   `miragonRecommendedForModeling` add it `'off'`, unless it is a non-blocking layout hint safe on
-   hand-drawn diagrams (those ship at `'warn'`). An engine-specific rule sets `<camelName>.targetEngine = 'c7' as const;` (and
-   `category = 'automation'`) next to its `ruleName`, is `'off'`
-   in both recommended layers and must skip diagrams for other engines. All keyed `` `${MIRAGON_NAME}/<name>` ``. Each
-   config lists its rules explicitly — no shared spread — so severities stay obvious per config.
+3. Give the rule its `kind` next to its `ruleName` (`<camelName>.kind = 'layout-hint' as const;`).
+   The layers derive every severity from it via `SEVERITY_BY_KIND` in `index.ts`: `layout-hint`
+   (warn/warn/error), `misdrawn` (error/warn/error), `convention` (off/warn/error), `scheme`
+   (off/off/error), `engine-specific` (off/off/error — also set `<camelName>.targetEngine = 'c7' as
+const;` and skip diagrams for other engines). Columns are modeling/automation/all.
 4. Add to the matching tag set (`visualRules` for layout/geometry, `namingRules` for id/naming), and
    re-export the factory in the trailing `export { ... }`.
 
@@ -115,8 +114,9 @@ helpers added to `src/lib/` get their own direct unit `verify`/`expect` cases.
     the new rule.
   - `invalid.bpmn` is the same clean model with **exactly one intentional defect**: it must trip the
     new rule (on the element the doc points at) and nothing may be flagged on any other element.
-- Register the pair in `test/rules/examples.spec.ts`: add `{ rule: '<name>', offender: '<id>' }` to
-  `EXAMPLES` (the offender id the `invalid` model reports).
+- Register the pair in `test/rules/examples.spec.ts`: add `'<name>': '<id>'` to `OFFENDER_BY_RULE`
+  (the offender id the `invalid` model reports). It is keyed by `MiragonRuleName`, so
+  `npm run typecheck` fails until you do.
 - `docs/rules/<name>.md` — **copy the template** at
   [`docs/assets/rule-doc-template.md`](../../../docs/assets/rule-doc-template.md), fill the
   placeholders, and delete its guidance block. The template is the single source of truth for a

@@ -8,7 +8,7 @@
  *
  * Pick by intent: {@link recommendedForModeling} for hand-drawn, human-facing diagrams (layout at
  * `warn`, id conventions off); {@link recommendedForAutomation} for executable processes (every
- * Miragon rule at `error`).
+ * engine-agnostic Miragon rule at a non-blocking `warn`).
  */
 import type { BpmnlintConfig } from '../lib/bpmnlint-config';
 import { MIRAGON_NAME } from '../rules/miragon';
