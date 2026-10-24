@@ -24,7 +24,8 @@ module.exports = {
     },
     {
       name: 'lib-is-a-leaf',
-      comment: 'lib/ holds pure helpers; it must not reach back up into the rest of the package.',
+      comment:
+        'lib/ holds the shared helpers; it must not reach back up into the rest of the package.',
       severity: 'error',
       from: { path: '^src/lib/' },
       to: { path: '^src/(rules|config|presets|resolver|plugin|index)' },

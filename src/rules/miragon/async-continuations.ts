@@ -1,6 +1,7 @@
 import { is, isAny } from 'bpmnlint-utils';
 
 import type { ModdleElement, Reporter, Rule } from '../../lib/moddle';
+import { defineRule } from '../../lib/utils/defineRule';
 
 export interface AsyncContinuationsConfig {
   serviceTasks?: boolean;
@@ -60,29 +61,73 @@ const MESSAGES = {
  * Only Camunda 7 diagrams are checked: `modeler:executionPlatform="Camunda Platform"`, or no
  * execution platform but the `camunda:` namespace declared. External tasks count as wait states.
  */
-export default function asyncContinuations(config?: AsyncContinuationsConfig): Rule {
-  const {
-    serviceTasks = true,
-    userTasks = true,
-    startEvents = true,
-    joins = true,
-    multiInstance = true,
-    waitStates = true,
-  } = config ?? {};
+class AsyncContinuations implements Rule {
+  private readonly checks: Required<AsyncContinuationsConfig>;
 
-  function isFlagSet(value: unknown): boolean {
+  constructor(config?: AsyncContinuationsConfig) {
+    this.checks = {
+      serviceTasks: true,
+      userTasks: true,
+      startEvents: true,
+      joins: true,
+      multiInstance: true,
+      waitStates: true,
+      ...config,
+    };
+  }
+
+  check(node: ModdleElement, reporter: Reporter): void {
+    if (!node.id || !is(node, 'bpmn:FlowNode') || !this.isCamunda7Diagram(node)) {
+      return;
+    }
+
+    if (this.hasAsyncBefore(node)) {
+      if (this.checks.waitStates && this.isWaitState(node) && !this.isMultiInstance(node)) {
+        reporter.report(node.id, MESSAGES.waitStates);
+      }
+    } else {
+      const message = this.missingAsyncBeforeMessage(node);
+      if (message) {
+        reporter.report(node.id, message);
+      }
+    }
+
+    if (this.checks.userTasks && is(node, 'bpmn:UserTask') && !this.hasAsyncAfter(node)) {
+      reporter.report(node.id, MESSAGES.userTasks);
+    }
+  }
+
+  private missingAsyncBeforeMessage(node: ModdleElement): string | undefined {
+    if (this.checks.multiInstance && this.isMultiInstance(node)) {
+      return MESSAGES.multiInstance;
+    }
+    if (this.checks.serviceTasks && this.isRemoteCall(node)) {
+      return MESSAGES.serviceTasks;
+    }
+    if (this.checks.startEvents && this.isProcessStartEvent(node)) {
+      return MESSAGES.startEvents;
+    }
+    if (this.checks.joins && this.isJoin(node)) {
+      return MESSAGES.joins;
+    }
+    return undefined;
+  }
+
+  private isFlagSet(value: unknown): boolean {
     return value === true || value === 'true';
   }
 
-  function hasAsyncBefore(node: ModdleElement): boolean {
-    return isFlagSet(node.get('camunda:asyncBefore')) || isFlagSet(node.get('camunda:async'));
+  private hasAsyncBefore(node: ModdleElement): boolean {
+    return (
+      this.isFlagSet(node.get('camunda:asyncBefore')) || this.isFlagSet(node.get('camunda:async'))
+    );
   }
 
-  function hasAsyncAfter(node: ModdleElement): boolean {
-    return isFlagSet(node.get('camunda:asyncAfter'));
+  private hasAsyncAfter(node: ModdleElement): boolean {
+    return this.isFlagSet(node.get('camunda:asyncAfter'));
   }
 
-  function definitionsOf(node: ModdleElement): ModdleElement | undefined {
+  private definitionsOf(node: ModdleElement): ModdleElement | undefined {
     let current = node;
     while (current && !is(current, 'bpmn:Definitions')) {
       current = current.$parent;
@@ -90,14 +135,14 @@ export default function asyncContinuations(config?: AsyncContinuationsConfig): R
     return current;
   }
 
-  function declaresCamunda7Namespace(definitions: ModdleElement): boolean {
+  private declaresCamunda7Namespace(definitions: ModdleElement): boolean {
     return Object.entries(definitions.$attrs ?? {}).some(
       ([name, value]) => name.startsWith('xmlns:') && value === CAMUNDA_7_NAMESPACE,
     );
   }
 
-  function isCamunda7Diagram(node: ModdleElement): boolean {
-    const definitions = definitionsOf(node);
+  private isCamunda7Diagram(node: ModdleElement): boolean {
+    const definitions = this.definitionsOf(node);
     if (!definitions) {
       return false;
     }
@@ -107,91 +152,57 @@ export default function asyncContinuations(config?: AsyncContinuationsConfig): R
       return executionPlatform === CAMUNDA_7_EXECUTION_PLATFORM;
     }
 
-    return declaresCamunda7Namespace(definitions);
+    return this.declaresCamunda7Namespace(definitions);
   }
 
-  function messageEventDefinitionOf(node: ModdleElement): ModdleElement | undefined {
+  private messageEventDefinitionOf(node: ModdleElement): ModdleElement | undefined {
     return (node.eventDefinitions ?? []).find((definition: ModdleElement) =>
       is(definition, 'bpmn:MessageEventDefinition'),
     );
   }
 
-  function isMessageThrowEvent(node: ModdleElement): boolean {
-    return isAny(node, MESSAGE_THROW_EVENTS) && messageEventDefinitionOf(node) !== undefined;
+  private isMessageThrowEvent(node: ModdleElement): boolean {
+    return isAny(node, MESSAGE_THROW_EVENTS) && this.messageEventDefinitionOf(node) !== undefined;
   }
 
-  function isExternalTask(node: ModdleElement): boolean {
+  private isExternalTask(node: ModdleElement): boolean {
     if (isAny(node, EXTERNAL_CAPABLE_TASKS)) {
       return node.get('camunda:type') === 'external';
     }
     return (
-      isMessageThrowEvent(node) && messageEventDefinitionOf(node).get('camunda:type') === 'external'
+      this.isMessageThrowEvent(node) &&
+      this.messageEventDefinitionOf(node).get('camunda:type') === 'external'
     );
   }
 
-  function isWaitState(node: ModdleElement): boolean {
-    return isAny(node, NATIVE_WAIT_STATES) || isExternalTask(node);
+  private isWaitState(node: ModdleElement): boolean {
+    return isAny(node, NATIVE_WAIT_STATES) || this.isExternalTask(node);
   }
 
-  function isMultiInstance(node: ModdleElement): boolean {
+  private isMultiInstance(node: ModdleElement): boolean {
     return (
       node.loopCharacteristics !== undefined &&
       is(node.loopCharacteristics, 'bpmn:MultiInstanceLoopCharacteristics')
     );
   }
 
-  function isRemoteCall(node: ModdleElement): boolean {
-    return (isAny(node, REMOTE_CALL_TASKS) || isMessageThrowEvent(node)) && !isExternalTask(node);
+  private isRemoteCall(node: ModdleElement): boolean {
+    return (
+      (isAny(node, REMOTE_CALL_TASKS) || this.isMessageThrowEvent(node)) &&
+      !this.isExternalTask(node)
+    );
   }
 
-  function isProcessStartEvent(node: ModdleElement): boolean {
+  private isProcessStartEvent(node: ModdleElement): boolean {
     return is(node, 'bpmn:StartEvent') && is(node.$parent, 'bpmn:Process');
   }
 
-  function isJoin(node: ModdleElement): boolean {
+  private isJoin(node: ModdleElement): boolean {
     return isAny(node, JOIN_GATEWAYS) && (node.incoming ?? []).length > 1;
   }
-
-  function missingAsyncBeforeMessage(node: ModdleElement): string | undefined {
-    if (multiInstance && isMultiInstance(node)) {
-      return MESSAGES.multiInstance;
-    }
-    if (serviceTasks && isRemoteCall(node)) {
-      return MESSAGES.serviceTasks;
-    }
-    if (startEvents && isProcessStartEvent(node)) {
-      return MESSAGES.startEvents;
-    }
-    if (joins && isJoin(node)) {
-      return MESSAGES.joins;
-    }
-    return undefined;
-  }
-
-  function check(node: ModdleElement, reporter: Reporter): void {
-    if (!node.id || !is(node, 'bpmn:FlowNode') || !isCamunda7Diagram(node)) {
-      return;
-    }
-
-    if (hasAsyncBefore(node)) {
-      if (waitStates && isWaitState(node) && !isMultiInstance(node)) {
-        reporter.report(node.id, MESSAGES.waitStates);
-      }
-    } else {
-      const message = missingAsyncBeforeMessage(node);
-      if (message) {
-        reporter.report(node.id, message);
-      }
-    }
-
-    if (userTasks && is(node, 'bpmn:UserTask') && !hasAsyncAfter(node)) {
-      reporter.report(node.id, MESSAGES.userTasks);
-    }
-  }
-
-  return { check };
 }
 
-asyncContinuations.ruleName = 'async-continuations' as const;
-asyncContinuations.kind = 'engine-specific' as const;
-asyncContinuations.targetEngine = 'c7' as const;
+export default defineRule(
+  { ruleName: 'async-continuations', kind: 'engine-specific', targetEngine: 'c7' },
+  AsyncContinuations,
+);

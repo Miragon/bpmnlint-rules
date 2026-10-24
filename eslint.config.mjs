@@ -65,6 +65,28 @@ export default tseslint.config(
     },
   },
   {
+    // Classes first: behaviour lives in classes, pure helpers in a `utils/` folder.
+    files: ['src/**/*.ts'],
+    ignores: ['**/utils/**'],
+    rules: {
+      'max-classes-per-file': ['error', 1],
+      'no-restricted-syntax': [
+        'error',
+        ...[
+          'Program > FunctionDeclaration',
+          'Program > ExportNamedDeclaration > FunctionDeclaration',
+          'Program > ExportDefaultDeclaration > FunctionDeclaration',
+          'Program > VariableDeclaration > VariableDeclarator > :matches(ArrowFunctionExpression, FunctionExpression)',
+          'Program > ExportNamedDeclaration > VariableDeclaration > VariableDeclarator > :matches(ArrowFunctionExpression, FunctionExpression)',
+        ].map((selector) => ({
+          selector,
+          message:
+            'Top-level functions belong in a class, or in a utils/ module when they are pure helpers.',
+        })),
+      ],
+    },
+  },
+  {
     files: ['test/**/*.spec.ts'],
     languageOptions: {
       globals: { ...globals.node, ...globals.vitest },

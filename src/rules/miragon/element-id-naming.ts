@@ -1,6 +1,7 @@
-import { createElementIdCheck } from '../../lib/naming-ids';
-import type { ElementIdNamingConfig } from '../../lib/naming-ids';
 import type { ModdleElement, Reporter, Rule } from '../../lib/moddle';
+import { ElementIdConvention } from '../../lib/naming';
+import type { ElementIdNamingConfig } from '../../lib/naming';
+import { defineRule } from '../../lib/utils/defineRule';
 
 /**
  * Reports an element whose ID does not follow the project's naming convention.
@@ -31,19 +32,20 @@ import type { ModdleElement, Reporter, Rule } from '../../lib/moddle';
  * Element types that are not configured are not checked — an exotic BPMN type nobody thought
  * about must not produce a report.
  */
-export default function elementIdNaming(config?: ElementIdNamingConfig): Rule {
-  const violationOf = createElementIdCheck(config);
+class ElementIdNaming implements Rule {
+  private readonly convention: ElementIdConvention;
 
-  function check(node: ModdleElement, reporter: Reporter): void {
-    const violation = violationOf(node);
+  constructor(config?: ElementIdNamingConfig) {
+    this.convention = new ElementIdConvention(config);
+  }
+
+  check(node: ModdleElement, reporter: Reporter): void {
+    const violation = this.convention.violationOf(node);
 
     if (violation) {
       reporter.report(node.id, violation);
     }
   }
-
-  return { check };
 }
 
-elementIdNaming.ruleName = 'element-id-naming' as const;
-elementIdNaming.kind = 'convention' as const;
+export default defineRule({ ruleName: 'element-id-naming', kind: 'convention' }, ElementIdNaming);

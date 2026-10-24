@@ -1,12 +1,8 @@
-import { collectByPlane, flowEndpointIds, inst, isPassableShape } from '../../lib/di';
-import {
-  bboxOfPoints,
-  bboxOfRect,
-  indexBboxes,
-  segments,
-  segThroughRect,
-} from '../../lib/geometry';
-import type { ModdleElement, Reporter, Rule } from '../../lib/moddle';
+import { flowEndpointIds, inst, isPassableShape, PlaneRule } from '../../lib/di';
+import type { DiagramPlane, PlaneEdge } from '../../lib/di';
+import { BboxIndex, bboxOfPoints, bboxOfRect, segments, segThroughRect } from '../../lib/geometry';
+import type { Reporter } from '../../lib/moddle';
+import { defineRule } from '../../lib/utils/defineRule';
 
 /**
  * Reports a sequence flow whose drawn path is routed THROUGH the body of a shape it does not
@@ -16,51 +12,49 @@ import type { ModdleElement, Reporter, Rule } from '../../lib/moddle';
  * shape-vs-shape bounds and never inspects edge geometry.
  *
  * Deliberately conservative — comparison is scoped per BPMNPlane, and shapes a flow may
- * legitimately pass over are excluded (see `lib/di.ts#isPassableShape`).
+ * legitimately pass over are excluded (see {@link isPassableShape}).
  */
-export default function flowThroughElement(): Rule {
-  function check(node: ModdleElement, reporter: Reporter): void {
-    if (node.$type !== 'bpmn:Definitions') {
-      return;
-    }
+class FlowThroughElement extends PlaneRule {
+  protected checkPlane(plane: DiagramPlane, reporter: Reporter): void {
+    const obstacles = plane.shapes.filter((shape) => !isPassableShape(shape.el, shape.isExpanded));
+    const obstacleIndex = new BboxIndex(obstacles.map((shape) => bboxOfRect(shape.bounds)));
 
-    for (const plane of collectByPlane(node)) {
-      const obstacles = plane.shapes.filter(
-        (shape) => !isPassableShape(shape.el, shape.isExpanded),
-      );
-      const obstaclesOverlapping = indexBboxes(obstacles.map((shape) => bboxOfRect(shape.bounds)));
+    for (const flow of plane.sequenceFlows) {
+      const connected = this.connectedShapeIds(flow);
+      const flowSegments = segments(flow.waypoints);
 
-      for (const flow of plane.sequenceFlows) {
-        // Exclude the flow's own source/target, and — when an endpoint is a boundary event —
-        // its host activity, because the flow starts on the host's border.
-        const endpoints = new Set<string>(flowEndpointIds(flow.el));
+      for (const index of obstacleIndex.overlapping(bboxOfPoints(flow.waypoints))) {
+        const shape = obstacles[index]!;
 
-        for (const ref of [flow.el.sourceRef, flow.el.targetRef]) {
-          if (inst(ref, 'bpmn:BoundaryEvent') && ref.attachedToRef) {
-            endpoints.add(ref.attachedToRef.id);
-          }
+        if (connected.has(shape.el.id)) {
+          continue;
         }
 
-        const flowSegments = segments(flow.waypoints);
-        const flowBox = bboxOfPoints(flow.waypoints);
-
-        for (const obstacleIndex of obstaclesOverlapping(flowBox)) {
-          const shape = obstacles[obstacleIndex]!;
-
-          if (endpoints.has(shape.el.id)) {
-            continue;
-          }
-
-          if (flowSegments.some(([start, end]) => segThroughRect(start, end, shape.bounds))) {
-            reporter.report(flow.el.id, `Sequence flow is routed through element <${shape.el.id}>`);
-          }
+        if (flowSegments.some(([start, end]) => segThroughRect(start, end, shape.bounds))) {
+          reporter.report(flow.el.id, `Sequence flow is routed through element <${shape.el.id}>`);
         }
       }
     }
   }
 
-  return { check };
+  /**
+   * The flow's own source/target, and — when an endpoint is a boundary event — its host activity,
+   * because the flow starts on the host's border.
+   */
+  private connectedShapeIds(flow: PlaneEdge): Set<string> {
+    const connected = new Set<string>(flowEndpointIds(flow.el));
+
+    for (const ref of [flow.el.sourceRef, flow.el.targetRef]) {
+      if (inst(ref, 'bpmn:BoundaryEvent') && ref.attachedToRef) {
+        connected.add(ref.attachedToRef.id);
+      }
+    }
+
+    return connected;
+  }
 }
 
-flowThroughElement.ruleName = 'flow-through-element' as const;
-flowThroughElement.kind = 'layout-hint' as const;
+export default defineRule(
+  { ruleName: 'flow-through-element', kind: 'layout-hint' },
+  FlowThroughElement,
+);

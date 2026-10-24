@@ -7,7 +7,7 @@ import { createModdle } from 'bpmnlint/lib/testers/helper';
 import type { RuleFactory } from '../../src/lib/moddle';
 
 import { all } from '../../src/presets/all';
-import { createBundledResolver } from '../../src/resolver/createBundledResolver';
+import { BundledResolver } from '../../src/resolver/BundledResolver';
 import { miragonRuleFactories } from '../../src/rules/miragon';
 
 const EXAMPLES_DIR = fileURLToPath(new URL('../fixtures/rules', import.meta.url));
@@ -69,6 +69,6 @@ export async function fullConfigReports(
   const xml = readFileSync(`${EXAMPLES_DIR}/${ruleName}/${kind}.bpmn`, 'utf8');
   const { root } = await createModdle(xml);
 
-  const linter = new Linter({ resolver: createBundledResolver() });
+  const linter = new Linter({ resolver: BundledResolver.create() });
   return linter.lint(root, all) as Promise<Record<string, Finding[]>>;
 }

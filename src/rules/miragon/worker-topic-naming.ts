@@ -1,59 +1,13 @@
 import { is, isAny } from 'bpmnlint-utils';
 
-import {
-  describeValueNaming,
-  isExpression,
-  matchesValueNaming,
-  resolveValueNaming,
-} from '../../lib/naming-values';
-import type { ValueNamingConfig } from '../../lib/naming-values';
 import type { ModdleElement, Reporter, Rule } from '../../lib/moddle';
+import { isExpression, ValueNamingScheme } from '../../lib/naming';
+import type { ValueNamingConfig } from '../../lib/naming';
+import { defineRule } from '../../lib/utils/defineRule';
 
 const EXTERNAL_TASK_TYPES = ['bpmn:ServiceTask', 'bpmn:BusinessRuleTask', 'bpmn:SendTask'];
 
 const EXTERNAL_TASK_NAMESPACES = ['camunda', 'operaton'];
-
-/** The topic of a Camunda 7 / Operaton external task implementation, if this is one. */
-function externalTaskTopicOf(implementation: ModdleElement): string | undefined {
-  const namespace = EXTERNAL_TASK_NAMESPACES.find(
-    (candidate) => implementation.get(`${candidate}:type`) === 'external',
-  );
-
-  return namespace && implementation.get(`${namespace}:topic`);
-}
-
-/** A task implements itself; an event is implemented by its message event definitions. */
-function externalTaskImplementationsOf(node: ModdleElement): ModdleElement[] {
-  if (isAny(node, EXTERNAL_TASK_TYPES)) {
-    return [node];
-  }
-
-  if (!is(node, 'bpmn:Event')) {
-    return [];
-  }
-
-  const definitions: ModdleElement[] = node.eventDefinitions ?? [];
-  return definitions.filter((definition) => is(definition, 'bpmn:MessageEventDefinition'));
-}
-
-/**
- * The Camunda 8 job type from `<zeebe:taskDefinition type="…">`. Read both with the Zeebe moddle
- * extension (`zeebe:TaskDefinition`) and without it, where the element stays generic.
- */
-function jobTypeOf(node: ModdleElement): string | undefined {
-  const extensions: ModdleElement[] = node.extensionElements?.values ?? [];
-  const taskDefinition = extensions.find(
-    (extension) => extension.$type?.toLowerCase() === 'zeebe:taskdefinition',
-  );
-
-  return taskDefinition?.type ?? taskDefinition?.$attrs?.type;
-}
-
-function workerTopicsOf(node: ModdleElement): string[] {
-  const topics = [...externalTaskImplementationsOf(node).map(externalTaskTopicOf), jobTypeOf(node)];
-
-  return topics.filter((topic): topic is string => Boolean(topic) && !isExpression(topic!));
-}
 
 /**
  * Reports a worker topic that does not follow the project's naming scheme: the topic of a
@@ -77,20 +31,67 @@ function workerTopicsOf(node: ModdleElement): string[] {
  * The rule reads only `camunda:`, `operaton:` and `zeebe:` attributes, so it cannot fire on a
  * diagram without workers.
  */
-export default function workerTopicNaming(config?: ValueNamingConfig): Rule {
-  const scheme = resolveValueNaming(config);
-  const convention = describeValueNaming(scheme);
+class WorkerTopicNaming implements Rule {
+  private readonly scheme: ValueNamingScheme;
 
-  function check(node: ModdleElement, reporter: Reporter): void {
-    for (const topic of workerTopicsOf(node)) {
-      if (!matchesValueNaming(topic, scheme)) {
-        reporter.report(node.id, `Worker topic <${topic}> must match ${convention}`);
+  constructor(config?: ValueNamingConfig) {
+    this.scheme = new ValueNamingScheme(config);
+  }
+
+  check(node: ModdleElement, reporter: Reporter): void {
+    for (const topic of this.workerTopicsOf(node)) {
+      if (!this.scheme.matches(topic)) {
+        reporter.report(node.id, `Worker topic <${topic}> must match ${this.scheme.describe()}`);
       }
     }
   }
 
-  return { check };
+  private workerTopicsOf(node: ModdleElement): string[] {
+    const topics = [
+      ...this.externalTaskImplementationsOf(node).map((implementation) =>
+        this.externalTaskTopicOf(implementation),
+      ),
+      this.jobTypeOf(node),
+    ];
+
+    return topics.filter((topic): topic is string => Boolean(topic) && !isExpression(topic!));
+  }
+
+  /** A task implements itself; an event is implemented by its message event definitions. */
+  private externalTaskImplementationsOf(node: ModdleElement): ModdleElement[] {
+    if (isAny(node, EXTERNAL_TASK_TYPES)) {
+      return [node];
+    }
+
+    if (!is(node, 'bpmn:Event')) {
+      return [];
+    }
+
+    const definitions: ModdleElement[] = node.eventDefinitions ?? [];
+    return definitions.filter((definition) => is(definition, 'bpmn:MessageEventDefinition'));
+  }
+
+  /** The topic of a Camunda 7 / Operaton external task implementation, if this is one. */
+  private externalTaskTopicOf(implementation: ModdleElement): string | undefined {
+    const namespace = EXTERNAL_TASK_NAMESPACES.find(
+      (candidate) => implementation.get(`${candidate}:type`) === 'external',
+    );
+
+    return namespace && implementation.get(`${namespace}:topic`);
+  }
+
+  /**
+   * The Camunda 8 job type from `<zeebe:taskDefinition type="…">`. Read both with the Zeebe moddle
+   * extension (`zeebe:TaskDefinition`) and without it, where the element stays generic.
+   */
+  private jobTypeOf(node: ModdleElement): string | undefined {
+    const extensions: ModdleElement[] = node.extensionElements?.values ?? [];
+    const taskDefinition = extensions.find(
+      (extension) => extension.$type?.toLowerCase() === 'zeebe:taskdefinition',
+    );
+
+    return taskDefinition?.type ?? taskDefinition?.$attrs?.type;
+  }
 }
 
-workerTopicNaming.ruleName = 'worker-topic-naming' as const;
-workerTopicNaming.kind = 'scheme' as const;
+export default defineRule({ ruleName: 'worker-topic-naming', kind: 'scheme' }, WorkerTopicNaming);

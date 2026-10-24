@@ -9,13 +9,18 @@
  * rule, helper and rule-set is exported too, for consumers assembling a config by hand.
  */
 
+import { BundledResolver } from './resolver/BundledResolver';
+import { EngineConfig } from './config/EngineConfig';
+
 // Resolver — the bundled StaticResolver over every layer.
-export { createBundledResolver, bundledResolverEntries } from './resolver/createBundledResolver';
 export type { Resolver } from './resolver/Resolver';
+export const createBundledResolver = BundledResolver.create;
+export const bundledResolverEntries = BundledResolver.entries;
 
 // Config building — the zero-config default, layered per engine.
-export { getDefaultLintConfig, getRulesForEngine } from './config/engineConfig';
-export type { Preset, DefaultLintConfigOptions } from './config/engineConfig';
+export type { Preset, DefaultLintConfigOptions } from './config/EngineConfig';
+export const getDefaultLintConfig = EngineConfig.defaultLintConfig;
+export const getRulesForEngine = EngineConfig.rulesForEngine;
 
 // Ready-to-use presets (structural base + Miragon layer).
 export { recommendedForModeling, recommendedForAutomation } from './presets/recommended';

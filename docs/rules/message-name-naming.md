@@ -81,10 +81,10 @@ the name from the prefix and a name it was given, never a guessed service, and c
 ```ts
 import { naming } from '@miragon/bpmnlint-plugin-rules';
 
-const scheme = naming.resolveValueNaming({ segments: 2 });
+const scheme = new naming.ValueNamingScheme({ segments: 2 });
 
-naming.matchesValueNaming('billing.paymentReceived', scheme); // true
-naming.describeValueNaming(scheme); // '<camelCase>.<camelCase>'
+scheme.matches('billing.paymentReceived'); // true
+scheme.describe(); // '<camelCase>.<camelCase>'
 ```
 
 ## Examples

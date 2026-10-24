@@ -1,13 +1,9 @@
 import { is } from 'bpmnlint-utils';
 
-import {
-  describeValueNaming,
-  isExpression,
-  matchesValueNaming,
-  resolveValueNaming,
-} from '../../lib/naming-values';
-import type { ValueNamingConfig } from '../../lib/naming-values';
 import type { ModdleElement, Reporter, Rule } from '../../lib/moddle';
+import { isExpression, ValueNamingScheme } from '../../lib/naming';
+import type { ValueNamingConfig } from '../../lib/naming';
+import { defineRule } from '../../lib/utils/defineRule';
 
 /**
  * Reports a message whose name does not follow the project's naming scheme.
@@ -29,22 +25,22 @@ import type { ModdleElement, Reporter, Rule } from '../../lib/moddle';
  * problem, not a naming finding, and an expression (`=…`, `${…}`, `#{…}`) is only known at
  * runtime: neither is reported.
  */
-export default function messageNameNaming(config?: ValueNamingConfig): Rule {
-  const scheme = resolveValueNaming(config);
-  const convention = describeValueNaming(scheme);
+class MessageNameNaming implements Rule {
+  private readonly scheme: ValueNamingScheme;
 
-  function check(node: ModdleElement, reporter: Reporter): void {
+  constructor(config?: ValueNamingConfig) {
+    this.scheme = new ValueNamingScheme(config);
+  }
+
+  check(node: ModdleElement, reporter: Reporter): void {
     if (!is(node, 'bpmn:Message') || !node.name || isExpression(node.name)) {
       return;
     }
 
-    if (!matchesValueNaming(node.name, scheme)) {
-      reporter.report(node.id, `Message name <${node.name}> must match ${convention}`);
+    if (!this.scheme.matches(node.name)) {
+      reporter.report(node.id, `Message name <${node.name}> must match ${this.scheme.describe()}`);
     }
   }
-
-  return { check };
 }
 
-messageNameNaming.ruleName = 'message-name-naming' as const;
-messageNameNaming.kind = 'scheme' as const;
+export default defineRule({ ruleName: 'message-name-naming', kind: 'scheme' }, MessageNameNaming);

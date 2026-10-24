@@ -27,7 +27,8 @@ npm run typecheck && npm run lint && npm run format:check && npm run knip \
 
 - **New rules ship `error` in `miragonAll` and a non-blocking `warn` in
   `miragonRecommendedForAutomation`; in `miragonRecommendedForModeling` a rule is `off` unless it is
-  a non-blocking layout hint, which ships at `warn`** (all in `src/rules/miragon/index.ts`). The two
+  a non-blocking layout hint, which ships at `warn`** (each rule declares its `kind`;
+  `src/lib/SeverityPolicy.ts` maps it to these severities). The two
   `recommended-for-*` layers never fail a build on their own — only `all` is `error`. The one
   exception is `exclusive-gateway-marker-visible`, `error` in the modeling layer, because a gateway
   without its marker is misdrawn. The modeling
@@ -42,6 +43,9 @@ npm run typecheck && npm run lint && npm run format:check && npm run knip \
   `error` (in `all`, or a consumer's own config) is. Adding a rule at `warn`, or lowering a severity
   → not breaking.
 - **Exact dependency versions.** No `^`, no `~` (`.npmrc` `save-exact=true`, CI-verified).
+- **Classes first.** Behaviour lives in classes (one per file), pure helpers in a `utils/` folder;
+  `npm run lint` rejects a top-level function anywhere else. A rule is a class wrapped by
+  `defineRule` (`src/lib/utils/defineRule.ts`); a layout rule extends `PlaneRule`.
 - **`src/lib/` is a leaf and a rule never imports another rule** — enforced by `npm run lint:deps`.
   Shared logic goes in `src/lib/`; `npm run knip` catches exports imported nowhere.
 - **Rules must be deterministic and free of false positives.** When in doubt keep a rule out of

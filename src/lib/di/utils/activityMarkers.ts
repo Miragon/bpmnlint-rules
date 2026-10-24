@@ -5,8 +5,9 @@
  * NOTE: Kept in sync with `bpmn-js` (`lib/draw/BpmnRenderer.js`, `renderTaskMarkers` and the task
  * renderers). The values are copied here to avoid a (heavy) dependency on `bpmn-js`.
  */
-import { inst, type PlaneShape } from './di';
-import type { Rect } from './geometry';
+import type { Rect } from '../../geometry/types';
+import type { PlaneShape } from '../DiagramPlane';
+import { inst } from './elements';
 
 export interface MarkerZone {
   label: string;

@@ -7,7 +7,7 @@ import type * as plugin from '../../src/index';
 import type { ResolverEntries, RuleSet } from '../../src/lib/bpmnlint-config';
 import type { ModdleElement } from '../../src/lib/moddle';
 
-import { getDefaultLintConfig } from '../../src/config/engineConfig';
+import { EngineConfig } from '../../src/config/EngineConfig';
 import * as common from '../../src/rules/common';
 import * as camunda7 from '../../src/rules/camunda-7';
 import * as camunda8 from '../../src/rules/camunda-8';
@@ -92,7 +92,7 @@ async function parseLargeModel(nodeCount: NodeCount): Promise<LargeModel> {
   );
   const { root, warnings } = await createModdle(
     xml,
-    getDefaultLintConfig({ engine: 'c7' }).moddleExtensions,
+    EngineConfig.defaultLintConfig({ engine: 'c7' }).moddleExtensions,
   );
 
   return {

@@ -66,31 +66,34 @@ export interface DefaultLintConfigOptions {
   preset?: Preset;
 }
 
-/**
- * The zero-config default config for a host with no `.bpmnlintrc`: structural base + Miragon
- * opinion, plus the matching Camunda engine layer and moddle extension when `engine` is given.
- */
-export function getDefaultLintConfig(options: DefaultLintConfigOptions = {}): BpmnlintConfig {
-  const { engine } = options;
-  const preset: Preset = options.preset ?? (engine ? 'automation' : 'modeling');
+/** Builds the bpmnlint config and rule-set for an engine from the bundled layers. */
+export class EngineConfig {
+  /**
+   * The zero-config default config for a host with no `.bpmnlintrc`: structural base + Miragon
+   * opinion, plus the matching Camunda engine layer and moddle extension when `engine` is given.
+   */
+  static defaultLintConfig(this: void, options: DefaultLintConfigOptions = {}): BpmnlintConfig {
+    const { engine } = options;
+    const preset: Preset = options.preset ?? (engine ? 'automation' : 'modeling');
 
-  const base = [structuralLayer, MIRAGON_LAYER[preset]];
+    const base = [structuralLayer, MIRAGON_LAYER[preset]];
 
-  if (!engine) {
-    return { extends: base };
+    if (!engine) {
+      return { extends: base };
+    }
+
+    const { extendsLayer, moddleExtension } = ENGINE_LAYER[engine];
+    return {
+      extends: [...base, extendsLayer],
+      moddleExtensions: { [moddleExtension.prefix]: moddleExtension.descriptor },
+    };
   }
 
-  const { extendsLayer, moddleExtension } = ENGINE_LAYER[engine];
-  return {
-    extends: [...base, extendsLayer],
-    moddleExtensions: { [moddleExtension.prefix]: moddleExtension.descriptor },
-  };
-}
-
-/**
- * The deployability rule-set for an engine (the camunda-compat shareable config), or the shared
- * structural rule-set when no engine is given.
- */
-export function getRulesForEngine(engine?: Engine): unknown {
-  return engine ? ENGINE_LAYER[engine].rules : commonRules;
+  /**
+   * The deployability rule-set for an engine (the camunda-compat shareable config), or the shared
+   * structural rule-set when no engine is given.
+   */
+  static rulesForEngine(this: void, engine?: Engine): unknown {
+    return engine ? ENGINE_LAYER[engine].rules : commonRules;
+  }
 }
