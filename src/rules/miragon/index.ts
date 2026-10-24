@@ -140,11 +140,21 @@ export const miragonRecommendedForAutomation: BpmnlintConfig = {
 /** Every Miragon rule at `error` — the opt-in `plugin:@miragon/rules/all`. */
 export const miragonAll: BpmnlintConfig = { rules: miragonLayer('all') };
 
+/** The Miragon opinion layers, keyed by the config name they are exposed under. */
+export const miragonLayers: Record<MiragonLayerName, BpmnlintConfig> = {
+  'recommended-for-modeling': miragonRecommendedForModeling,
+  'recommended-for-automation': miragonRecommendedForAutomation,
+  all: miragonAll,
+};
+
 /** This folder's fragment of the bundled StaticResolver cache. */
 export const resolverEntries: ResolverEntries = {
-  [`config:${MIRAGON_PLUGIN}/recommended-for-modeling`]: miragonRecommendedForModeling,
-  [`config:${MIRAGON_PLUGIN}/recommended-for-automation`]: miragonRecommendedForAutomation,
-  [`config:${MIRAGON_PLUGIN}/all`]: miragonAll,
+  ...Object.fromEntries(
+    Object.entries(miragonLayers).map(([layerName, layer]) => [
+      `config:${MIRAGON_PLUGIN}/${layerName}`,
+      layer,
+    ]),
+  ),
   ...Object.fromEntries(
     Object.entries(miragonRuleFactories).map(([name, factory]) => [
       `rule:${MIRAGON_PLUGIN}/${name}`,

@@ -14,19 +14,10 @@
  */
 import type { BpmnlintConfig } from './lib/bpmnlint-config';
 
-import {
-  miragonAll,
-  miragonRecommendedForAutomation,
-  miragonRecommendedForModeling,
-  miragonRuleFactories,
-} from './rules/miragon';
+import { miragonLayers, miragonRuleFactories } from './rules/miragon';
 
 export const rules: Record<string, string> = Object.fromEntries(
   Object.keys(miragonRuleFactories).map((name) => [name, `./rules/miragon/${name}.cjs`]),
 );
 
-export const configs: Record<string, BpmnlintConfig> = {
-  'recommended-for-modeling': miragonRecommendedForModeling,
-  'recommended-for-automation': miragonRecommendedForAutomation,
-  all: miragonAll,
-};
+export const configs: Record<string, BpmnlintConfig> = miragonLayers;

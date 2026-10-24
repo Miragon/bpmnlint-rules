@@ -39,6 +39,19 @@ const MIRAGON_LAYER: Record<Preset, string> = {
   automation: MIRAGON_LAYER_AUTOMATION,
 };
 
+const ENGINE_LAYER = {
+  c7: {
+    extendsLayer: camunda7.extendsLayer,
+    moddleExtension: camunda7.moddleExtension,
+    rules: camunda7.camunda7Rules,
+  },
+  c8: {
+    extendsLayer: camunda8.extendsLayer,
+    moddleExtension: camunda8.moddleExtension,
+    rules: camunda8.camunda8Rules,
+  },
+} satisfies Record<Engine, unknown>;
+
 export interface DefaultLintConfigOptions {
   /**
    * The execution platform whose deployability layer + typed moddle to add. Omit for the
@@ -63,24 +76,15 @@ export function getDefaultLintConfig(options: DefaultLintConfigOptions = {}): Bp
 
   const base = [structuralLayer, MIRAGON_LAYER[preset]];
 
-  switch (engine) {
-    case 'c7':
-      return {
-        extends: [...base, camunda7.extendsLayer],
-        moddleExtensions: {
-          [camunda7.moddleExtension.prefix]: camunda7.moddleExtension.descriptor,
-        },
-      };
-    case 'c8':
-      return {
-        extends: [...base, camunda8.extendsLayer],
-        moddleExtensions: {
-          [camunda8.moddleExtension.prefix]: camunda8.moddleExtension.descriptor,
-        },
-      };
-    default:
-      return { extends: base };
+  if (!engine) {
+    return { extends: base };
   }
+
+  const { extendsLayer, moddleExtension } = ENGINE_LAYER[engine];
+  return {
+    extends: [...base, extendsLayer],
+    moddleExtensions: { [moddleExtension.prefix]: moddleExtension.descriptor },
+  };
 }
 
 /**
@@ -88,12 +92,5 @@ export function getDefaultLintConfig(options: DefaultLintConfigOptions = {}): Bp
  * structural rule-set when no engine is given.
  */
 export function getRulesForEngine(engine?: Engine): unknown {
-  switch (engine) {
-    case 'c7':
-      return camunda7.camunda7Rules;
-    case 'c8':
-      return camunda8.camunda8Rules;
-    default:
-      return commonRules;
-  }
+  return engine ? ENGINE_LAYER[engine].rules : commonRules;
 }
