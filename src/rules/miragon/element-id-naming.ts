@@ -1,19 +1,6 @@
-import { resolveCase } from '../../lib/naming-cases';
-import {
-  DEFAULT_PREFIXES,
-  acceptedPrefixes,
-  detectLyingQualifier,
-  resolvePrefix,
-  resolveQualifierMode,
-} from '../../lib/naming-ids';
-import type { PrefixMap, QualifierMode } from '../../lib/naming-ids';
+import { createElementIdCheck } from '../../lib/naming-ids';
+import type { ElementIdNamingConfig } from '../../lib/naming-ids';
 import type { ModdleElement, Reporter, Rule } from '../../lib/moddle';
-
-export interface ElementIdNamingConfig {
-  prefixes?: PrefixMap;
-  case?: string;
-  eventDefinitionQualifier?: QualifierMode;
-}
 
 /**
  * Reports an element whose ID does not follow the project's naming convention.
@@ -45,48 +32,14 @@ export interface ElementIdNamingConfig {
  * about must not produce a report.
  */
 export default function elementIdNaming(config?: ElementIdNamingConfig): Rule {
-  const { prefixes: overrides = {}, case: caseName = 'camelCase' } = config ?? {};
-
-  const prefixes = { ...DEFAULT_PREFIXES, ...overrides };
-  const { pattern, label: caseLabel } = resolveCase(caseName);
-  const mode = resolveQualifierMode(config?.eventDefinitionQualifier);
+  const violationOf = createElementIdCheck(config);
 
   function check(node: ModdleElement, reporter: Reporter): void {
-    // Elements without an ID are `no-bpmndi`'s / the engine's problem, not this rule's.
-    if (!node.id) {
-      return;
+    const violation = violationOf(node);
+
+    if (violation) {
+      reporter.report(node.id, violation);
     }
-
-    const convention = resolvePrefix(node, prefixes);
-
-    if (!convention) {
-      return;
-    }
-
-    const { prefix } = convention;
-    const accepted = acceptedPrefixes(node, prefix, mode);
-
-    const matches = (candidate: string): boolean =>
-      node.id.startsWith(candidate) && pattern.test(node.id.slice(candidate.length));
-
-    if (accepted.some(matches)) {
-      return;
-    }
-
-    // A truthful qualifier passes above; an id that *claims* a definition the element does not
-    // have gets a message that points straight at the lie.
-    const lie = mode !== 'off' ? detectLyingQualifier(node, prefix) : null;
-
-    if (lie) {
-      reporter.report(
-        node.id,
-        `Element id claims a ${lie} event, but this element has no ${lie} event definition`,
-      );
-      return;
-    }
-
-    const conventions = accepted.map((candidate) => `<${candidate}${caseLabel}>`).join(' or ');
-    reporter.report(node.id, `Element id must match the naming convention ${conventions}`);
   }
 
   return { check };
