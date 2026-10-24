@@ -1,7 +1,10 @@
 ---
 layout: page
-title: BPMN that is readable, tidy and deployable
+title: bpmnlint-rules
 sidebar: false
+aside: false
+editLink: false
+lastUpdated: false
 ---
 
-<HomeHero />
+<HomeLanding />

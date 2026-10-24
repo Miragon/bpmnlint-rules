@@ -1,28 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
-
 :root {
-  --vp-font-family-base: 'Manrope', -apple-system, 'Segoe UI', sans-serif;
-  --vp-c-brand-1: #335de4;
-  --vp-c-brand-2: #4a70e8;
-  --vp-c-brand-3: #6283ec;
-  --vp-c-brand-soft: rgba(51, 93, 228, 0.12);
-  --mr-gradient: linear-gradient(90deg, #335de4, #00c853);
-  --mr-red: #ef4444;
-  --mr-green: #10b981;
-  --mr-amber: #d97706;
-  --mr-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px -12px rgba(15, 23, 42, 0.12);
-  --mr-terminal-bg: #0b1220;
-}
-
-.dark {
-  --mr-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-}
-
-.mr-gradient-text {
-  background: var(--mr-gradient);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  --mr-red: var(--cd-ui-danger);
+  --mr-green: var(--cd-ui-success);
+  --mr-shadow: none;
+  --mr-terminal-bg: var(--cd-schwarz);
 }
 
 .mr-card {
@@ -50,31 +30,21 @@
   border-color: var(--vp-c-divider);
 }
 .mr-severity.warn {
-  color: #b45309;
-  border-color: #fde68a;
-  background: #fffbeb;
+  color: var(--cd-ui-text);
+  border-color: var(--cd-ui-warning);
+  background: var(--cd-ui-warning-flaeche);
 }
 .mr-severity.error {
-  color: #b91c1c;
-  border-color: #fecaca;
-  background: #fef2f2;
-}
-.dark .mr-severity.warn {
-  color: #fbbf24;
-  border-color: rgba(251, 191, 36, 0.35);
-  background: rgba(251, 191, 36, 0.08);
-}
-.dark .mr-severity.error {
-  color: #f87171;
-  border-color: rgba(248, 113, 113, 0.35);
-  background: rgba(248, 113, 113, 0.08);
+  color: var(--cd-ui-danger);
+  border-color: var(--cd-ui-danger);
+  background: var(--cd-ui-danger-flaeche);
 }
 
 .mr-diagram {
   display: grid;
   place-items: center;
   padding: 24px 18px;
-  background: #fff;
+  background: var(--cd-weiss);
 }
 .mr-diagram img {
   display: block;
