@@ -127,7 +127,14 @@ async function copyInstall() {
             </button>
           </div>
           <div class="command" role="tabpanel">
-            <pre><span class="prompt">$ </span>{{ installs[selected].line }}</pre>
+            <div class="channels">
+              <pre
+                v-for="(install, index) in installs"
+                :key="install.name"
+                :class="{ hidden: index !== selected }"
+                :aria-hidden="index !== selected"
+              ><span class="prompt">$ </span>{{ install.line }}</pre>
+            </div>
             <button class="copy" type="button" @click="copyInstall">
               {{ copied ? 'Copied' : 'Copy' }}
             </button>
@@ -332,14 +339,21 @@ h1 {
   gap: 12px;
   padding: 8px 8px 8px 16px;
 }
-.command pre {
+.channels {
+  display: grid;
   flex: 1;
   min-width: 0;
-  margin: 0;
   align-self: center;
+}
+.command pre {
+  grid-area: 1 / 1;
+  margin: 0;
   font: 400 13.5px/1.6 var(--vp-font-family-mono);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+}
+.command pre.hidden {
+  visibility: hidden;
 }
 .prompt {
   color: var(--cd-ui-text-leise);
@@ -611,8 +625,10 @@ h1 {
     flex-direction: column;
     gap: 10px;
   }
-  .command pre {
+  .channels {
     width: 100%;
+  }
+  .command pre {
     font-size: 12px;
   }
   .copy {

@@ -1,6 +1,6 @@
 {
   "$kommentar": "Generiert von scripts/sync-assets.mjs in Miragon/corporate-identity, nicht von Hand ändern. Jede Datei, die ein Repo aus der Skill docs-site vendort: Pfad im Repo, Quelle unter plugins/miragon-brand/skills/docs-site/assets/ und sha256. check.mjs prüft die Kopie damit.",
-  "version": "1.16.0",
+  "version": "1.20.0",
   "dateien": [
     {
       "pfad": "docs/.vitepress/miragon/check.mjs",
@@ -10,7 +10,7 @@
     {
       "pfad": "docs/.vitepress/miragon/config.ts",
       "quelle": "miragon/config.ts",
-      "sha256": "327657959467ff19269824cebe4eb1cd0e5b494a8d846123ae304ec203461aca"
+      "sha256": "15e2bb583c7e617198c55f6681e3df6f446b8e4a4ef611baf5c075abedf9f8ea"
     },
     {
       "pfad": "docs/.vitepress/miragon/legal.ts",
@@ -45,22 +45,12 @@
     {
       "pfad": "docs/.vitepress/miragon/theme/miragon.css",
       "quelle": "miragon/theme/miragon.css",
-      "sha256": "020d2dabe56591a11a5ff3d6edc9e3d302905eb59fd06ba566ed418d5ba71426"
+      "sha256": "449aadbac19374aac077023e8bdb137a6ce0d09c960ea2186b1e320b3960bc77"
     },
     {
       "pfad": "docs/public/logo/miragon-komet-blau.svg",
       "quelle": "logo/miragon-komet-blau.svg",
       "sha256": "c44c4a00f93f4255442bb70afeb8dbcb7eaae6af331ff04b6c685b6d20f587c9"
-    },
-    {
-      "pfad": "docs/public/logo/miragon-logo-gruen.svg",
-      "quelle": "logo/miragon-logo-gruen.svg",
-      "sha256": "bc815e0698689546771e629139d86ac9dfbe29dc5618cd5e2910e6079629eae3"
-    },
-    {
-      "pfad": "docs/public/logo/miragon-logo-weiss.svg",
-      "quelle": "logo/miragon-logo-weiss.svg",
-      "sha256": "a235870d9347600d83f4294b4a31799338ead399f1351dc8880809efcc8621fd"
     }
   ]
 }

@@ -207,9 +207,6 @@ export function miragonDocs(options: MiragonDocsOptions): UserConfig<MiragonThem
     },
 
     themeConfig: {
-      // Den Komet im Titel setzt theme/index.ts. Die Wortmarke bleibt nur für Seiten ohne das Theme
-      // des Kits (etwa die Doku der CI), mit dem Theme blendet theme/miragon.css sie aus.
-      logo: { light: "/logo/miragon-logo-gruen.svg", dark: "/logo/miragon-logo-weiss.svg", alt: "Miragon" },
       siteTitle,
       nav,
       sidebar: options.sidebar ?? [],

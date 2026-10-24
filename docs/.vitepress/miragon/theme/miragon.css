@@ -293,27 +293,13 @@
    mit ihrem Grau), wo Wortmarke und Name nebeneinander nicht passen. Ein langer
    Name bricht dort auf zwei Zeilen um. Der Komet ist der Absender, eine
    Wortmarke steht auf der Seite nicht. Den Komet setzt theme/index.ts in den Slot
-   des Titels. Eine Seite ohne das Theme des Kits (etwa die Doku der CI) zeigt die
-   Wortmarke, mit einer Haarlinie vor einem Namen.
+   des Titels.
    ========================================================= */
-:root {
-  --vp-nav-logo-height: 18px;
-}
-.VPNavBarTitle .title .logo ~ span {
-  margin-left: 10px;
-  padding-left: 10px;
-  border-left: 1px solid var(--cd-ui-linie);
-  line-height: 20px;
-  letter-spacing: -0.01em;
-}
 .miragon-komet {
   display: none;
 }
 .VPNavBarTitle .title:has(.miragon-komet) {
   gap: 10px;
-}
-.VPNavBarTitle .title:has(.miragon-komet) .logo {
-  display: none;
 }
 .VPNavBarTitle .title .miragon-komet {
   display: block;
@@ -321,7 +307,7 @@
   width: 36px;
   height: auto;
 }
-.VPNavBarTitle .title:has(.miragon-komet) .logo ~ span {
+.VPNavBarTitle .title .miragon-komet ~ span {
   margin: 0;
   padding: 0;
   border: 0;
@@ -331,7 +317,7 @@
 }
 /* In der Spalte der Seitenleiste und auf schmalen Schirmen darf ein langer Name
    auf zwei Zeilen umbrechen, statt mitten im Wort zu enden. */
-.VPNavBarTitle.has-sidebar .title:has(.miragon-komet) .logo ~ span {
+.VPNavBarTitle.has-sidebar .title .miragon-komet ~ span {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
@@ -340,7 +326,7 @@
   white-space: normal;
 }
 @media (max-width: 959px) {
-  .VPNavBarTitle .title:has(.miragon-komet) .logo ~ span {
+  .VPNavBarTitle .title .miragon-komet ~ span {
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
@@ -571,8 +557,7 @@
    DRUCK
    Gedruckt wird hell: Die Rollen kippen nur auf dem Bildschirm (die Token-CSS
    steht dunkel unter @media screen). VitePress setzt an html.dark aber selbst
-   color-scheme, die dunklen Shiki-Farben und auf Seiten ohne Komet die weiße
-   Wortmarke, alles geht beim Drucken auf hell. Bühnen mit Rollen-Text liegen auf Rollen-Flächen und kippen mit.
+   color-scheme und die dunklen Shiki-Farben, alles geht beim Drucken auf hell. Bühnen mit Rollen-Text liegen auf Rollen-Flächen und kippen mit.
    ========================================================= */
 @media print {
   html.dark {
@@ -580,11 +565,5 @@
   }
   .dark .vp-code span {
     color: var(--shiki-light, inherit);
-  }
-  html.dark .VPNavBarTitle .title:not(:has(.miragon-komet)) .VPImage.light {
-    display: block;
-  }
-  html.dark .VPNavBarTitle .title:not(:has(.miragon-komet)) .VPImage.dark {
-    display: none;
   }
 }
