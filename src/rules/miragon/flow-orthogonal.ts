@@ -19,9 +19,7 @@ export default function flowOrthogonal(): Rule {
     }
 
     for (const plane of collectByPlane(node)) {
-      const flows = plane.edges.filter((edge) => edge.el.$type === 'bpmn:SequenceFlow');
-
-      for (const flow of flows) {
+      for (const flow of plane.sequenceFlows) {
         if (!isOrthogonalPath(flow.waypoints)) {
           reporter.report(
             flow.el.id,

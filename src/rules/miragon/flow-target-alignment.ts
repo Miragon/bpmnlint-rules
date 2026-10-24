@@ -93,23 +93,17 @@ export default function flowTargetAlignment(config?: FlowTargetAlignmentConfig):
     }
 
     for (const plane of collectByPlane(node)) {
-      const shapeById = new Map<string, PlaneShape>();
-      for (const shape of plane.shapes) {
-        shapeById.set(shape.el.id, shape);
-      }
-      const boundsOf = (id: string): Rect | undefined => shapeById.get(id)?.bounds;
+      const boundsOf = (id: string): Rect | undefined => plane.shapeOf(id)?.bounds;
 
-      const flows = plane.edges.filter((edge) => edge.el.$type === 'bpmn:SequenceFlow');
-
-      for (const flow of flows) {
+      for (const flow of plane.sequenceFlows) {
         const source = flow.el.sourceRef;
         const target = flow.el.targetRef;
         if (!source || !target || isExempt(source) || isExempt(target)) {
           continue;
         }
 
-        const sourceShape = shapeById.get(source.id);
-        const targetShape = shapeById.get(target.id);
+        const sourceShape = plane.shapeOf(source.id);
+        const targetShape = plane.shapeOf(target.id);
         if (!sourceShape || !targetShape) {
           continue; // no DI for one end — nothing to compare, skip rather than guess
         }

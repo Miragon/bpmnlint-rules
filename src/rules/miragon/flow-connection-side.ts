@@ -146,7 +146,7 @@ export default function flowConnectionSide(config?: FlowConnectionSideConfig): R
    */
   function evaluateEndpoint(
     reporter: Reporter,
-    boundsById: Map<string, Rect>,
+    boundsOf: (id: string) => Rect | undefined,
     flowId: string,
     direction: Direction,
     backward: boolean,
@@ -159,7 +159,7 @@ export default function flowConnectionSide(config?: FlowConnectionSideConfig): R
       return;
     }
 
-    const bounds = boundsById.get(ref.id);
+    const bounds = boundsOf(ref.id);
     const category = categoryOf(ref);
     if (!bounds || !category) {
       return;
@@ -199,15 +199,15 @@ export default function flowConnectionSide(config?: FlowConnectionSideConfig): R
    * `allowBackwardsFlow: false` counts as not backward, keeping the strict policy.
    */
   function isReturnFlow(
-    boundsById: Map<string, Rect>,
+    boundsOf: (id: string) => Rect | undefined,
     source: ModdleElement,
     target: ModdleElement,
   ): boolean {
     if (!allowBackwardsFlow || !source || !target) {
       return false;
     }
-    const sourceBounds = boundsById.get(source.id);
-    const targetBounds = boundsById.get(target.id);
+    const sourceBounds = boundsOf(source.id);
+    const targetBounds = boundsOf(target.id);
     return !!sourceBounds && !!targetBounds && isBackwardFlow(sourceBounds, targetBounds);
   }
 
@@ -217,12 +217,8 @@ export default function flowConnectionSide(config?: FlowConnectionSideConfig): R
     }
 
     for (const plane of collectByPlane(node)) {
-      const boundsById = new Map<string, Rect>();
-      for (const shape of plane.shapes) {
-        boundsById.set(shape.el.id, shape.bounds);
-      }
-
-      const flows = plane.edges.filter((edge) => edge.el.$type === 'bpmn:SequenceFlow');
+      const boundsOf = (id: string): Rect | undefined => plane.shapeOf(id)?.bounds;
+      const flows = plane.sequenceFlows;
 
       // Targets of return flows sit inside the return lane. A return flow whose source is one of
       // them is a "chain member" (exits mirrored); any other is an "initiator" (exits forward).
@@ -230,7 +226,7 @@ export default function flowConnectionSide(config?: FlowConnectionSideConfig): R
       for (const flow of flows) {
         const source = flow.el.sourceRef;
         const target = flow.el.targetRef;
-        if (target && isReturnFlow(boundsById, source, target)) {
+        if (target && isReturnFlow(boundsOf, source, target)) {
           returnTargets.add(target.id);
         }
       }
@@ -238,12 +234,12 @@ export default function flowConnectionSide(config?: FlowConnectionSideConfig): R
       for (const flow of flows) {
         const source = flow.el.sourceRef;
         const target = flow.el.targetRef;
-        const backward = isReturnFlow(boundsById, source, target);
+        const backward = isReturnFlow(boundsOf, source, target);
         const sourceIsChainMember = backward && !!source && returnTargets.has(source.id);
 
         evaluateEndpoint(
           reporter,
-          boundsById,
+          boundsOf,
           flow.el.id,
           'outgoing',
           backward,
@@ -254,7 +250,7 @@ export default function flowConnectionSide(config?: FlowConnectionSideConfig): R
         );
         evaluateEndpoint(
           reporter,
-          boundsById,
+          boundsOf,
           flow.el.id,
           'incoming',
           backward,

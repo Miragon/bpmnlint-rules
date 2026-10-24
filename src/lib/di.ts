@@ -20,6 +20,10 @@ export interface PlaneEdge {
 export interface Plane {
   shapes: PlaneShape[];
   edges: PlaneEdge[];
+  /** The edges drawing a `bpmn:SequenceFlow`. */
+  sequenceFlows: PlaneEdge[];
+  /** The shape drawing the element with this id on this plane, if any. */
+  shapeOf(id: string): PlaneShape | undefined;
 }
 
 /**
@@ -97,7 +101,14 @@ export function collectByPlane(definitions: ModdleElement): Plane[] {
       }
     }
 
-    planes.push({ shapes, edges });
+    const shapeById = new Map(shapes.map((shape) => [shape.el.id as string, shape]));
+
+    planes.push({
+      shapes,
+      edges,
+      sequenceFlows: edges.filter((edge) => edge.el.$type === 'bpmn:SequenceFlow'),
+      shapeOf: (id) => shapeById.get(id),
+    });
   }
 
   return planes;

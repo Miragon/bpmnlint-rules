@@ -30,9 +30,7 @@ export default function flowThroughElement(): Rule {
       );
       const obstaclesOverlapping = indexBboxes(obstacles.map((shape) => bboxOfRect(shape.bounds)));
 
-      const flows = plane.edges.filter((edge) => edge.el.$type === 'bpmn:SequenceFlow');
-
-      for (const flow of flows) {
+      for (const flow of plane.sequenceFlows) {
         // Exclude the flow's own source/target, and — when an endpoint is a boundary event —
         // its host activity, because the flow starts on the host's border.
         const endpoints = new Set<string>(flowEndpointIds(flow.el));
