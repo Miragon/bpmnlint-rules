@@ -134,3 +134,4 @@ export default function flowTargetAlignment(config?: FlowTargetAlignmentConfig):
 }
 
 flowTargetAlignment.ruleName = 'flow-target-alignment' as const;
+flowTargetAlignment.kind = 'layout-hint' as const;

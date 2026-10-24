@@ -6,7 +6,7 @@
  *  - `bpmnlint:recommended` — shared generic BPMN correctness, identical for every engine;
  *  - the Miragon opinion layer (see `rules/miragon`), chosen by `preset`: a *modeling* diagram
  *    (`recommended-for-modeling`, layout hints only, safe on hand-drawn diagrams) or *automation*
- *    (`recommended-for-automation`, every Miragon rule at `error`). When `preset` is omitted it is
+ *    (`recommended-for-automation`, engine-agnostic Miragon rules at `warn`). When `preset` is omitted it is
  *    derived from `engine` for backwards compatibility — an engine-bound document defaults to
  *    automation, an engine-less one to modeling;
  *  - `plugin:camunda-compat/<platform-version>` — the engine deployability matrix, added **only**
@@ -26,7 +26,7 @@ import * as camunda8 from '../rules/camunda-8';
 /**
  * The Miragon opinion layer to apply, decoupled from the engine:
  *  - `modeling` — layout hints only, safe on hand-drawn diagrams;
- *  - `automation` — every Miragon rule at `error`, the execution-ready bar.
+ *  - `automation` — engine-agnostic Miragon rules at a non-blocking `warn`.
  */
 export type Preset = 'modeling' | 'automation';
 

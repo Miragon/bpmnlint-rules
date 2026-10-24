@@ -85,6 +85,12 @@ describe('getDefaultLintConfig preset selection', () => {
     }
   });
 
+  it('marks exactly the rules with a target engine as engine-specific', () => {
+    for (const factory of Object.values(miragonRuleFactories)) {
+      expect(factory.kind === 'engine-specific').toBe(Boolean(factory.targetEngine));
+    }
+  });
+
   it('keeps the engine deployability layer when the modeling preset is forced', () => {
     const extendsLayers = extendsOf({ engine: 'c7', preset: 'modeling' });
     expect(extendsLayers).toContain(MODELING);

@@ -36,3 +36,4 @@ export default function exclusiveGatewayMarkerVisible(): Rule {
 }
 
 exclusiveGatewayMarkerVisible.ruleName = 'exclusive-gateway-marker-visible' as const;
+exclusiveGatewayMarkerVisible.kind = 'misdrawn' as const;

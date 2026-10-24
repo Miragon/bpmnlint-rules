@@ -47,3 +47,4 @@ export default function messageNameNaming(config?: ValueNamingConfig): Rule {
 }
 
 messageNameNaming.ruleName = 'message-name-naming' as const;
+messageNameNaming.kind = 'scheme' as const;

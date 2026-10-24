@@ -93,3 +93,4 @@ export default function elementIdNaming(config?: ElementIdNamingConfig): Rule {
 }
 
 elementIdNaming.ruleName = 'element-id-naming' as const;
+elementIdNaming.kind = 'convention' as const;

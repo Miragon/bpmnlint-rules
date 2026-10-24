@@ -271,3 +271,4 @@ export default function flowConnectionSide(config?: FlowConnectionSideConfig): R
 }
 
 flowConnectionSide.ruleName = 'flow-connection-side' as const;
+flowConnectionSide.kind = 'layout-hint' as const;

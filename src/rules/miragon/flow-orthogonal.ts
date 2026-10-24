@@ -36,3 +36,4 @@ export default function flowOrthogonal(): Rule {
 }
 
 flowOrthogonal.ruleName = 'flow-orthogonal' as const;
+flowOrthogonal.kind = 'layout-hint' as const;

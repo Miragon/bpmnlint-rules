@@ -33,3 +33,4 @@ export default function noGeneratedIds(): Rule {
 }
 
 noGeneratedIds.ruleName = 'no-generated-ids' as const;
+noGeneratedIds.kind = 'convention' as const;

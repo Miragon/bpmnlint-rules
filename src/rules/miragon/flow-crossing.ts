@@ -72,3 +72,4 @@ export default function flowCrossing(): Rule {
 }
 
 flowCrossing.ruleName = 'flow-crossing' as const;
+flowCrossing.kind = 'layout-hint' as const;

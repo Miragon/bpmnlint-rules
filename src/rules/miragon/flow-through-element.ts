@@ -65,3 +65,4 @@ export default function flowThroughElement(): Rule {
 }
 
 flowThroughElement.ruleName = 'flow-through-element' as const;
+flowThroughElement.kind = 'layout-hint' as const;
