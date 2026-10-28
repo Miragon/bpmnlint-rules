@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_c7_link_event" targetNamespace="http://bpmn.io/schema/bpmn" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.24.0">
+  <bpmn:process id="orderPayment" isExecutable="true" camunda:historyTimeToLive="180">
+    <bpmn:startEvent id="startEvent_orderReceived" name="Order received" camunda:asyncBefore="true">
+      <bpmn:outgoing>flow_orderReceived</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="userTask_approveOrder" name="Approve order" camunda:asyncAfter="true">
+      <bpmn:incoming>flow_orderReceived</bpmn:incoming>
+      <bpmn:outgoing>flow_orderApproved</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:intermediateThrowEvent id="event_toPayment" name="To payment">
+      <bpmn:incoming>flow_orderApproved</bpmn:incoming>
+      <bpmn:linkEventDefinition id="linkEventDefinition_toPayment" name="payment" />
+    </bpmn:intermediateThrowEvent>
+    <bpmn:intermediateCatchEvent id="event_payment" name="Payment">
+      <bpmn:outgoing>flow_payment</bpmn:outgoing>
+      <bpmn:linkEventDefinition id="linkEventDefinition_payment" name="payment" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:subProcess id="subProcess_chargeCard" name="Charge card">
+      <bpmn:incoming>flow_payment</bpmn:incoming>
+      <bpmn:outgoing>flow_paymentDone</bpmn:outgoing>
+      <bpmn:startEvent id="startEvent_chargeStarted" name="Charge started">
+        <bpmn:outgoing>flow_chargeStarted</bpmn:outgoing>
+      </bpmn:startEvent>
+      <bpmn:intermediateThrowEvent id="event_toCharge" name="To charge">
+        <bpmn:incoming>flow_chargeStarted</bpmn:incoming>
+        <bpmn:linkEventDefinition id="linkEventDefinition_toCharge" name="payment" />
+      </bpmn:intermediateThrowEvent>
+      <bpmn:intermediateCatchEvent id="event_charge" name="Charge">
+        <bpmn:outgoing>flow_charge</bpmn:outgoing>
+        <bpmn:linkEventDefinition id="linkEventDefinition_charge" name="payment" />
+      </bpmn:intermediateCatchEvent>
+      <bpmn:serviceTask id="serviceTask_chargeCard" name="Charge card" camunda:asyncBefore="true" camunda:delegateExpression="${chargeCardDelegate}">
+        <bpmn:incoming>flow_charge</bpmn:incoming>
+        <bpmn:outgoing>flow_cardCharged</bpmn:outgoing>
+      </bpmn:serviceTask>
+      <bpmn:endEvent id="endEvent_cardCharged" name="Card charged">
+        <bpmn:incoming>flow_cardCharged</bpmn:incoming>
+      </bpmn:endEvent>
+      <bpmn:sequenceFlow id="flow_chargeStarted" sourceRef="startEvent_chargeStarted" targetRef="event_toCharge" />
+      <bpmn:sequenceFlow id="flow_charge" sourceRef="event_charge" targetRef="serviceTask_chargeCard" />
+      <bpmn:sequenceFlow id="flow_cardCharged" sourceRef="serviceTask_chargeCard" targetRef="endEvent_cardCharged" />
+    </bpmn:subProcess>
+    <bpmn:endEvent id="endEvent_orderPaid" name="Order paid">
+      <bpmn:incoming>flow_paymentDone</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="flow_orderReceived" sourceRef="startEvent_orderReceived" targetRef="userTask_approveOrder" />
+    <bpmn:sequenceFlow id="flow_orderApproved" sourceRef="userTask_approveOrder" targetRef="event_toPayment" />
+    <bpmn:sequenceFlow id="flow_payment" sourceRef="event_payment" targetRef="subProcess_chargeCard" />
+    <bpmn:sequenceFlow id="flow_paymentDone" sourceRef="subProcess_chargeCard" targetRef="endEvent_orderPaid" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="orderPayment">
+      <bpmndi:BPMNShape id="startEvent_orderReceived_di" bpmnElement="startEvent_orderReceived">
+        <dc:Bounds x="160" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="userTask_approveOrder_di" bpmnElement="userTask_approveOrder">
+        <dc:Bounds x="250" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="event_toPayment_di" bpmnElement="event_toPayment">
+        <dc:Bounds x="410" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="event_payment_di" bpmnElement="event_payment">
+        <dc:Bounds x="506" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="subProcess_chargeCard_di" bpmnElement="subProcess_chargeCard" isExpanded="true">
+        <dc:Bounds x="602" y="40" width="538" height="160" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="startEvent_chargeStarted_di" bpmnElement="startEvent_chargeStarted">
+        <dc:Bounds x="632" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="event_toCharge_di" bpmnElement="event_toCharge">
+        <dc:Bounds x="722" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="event_charge_di" bpmnElement="event_charge">
+        <dc:Bounds x="818" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="serviceTask_chargeCard_di" bpmnElement="serviceTask_chargeCard">
+        <dc:Bounds x="914" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endEvent_cardCharged_di" bpmnElement="endEvent_cardCharged">
+        <dc:Bounds x="1074" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endEvent_orderPaid_di" bpmnElement="endEvent_orderPaid">
+        <dc:Bounds x="1200" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="flow_orderReceived_di" bpmnElement="flow_orderReceived">
+        <di:waypoint x="196" y="120" />
+        <di:waypoint x="250" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_orderApproved_di" bpmnElement="flow_orderApproved">
+        <di:waypoint x="350" y="120" />
+        <di:waypoint x="410" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_chargeStarted_di" bpmnElement="flow_chargeStarted">
+        <di:waypoint x="668" y="120" />
+        <di:waypoint x="722" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_charge_di" bpmnElement="flow_charge">
+        <di:waypoint x="854" y="120" />
+        <di:waypoint x="914" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_cardCharged_di" bpmnElement="flow_cardCharged">
+        <di:waypoint x="1014" y="120" />
+        <di:waypoint x="1074" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_payment_di" bpmnElement="flow_payment">
+        <di:waypoint x="542" y="120" />
+        <di:waypoint x="602" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_paymentDone_di" bpmnElement="flow_paymentDone">
+        <di:waypoint x="1140" y="120" />
+        <di:waypoint x="1200" y="120" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

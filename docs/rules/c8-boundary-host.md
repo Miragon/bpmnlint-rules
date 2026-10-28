@@ -45,3 +45,7 @@ The same, as XML. 👎 wrong:
 ## Further reading
 
 - [Camunda 8: Compensation events](https://docs.camunda.io/docs/components/modeler/bpmn/compensation-events/): how compensation handlers are triggered.
+
+## Related
+
+- [`@miragon/rules/c7-boundary-host`](./c7-boundary-host.md): the same check for Camunda 7.

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_OrderPayment" targetNamespace="http://bpmn.io/schema/bpmn" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.24.0">
+  <bpmn:process id="orderPayment" isExecutable="true" camunda:historyTimeToLive="180">
+    <bpmn:startEvent id="startEvent_orderReceived" name="Order received" camunda:asyncBefore="true">
+      <bpmn:outgoing>flow_orderReceived</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="userTask_approveOrder" name="Approve order" camunda:asyncAfter="true">
+      <bpmn:incoming>flow_orderReceived</bpmn:incoming>
+      <bpmn:outgoing>flow_orderReviewed</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="gateway_orderApproved" name="Order approved?">
+      <bpmn:incoming>flow_orderReviewed</bpmn:incoming>
+      <bpmn:outgoing>flow_approved</bpmn:outgoing>
+      <bpmn:outgoing>flow_rejected</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="serviceTask_chargeCard" name="Charge card" camunda:asyncBefore="true" camunda:delegateExpression="${chargeCardDelegate}">
+      <bpmn:incoming>flow_approved</bpmn:incoming>
+      <bpmn:outgoing>flow_cardCharged</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="endEvent_orderPaid" name="Order paid">
+      <bpmn:incoming>flow_cardCharged</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="endEvent_orderRejected" name="Order rejected">
+      <bpmn:incoming>flow_rejected</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="flow_orderReceived" sourceRef="startEvent_orderReceived" targetRef="userTask_approveOrder" />
+    <bpmn:sequenceFlow id="flow_orderReviewed" sourceRef="userTask_approveOrder" targetRef="gateway_orderApproved" />
+    <bpmn:sequenceFlow id="flow_approved" name="Yes" sourceRef="gateway_orderApproved" targetRef="serviceTask_chargeCard">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${approved}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_rejected" name="No" sourceRef="gateway_orderApproved" targetRef="endEvent_orderRejected" />
+    <bpmn:sequenceFlow id="flow_cardCharged" sourceRef="serviceTask_chargeCard" targetRef="endEvent_orderPaid" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="orderPayment">
+      <bpmndi:BPMNShape id="startEvent_orderReceived_di" bpmnElement="startEvent_orderReceived">
+        <dc:Bounds x="160" y="182" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="142" y="225" width="73" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="userTask_approveOrder_di" bpmnElement="userTask_approveOrder">
+        <dc:Bounds x="250" y="160" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="gateway_orderApproved_di" bpmnElement="gateway_orderApproved" isMarkerVisible="true">
+        <dc:Bounds x="410" y="175" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="393" y="152" width="84" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="serviceTask_chargeCard_di" bpmnElement="serviceTask_chargeCard">
+        <dc:Bounds x="530" y="160" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endEvent_orderPaid_di" bpmnElement="endEvent_orderPaid">
+        <dc:Bounds x="702" y="182" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="694" y="225" width="53" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endEvent_orderRejected_di" bpmnElement="endEvent_orderRejected">
+        <dc:Bounds x="702" y="322" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="684" y="365" width="73" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="flow_orderReceived_di" bpmnElement="flow_orderReceived">
+        <di:waypoint x="196" y="200" />
+        <di:waypoint x="250" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_orderReviewed_di" bpmnElement="flow_orderReviewed">
+        <di:waypoint x="350" y="200" />
+        <di:waypoint x="410" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_approved_di" bpmnElement="flow_approved">
+        <di:waypoint x="460" y="200" />
+        <di:waypoint x="530" y="200" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="487" y="182" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_rejected_di" bpmnElement="flow_rejected">
+        <di:waypoint x="435" y="225" />
+        <di:waypoint x="435" y="340" />
+        <di:waypoint x="702" y="340" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="442" y="322" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_cardCharged_di" bpmnElement="flow_cardCharged">
+        <di:waypoint x="630" y="200" />
+        <di:waypoint x="702" y="200" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
