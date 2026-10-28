@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.18.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.17.0...v0.18.0) (2026-10-28)
+
+
+### ⚠ BREAKING CHANGES
+
+* cover collaboration, data and artifact elements in element-id-naming defaults ([#108](https://github.com/Miragon/bpmnlint-rules/issues/108))
+
+### Features
+
+* cover collaboration, data and artifact elements in element-id-naming defaults ([#108](https://github.com/Miragon/bpmnlint-rules/issues/108)) ([ca6dcf7](https://github.com/Miragon/bpmnlint-rules/commit/ca6dcf75389617217ae47a15a3be8866da674520))
+
 ## [0.17.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.16.0...v0.17.0) (2026-10-24)
 
 
