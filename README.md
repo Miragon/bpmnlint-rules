@@ -83,6 +83,7 @@ The Miragon conventions this plugin adds — each with a docs page and a good/ba
 | [`@miragon/rules/element-id-naming`](docs/rules/element-id-naming.md)                               | IDs that don't follow the type-prefix + case convention                        |
 | [`@miragon/rules/worker-topic-naming`](docs/rules/worker-topic-naming.md)                           | A worker topic (C7 external task topic, C8 job type) off the configured scheme |
 | [`@miragon/rules/message-name-naming`](docs/rules/message-name-naming.md)                           | A message name off the configured scheme                                       |
+| [`@miragon/rules/flow-id-names-ends`](docs/rules/flow-id-names-ends.md)                             | A speaking flow id that no longer names its source and target                  |
 | [`@miragon/rules/flow-through-element`](docs/rules/flow-through-element.md)                         | A sequence flow routed through an unrelated shape's body                       |
 | [`@miragon/rules/flow-connection-side`](docs/rules/flow-connection-side.md)                         | A sequence flow docked onto the wrong side of a shape                          |
 | [`@miragon/rules/flow-target-alignment`](docs/rules/flow-target-alignment.md)                       | A flow's target drawn off the row, sloping the main path                       |
