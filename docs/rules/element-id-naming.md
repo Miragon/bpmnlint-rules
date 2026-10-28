@@ -48,6 +48,15 @@ A camelCase element-type prefix plus a camelCase name.
 | `bpmn:SubProcess`                                                                  | `subProcess_`       |
 | `bpmn:Gateway` (every kind)                                                        | `gateway_`          |
 | `bpmn:SequenceFlow`                                                                | `flow_`             |
+| `bpmn:MessageFlow`                                                                 | `messageFlow_`      |
+| `bpmn:Collaboration`                                                               | `collaboration_`    |
+| `bpmn:Participant`                                                                 | `participant_`      |
+| `bpmn:Lane`                                                                        | `lane_`             |
+| `bpmn:DataObjectReference`                                                         | `dataObject_`       |
+| `bpmn:DataStoreReference`                                                          | `dataStore_`        |
+| `bpmn:TextAnnotation`                                                              | `textAnnotation_`   |
+| `bpmn:Group`                                                                       | `group_`            |
+| `bpmn:Association`, `bpmn:DataInputAssociation`, `bpmn:DataOutputAssociation`      | `association_`      |
 
 Types are resolved by exact `$type` first, then by inheritance, so `bpmn:Transaction` and
 `bpmn:AdHocSubProcess` pick up the sub-process convention, and every gateway kind picks up
@@ -56,10 +65,13 @@ switching a concrete type off with `false` (or overriding it) also stops it from
 convention — and the concrete task types each need their own entry, since the default map lists them
 individually rather than only `bpmn:Task`.
 
-Two things are intentionally left out. `bpmn:Process` is not covered: a process ID is a public
+Some types are intentionally left out. `bpmn:Process` is not covered: a process ID is a public
 contract (the deployment key, and what a call activity references), not a diagram-internal
-identifier. Any type not in the table is skipped too, so an exotic element nobody configured never
-produces a report.
+identifier. Elements no modeler ever shows (`bpmn:LaneSet`, `bpmn:DataObject`, `bpmn:Category`,
+`bpmn:CategoryValue`, `bpmn:Property`) are skipped because nobody reads their IDs. Message, signal,
+error and escalation definitions are left to the engine, as in
+[`no-generated-ids`](./no-generated-ids.md). Any other type not in the table is skipped too, so an
+exotic element nobody configured never produces a report.
 
 ## Event-definition qualifiers
 

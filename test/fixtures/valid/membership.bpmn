@@ -149,7 +149,7 @@
     <bpmn:sequenceFlow id="flow_rejectedToRevoke" sourceRef="event_confirmationRejected" targetRef="gateway_revokeReason" />
     <bpmn:sequenceFlow id="flow_gatewayToRevoke" sourceRef="gateway_revokeReason" targetRef="serviceTask_revokeMembershipRequest" />
     <bpmn:sequenceFlow id="flow_revokeToDeclined" sourceRef="serviceTask_revokeMembershipRequest" targetRef="endEvent_membershipDeclined" />
-    <bpmn:association id="Association_ClaimCompensation" associationDirection="One" sourceRef="event_claimMade" targetRef="serviceTask_revokeClaim" />
+    <bpmn:association id="association_claimCompensation" associationDirection="One" sourceRef="event_claimMade" targetRef="serviceTask_revokeClaim" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="miravelo-membership">
@@ -329,7 +329,7 @@
         <di:waypoint x="1200" y="120" />
         <di:waypoint x="1262" y="120" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Association_ClaimCompensation_di" bpmnElement="Association_ClaimCompensation">
+      <bpmndi:BPMNEdge id="association_claimCompensation_di" bpmnElement="association_claimCompensation">
         <di:waypoint x="330" y="272" />
         <di:waypoint x="330" y="120" />
         <di:waypoint x="400" y="120" />
