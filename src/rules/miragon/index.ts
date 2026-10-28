@@ -11,9 +11,11 @@
  * (`@miragon/bpmnlint-plugin-rules`) that bpmnlint normalises to before calling the resolver.
  */
 import type { BpmnlintConfig, ResolverEntries } from '../../lib/bpmnlint-config';
+import { MIRAGON_NAME, MIRAGON_PLUGIN } from '../../lib/plugin-names';
 import { SeverityPolicy } from '../../lib/SeverityPolicy';
 import type { MiragonLayerName } from '../../lib/SeverityPolicy';
 import type { DeclaredRuleFactory } from '../../lib/utils/defineRule';
+import { miragonResolverEntries } from '../../lib/utils/resolverEntries';
 
 import boundaryEventMarkerOverlap from './boundary-event-marker-overlap';
 import asyncContinuations from './async-continuations';
@@ -27,12 +29,10 @@ import flowThroughElement from './flow-through-element';
 import messageNameNaming from './message-name-naming';
 import noGeneratedIds from './no-generated-ids';
 import workerTopicNaming from './worker-topic-naming';
+import { camunda7Layer, camunda7RuleFactories } from './camunda-7';
+import { camunda8Layer, camunda8RuleFactories } from './camunda-8';
 
-/** The expanded plugin package name — the prefix every resolver cache key uses. */
-export const MIRAGON_PLUGIN = '@miragon/bpmnlint-plugin-rules';
-
-/** The short plugin name a `.bpmnlintrc` writes (`@miragon/rules/<rule>`, `plugin:@miragon/rules/<config>`). */
-export const MIRAGON_NAME = '@miragon/rules';
+export { MIRAGON_NAME, MIRAGON_PLUGIN };
 
 const ruleFactoriesByName = {
   [noGeneratedIds.ruleName]: noGeneratedIds,
@@ -47,6 +47,8 @@ const ruleFactoriesByName = {
   [boundaryEventMarkerOverlap.ruleName]: boundaryEventMarkerOverlap,
   [exclusiveGatewayMarkerVisible.ruleName]: exclusiveGatewayMarkerVisible,
   [asyncContinuations.ruleName]: asyncContinuations,
+  ...camunda7RuleFactories,
+  ...camunda8RuleFactories,
 };
 
 /** The short (unprefixed) name of a rule this plugin ships, as each rule file declares it. */
@@ -90,27 +92,24 @@ export const miragonRecommendedForAutomation: BpmnlintConfig = {
 /** Every Miragon rule at `error` — the opt-in `plugin:@miragon/rules/all`. */
 export const miragonAll: BpmnlintConfig = { rules: severityPolicy.ruleSetFor('all') };
 
-export const miragonLayers: Record<MiragonLayerName, BpmnlintConfig> = {
+/** The engine layers, `plugin:@miragon/rules/camunda-7` and `plugin:@miragon/rules/camunda-8`. */
+export const miragonEngineLayers = { 'camunda-7': camunda7Layer, 'camunda-8': camunda8Layer };
+
+export const miragonLayers: Record<
+  MiragonLayerName | keyof typeof miragonEngineLayers,
+  BpmnlintConfig
+> = {
   'recommended-for-modeling': miragonRecommendedForModeling,
   'recommended-for-automation': miragonRecommendedForAutomation,
   all: miragonAll,
+  ...miragonEngineLayers,
 };
 
 /** This folder's fragment of the bundled StaticResolver cache. */
-export const resolverEntries: ResolverEntries = {
-  ...Object.fromEntries(
-    Object.entries(miragonLayers).map(([layerName, layer]) => [
-      `config:${MIRAGON_PLUGIN}/${layerName}`,
-      layer,
-    ]),
-  ),
-  ...Object.fromEntries(
-    Object.entries(miragonRuleFactories).map(([name, factory]) => [
-      `rule:${MIRAGON_PLUGIN}/${name}`,
-      factory,
-    ]),
-  ),
-};
+export const resolverEntries: ResolverEntries = miragonResolverEntries(
+  miragonLayers,
+  miragonRuleFactories,
+);
 
 export {
   asyncContinuations,

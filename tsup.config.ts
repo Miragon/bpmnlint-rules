@@ -3,8 +3,10 @@ import { defineConfig } from 'tsup';
 /**
  * Dual ESM + CJS build.
  *
- * `src/index.ts` is the public API + bpmnlint-plugin default export. Each of our own rules under
- * `src/rules/miragon/*` is ALSO a build entry so it lands at `dist/rules/miragon/<name>.{js,cjs}`
+ * `src/index.ts` is the public API + bpmnlint-plugin default export; `src/camunda-7.ts` and
+ * `src/camunda-8.ts` are one engine's lint each, for a host that loads an engine on demand. Each of
+ * our own rules under `src/rules/miragon/**` is ALSO a build entry so it lands at
+ * `dist/rules/miragon/[camunda-<n>/]<name>.{js,cjs}`
  * — that lets the plugin's classic `rules` map point at real, individually `require`-able files
  * (bpmnlint's node-resolver `require()`s a rule by path), and lets consumers import a single rule.
  *
@@ -19,7 +21,7 @@ import { defineConfig } from 'tsup';
  * to share our copy.
  */
 export default defineConfig({
-  entry: ['src/index.ts', 'src/rules/miragon/*.ts'],
+  entry: ['src/index.ts', 'src/camunda-7.ts', 'src/camunda-8.ts', 'src/rules/miragon/**/*.ts'],
   format: ['esm', 'cjs'],
   dts: true,
   clean: true,

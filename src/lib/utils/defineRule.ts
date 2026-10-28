@@ -1,4 +1,4 @@
-import type { Engine } from '../bpmnlint-config';
+import type { Engine, EngineImpact } from '../bpmnlint-config';
 import type { Rule } from '../moddle';
 import type { MiragonRuleKind } from '../SeverityPolicy';
 
@@ -7,6 +7,8 @@ export interface RuleDeclaration<Name extends string = string> {
   ruleName: Name;
   kind: MiragonRuleKind;
   targetEngine?: Engine;
+  /** An engine rule's place in its engine layer (`plugin:@miragon/rules/camunda-<n>`). */
+  impact?: EngineImpact;
 }
 
 /** A bpmnlint rule factory carrying its {@link RuleDeclaration}. */

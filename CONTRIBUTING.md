@@ -36,13 +36,16 @@ opening a PR — the "Before opening a PR" section below is the exact sequence.
 
 ```
 src/rules/common/       the bpmnlint built-in rules (structural base) — static-import glue
-src/rules/camunda-7/    the camunda-compat C7 engine layer — static-import glue
-src/rules/camunda-8/    the camunda-compat C8 engine layer — static-import glue
-src/rules/miragon/      the ONLY folder whose rule source we author (one file per rule) + index
-src/lib/                shared helpers — a leaf layer: geometry/, di/, naming/ (classes + utils/),
-                        SeverityPolicy (rule kind -> layer severity), utils/defineRule
-src/resolver/           BundledResolver: merges every folder's resolver entries
-src/config/             EngineConfig: getDefaultLintConfig / getRulesForEngine
+src/rules/camunda-7/    the camunda-compat C7 configs (every version) — static-import glue
+src/rules/camunda-8/    the camunda-compat C8 configs (every version) — static-import glue
+src/rules/miragon/      the ONLY folder whose rule source we author (one file per rule) + index;
+                        camunda-7/ and camunda-8/ hold the engine rules and their engine layer
+src/lib/                shared helpers — a leaf layer: geometry/, di/, naming/, engine/ (classes +
+                        utils/), SeverityPolicy (rule kind / impact -> layer severity), utils/defineRule
+src/resolver/           BundledResolver: merges every folder's resolver entries; EngineLint: one engine's
+src/config/             EngineConfig: getDefaultLintConfig / getEngineLintConfig; EngineLayer: version -> config
+src/camunda-7.ts        the ./camunda-7 and ./camunda-8 entry points: one engine's lint on its own
+src/camunda-8.ts
 src/presets/            ready-to-use recommended-for-modeling / -for-automation / all configs
 test/                   RuleTester specs, the resolver integration + sync specs, and fixtures
 test/fixtures/rules/    valid.bpmn / invalid.bpmn pairs per rule (rendered to the docs SVGs)
@@ -138,7 +141,20 @@ measured and listed, not enforced: they cannot be fixed here.
 - **No false positives.** When in doubt, ship it as `warn`, or leave it out of the `recommended-for-*` layers.
 - **Not already covered.** Check core bpmnlint and
   [`bpmnlint-plugin-camunda-compat`](https://github.com/camunda/bpmnlint-plugin-camunda-compat)
-  first. Engine-compatibility rules are not this plugin's job.
+  first. An engine check camunda-compat covers stays with camunda-compat; one it leaves out (all
+  but one Camunda 7 check, and the parts of Camunda 8 it does not see) is in scope here.
+
+### Engine rules
+
+An engine rule lives in `src/rules/miragon/camunda-7/` or `camunda-8/` and is registered in that
+folder's `index.ts`. It extends `EngineRule` (`src/lib/engine/`), which skips diagrams for the other
+engine and tells a check the engine version it runs for, and declares
+`kind: 'engine-specific'`, its `targetEngine` and its `impact`: `deploy` (the engine refuses the
+file, `error` in the engine layer), `runtime` (it deploys but fails or is ignored when it runs,
+`warn`) or `practice` (it works, but not as a reader expects, `info`). It reports the way
+camunda-compat does, with `reportErrors` from `bpmnlint-plugin-camunda-compat/rules/utils/reporter`:
+the `path` to the property and `data.type` from its `ERROR_TYPES`, so a host can derive a fix from
+the report. The message says what the engine does with the content, never how one tool fixes it.
 
 ## Ground rules
 

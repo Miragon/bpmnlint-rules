@@ -177,10 +177,13 @@ version, from `camunda-platform-7-19` and `camunda-cloud-1-0` on: put your engin
 name, for example `plugin:camunda-compat/camunda-cloud-8-5`. The bpmnlint CLI loads it from the
 installed `bpmnlint-plugin-camunda-compat`.
 
-The bundled resolver, `createBundledResolver()`, carries only the latest config per engine:
-`camunda-platform-7-24` and `camunda-cloud-8-10`. A host that has only the bundle, such as a browser
-modeler, lints against these two. In Node, chain bpmnlint's `NodeResolver` behind the bundle, so the
-configs and rules the bundle does not carry load from the installed packages:
+The bundled resolver, `createBundledResolver()`, carries every `camunda-platform-7-*` and
+`camunda-cloud-8-*` config, so a host that has only the bundle, such as a browser modeler, lints
+against any of them. `getDefaultLintConfig({ engine, version })` picks the config of that version
+(`'8.5'`, or `'8.5.2'` as `modeler:executionPlatformVersion` writes it), the nearest older one when
+camunda-compat has none for it, and the latest without a version. For the Camunda Cloud 1.x configs,
+chain bpmnlint's `NodeResolver` behind the bundle, so the configs and rules the bundle does not
+carry load from the installed packages:
 
 ```ts
 import NodeResolver from 'bpmnlint/lib/resolver/node-resolver.js';
@@ -209,6 +212,31 @@ const resolver = {
 
 Pass this `resolver` to the `Linter` in place of `createBundledResolver()`, with an `extends` that
 names the older config.
+
+### Miragon engine layers
+
+camunda-compat covers what Camunda 8 refuses on deploy only in part, and Camunda 7 hardly at all.
+`plugin:@miragon/rules/camunda-7` and `plugin:@miragon/rules/camunda-8` add the checks it leaves
+out. Each rule's severity says what its finding means: `error` when the engine refuses the file,
+`warn` when it deploys but fails or ignores the setting at run time, `info` when it works, but not as
+a reader expects. `getDefaultLintConfig({ engine })` adds the layer next to camunda-compat's config.
+
+A host that checks the structure itself and loads one engine on demand imports that engine alone:
+
+```ts
+import { camunda8 } from '@miragon/bpmnlint-plugin-rules/camunda-8';
+
+// camunda-compat's config for the version + plugin:@miragon/rules/camunda-8
+const config = camunda8.lintConfig('8.9');
+const linter = new Linter({
+  config,
+  resolver: camunda8.createResolver(),
+});
+```
+
+Every engine report carries camunda-compat's `path` to the property it is about and its
+`data.type` (`ERROR_TYPES`, such as `camunda.propertyRequired`), so a host can build its own hint
+from them.
 
 <!-- #endregion engines -->
 

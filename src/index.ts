@@ -21,6 +21,7 @@ export const bundledResolverEntries = BundledResolver.entries;
 export type { Preset, DefaultLintConfigOptions } from './config/EngineConfig';
 export const getDefaultLintConfig = EngineConfig.defaultLintConfig;
 export const getRulesForEngine = EngineConfig.rulesForEngine;
+export const getEngineLintConfig = EngineConfig.engineLintConfig;
 
 // Ready-to-use presets (structural base + Miragon layer).
 export { recommendedForModeling, recommendedForAutomation } from './presets/recommended';
@@ -55,12 +56,21 @@ export { camunda8Rules } from './rules/camunda-8';
 export type {
   BpmnlintConfig,
   Engine,
+  EngineImpact,
   ResolverEntries,
   RuleSet,
   RuleSetting,
   RuleSeverity,
 } from './lib/bpmnlint-config';
-export type { ModdleElement, Reporter, Rule, RuleFactory } from './lib/moddle';
+export type {
+  ModdleElement,
+  ReportDetails,
+  ReportPath,
+  Reporter,
+  Rule,
+  RuleFactory,
+} from './lib/moddle';
 export * as naming from './lib/naming';
 export * as di from './lib/di';
 export * as geometry from './lib/geometry';
+export * as engine from './lib/engine';

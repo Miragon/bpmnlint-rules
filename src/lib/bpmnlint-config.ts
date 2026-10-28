@@ -4,8 +4,8 @@
  * "upwards" into config/ or presets/.
  */
 
-/** A bpmnlint severity as written in a config: 0/1/2 or the string form. */
-export type RuleSeverity = 'off' | 'warn' | 'error' | 0 | 1 | 2;
+/** A bpmnlint severity as written in a config: 0/1/2/3 or the string form. */
+export type RuleSeverity = 'off' | 'warn' | 'error' | 'info' | 0 | 1 | 2 | 3;
 
 /** A rule setting: a bare severity, or `[severity, options]` for a configurable rule. */
 export type RuleSetting = RuleSeverity | [RuleSeverity, unknown];
@@ -29,3 +29,10 @@ export type ResolverEntries = Record<string, unknown>;
 
 /** A supported execution platform. `undefined` selects the structural base only. */
 export type Engine = 'c7' | 'c8';
+
+/**
+ * What an engine rule's finding means for a running process, which sets its severity in the engine
+ * layer: `deploy` (the engine refuses the file, `error`), `runtime` (it deploys but fails or is
+ * ignored when it runs, `warn`) or `practice` (it works, but not as a reader expects, `info`).
+ */
+export type EngineImpact = 'deploy' | 'runtime' | 'practice';

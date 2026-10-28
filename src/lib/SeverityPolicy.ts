@@ -1,4 +1,4 @@
-import type { RuleSet, RuleSeverity } from './bpmnlint-config';
+import type { Engine, EngineImpact, RuleSet, RuleSeverity } from './bpmnlint-config';
 
 /**
  * What a rule is, as far as the opinion layers care — the one fact each rule declares (`kind`)
@@ -43,12 +43,29 @@ const SEVERITY_BY_KIND: Record<MiragonRuleKind, Record<MiragonLayerName, RuleSev
   },
 };
 
-/** Turns the `kind` every rule declares into its severity in each Miragon opinion layer. */
+/** An engine rule's severity in its engine layer, by what its finding means for a process. */
+const SEVERITY_BY_IMPACT: Record<EngineImpact, RuleSeverity> = {
+  deploy: 'error',
+  runtime: 'warn',
+  practice: 'info',
+};
+
+/** What {@link SeverityPolicy} reads of a rule's declaration. */
+interface DeclaredSeverity {
+  kind: MiragonRuleKind;
+  targetEngine?: Engine;
+  impact?: EngineImpact;
+}
+
+/**
+ * Turns the `kind` every rule declares into its severity in each Miragon opinion layer, and the
+ * `impact` an engine rule declares into its severity in its engine layer.
+ */
 export class SeverityPolicy {
   private readonly pluginName: string;
-  private readonly kindByRuleName: Record<string, { kind: MiragonRuleKind }>;
+  private readonly kindByRuleName: Record<string, DeclaredSeverity>;
 
-  constructor(pluginName: string, kindByRuleName: Record<string, { kind: MiragonRuleKind }>) {
+  constructor(pluginName: string, kindByRuleName: Record<string, DeclaredSeverity>) {
     this.pluginName = pluginName;
     this.kindByRuleName = kindByRuleName;
   }
@@ -60,6 +77,18 @@ export class SeverityPolicy {
         `${this.pluginName}/${ruleName}`,
         SEVERITY_BY_KIND[kind][layerName],
       ]),
+    );
+  }
+
+  /** Every rule of `engine` that declares an impact, at the severity that impact maps to. */
+  engineRuleSetFor(engine: Engine): RuleSet {
+    return Object.fromEntries(
+      Object.entries(this.kindByRuleName)
+        .filter(([, { targetEngine, impact }]) => targetEngine === engine && impact)
+        .map(([ruleName, { impact }]) => [
+          `${this.pluginName}/${ruleName}`,
+          SEVERITY_BY_IMPACT[impact!],
+        ]),
     );
   }
 }

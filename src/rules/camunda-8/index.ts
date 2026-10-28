@@ -1,16 +1,15 @@
 /**
- * The Camunda 8 engine layer — `bpmnlint-plugin-camunda-compat`'s `camunda-cloud-8-10` config and
- * every rule module it references.
+ * The Camunda 8 engine layer: `bpmnlint-plugin-camunda-compat`'s `camunda-cloud-8-<minor>` configs
+ * and every rule module they reference.
  *
  * These rule bodies are the camunda-compat plugin's, not ours: this folder only enumerates the
- * modules the config names (as require-path strings a bundler can't follow) and maps them to the
- * resolver cache keys bpmnlint asks for — the per-engine half of the modeler's old
- * `bundledDefaultResolver`. The config also references one bpmnlint built-in
+ * modules the configs name (as require-path strings a bundler can't follow) and maps them to the
+ * resolver cache keys bpmnlint asks for. The configs also reference one bpmnlint built-in
  * (`bpmnlint/start-event-required`); that resolves from the `common` folder, so it is not
  * re-imported here. Each import names the file with its extension (`/index.js` for a directory):
  * camunda-compat has no `exports` map, so Node's ESM resolver needs the full path.
  *
- * Kept honest by `test/rules/camunda-sync.spec.ts`: it walks this config's referenced rules and
+ * Kept honest by `test/rules/camunda-sync.spec.ts`: it walks every config's referenced rules and
  * asserts each resolves, so a camunda-compat bump that adds or renames one fails the build.
  */
 import zeebeModdle from 'zeebe-bpmn-moddle/resources/zeebe.json';
@@ -25,6 +24,7 @@ import rule_agent_tool_output_key from 'bpmnlint-plugin-camunda-compat/rules/cam
 import rule_before_all_execution_listener from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/before-all-execution-listener.js';
 import rule_called_element from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/called-element.js';
 import rule_cancel_execution_listener from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/cancel-execution-listener.js';
+import rule_collapsed_subprocess from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/collapsed-subprocess.js';
 import rule_connector_properties from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/connector-properties/index.js';
 import rule_duplicate_execution_listener_headers from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/duplicate-execution-listener-headers.js';
 import rule_duplicate_execution_listeners from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/duplicate-execution-listeners.js';
@@ -39,14 +39,31 @@ import rule_execution_listener from 'bpmnlint-plugin-camunda-compat/rules/camund
 import rule_feel from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/feel.js';
 import rule_feel_compatibility from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/feel-compatibility.js';
 import rule_implementation from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/implementation/index.js';
+import rule_inclusive_gateway from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/inclusive-gateway.js';
 import rule_io_mapping from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/io-mapping.js';
 import rule_link_event from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/link-event.js';
 import rule_loop_characteristics from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/loop-characteristics.js';
 import rule_message_reference from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/message-reference.js';
+import rule_no_before_all_execution_listener from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/no-before-all-execution-listener.js';
+import rule_no_binding_type from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/no-binding-type.js';
+import rule_no_business_id from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/no-business-id.js';
+import rule_no_cancel_execution_listener from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/no-cancel-execution-listener.js';
+import rule_no_candidate_users from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/no-candidate-users.js';
+import rule_no_execution_listener_headers from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/no-execution-listener-headers.js';
+import rule_no_execution_listeners from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/no-execution-listeners.js';
 import rule_no_expression from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/no-expression.js';
 import rule_no_interrupting_event_subprocess from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/no-interrupting-event-subprocess.js';
+import rule_no_job_priority_definition from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/no-job-priority-definition.js';
 import rule_no_loop from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/no-loop.js';
 import rule_no_multiple_none_start_events from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/no-multiple-none-start-events.js';
+import rule_no_priority_definition from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/no-priority-definition.js';
+import rule_no_propagate_all_parent_variables from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/no-propagate-all-parent-variables.js';
+import rule_no_signal_event_sub_process from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/no-signal-event-sub-process.js';
+import rule_no_task_listeners from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/no-task-listeners.js';
+import rule_no_task_schedule from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/no-task-schedule.js';
+import rule_no_version_tag from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/no-version-tag.js';
+import rule_no_zeebe_properties from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/no-zeebe-properties.js';
+import rule_no_zeebe_user_task from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/no-zeebe-user-task.js';
 import rule_priority_definition from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/priority-definition.js';
 import rule_secrets from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/secrets.js';
 import rule_sequence_flow_condition from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/sequence-flow-condition.js';
@@ -67,25 +84,35 @@ import rule_zeebe_user_task from 'bpmnlint-plugin-camunda-compat/rules/camunda-c
 
 const PLUGIN = 'bpmnlint-plugin-camunda-compat';
 const CONFIG = 'camunda-cloud-8-10';
+const CONFIG_PREFIX = 'camunda-cloud-8-';
 
 /**
- * The pinned camunda-compat config this layer targets. Deliberately explicit (not auto-latest) so a
- * dependency bump never silently moves the engine target — `test/rules/camunda-sync.spec.ts` fails
- * when camunda-compat ships a newer `camunda-cloud-8-*`, turning "time to bump" into a red CI.
+ * The newest camunda-compat config, the target of a diagram without an engine version. Pinned (not
+ * auto-latest) so a dependency bump never silently moves the default target: `camunda-sync.spec.ts`
+ * fails when camunda-compat ships a newer `camunda-cloud-8-*`, turning "time to bump" into a red CI.
  */
 export const configName = CONFIG;
 
-/** The `extends` entry a C8 config uses. */
-export const extendsLayer = `plugin:camunda-compat/${CONFIG}`;
+/** Every `camunda-cloud-8-<minor>` config camunda-compat ships, keyed by `8.<minor>`. */
+export const configNamesByVersion: Record<string, string> = Object.fromEntries(
+  Object.keys(camundaCompat.configs)
+    .filter((name) => name.startsWith(CONFIG_PREFIX))
+    .map((name) => [`8.${name.slice(CONFIG_PREFIX.length)}`, name]),
+);
 
 /** The moddle extension the C8 rules read (`zeebe:` typed properties). */
 export const moddleExtension = { prefix: 'zeebe', descriptor: zeebeModdle };
 
-/** The C8 deployability rule-set (the camunda-compat shareable config). */
+/** The C8 deployability rule-set for the latest version (the camunda-compat shareable config). */
 export const camunda8Rules = camundaCompat.configs[CONFIG];
 
 export const resolverEntries: ResolverEntries = {
-  [`config:${PLUGIN}/${CONFIG}`]: camundaCompat.configs[CONFIG],
+  ...Object.fromEntries(
+    Object.values(configNamesByVersion).map((name) => [
+      `config:${PLUGIN}/${name}`,
+      camundaCompat.configs[name],
+    ]),
+  ),
   [`rule:${PLUGIN}/ad-hoc-sub-process`]: rule_ad_hoc_sub_process,
   [`rule:${PLUGIN}/agent-fromai-contract`]: rule_agent_fromai_contract,
   [`rule:${PLUGIN}/agent-tool-documentation`]: rule_agent_tool_documentation,
@@ -93,6 +120,7 @@ export const resolverEntries: ResolverEntries = {
   [`rule:${PLUGIN}/before-all-execution-listener`]: rule_before_all_execution_listener,
   [`rule:${PLUGIN}/called-element`]: rule_called_element,
   [`rule:${PLUGIN}/cancel-execution-listener`]: rule_cancel_execution_listener,
+  [`rule:${PLUGIN}/collapsed-subprocess`]: rule_collapsed_subprocess,
   [`rule:${PLUGIN}/connector-properties`]: rule_connector_properties,
   [`rule:${PLUGIN}/duplicate-execution-listener-headers`]:
     rule_duplicate_execution_listener_headers,
@@ -109,14 +137,31 @@ export const resolverEntries: ResolverEntries = {
   [`rule:${PLUGIN}/feel`]: rule_feel,
   [`rule:${PLUGIN}/feel-compatibility`]: rule_feel_compatibility,
   [`rule:${PLUGIN}/implementation`]: rule_implementation,
+  [`rule:${PLUGIN}/inclusive-gateway`]: rule_inclusive_gateway,
   [`rule:${PLUGIN}/io-mapping`]: rule_io_mapping,
   [`rule:${PLUGIN}/link-event`]: rule_link_event,
   [`rule:${PLUGIN}/loop-characteristics`]: rule_loop_characteristics,
   [`rule:${PLUGIN}/message-reference`]: rule_message_reference,
+  [`rule:${PLUGIN}/no-before-all-execution-listener`]: rule_no_before_all_execution_listener,
+  [`rule:${PLUGIN}/no-binding-type`]: rule_no_binding_type,
+  [`rule:${PLUGIN}/no-business-id`]: rule_no_business_id,
+  [`rule:${PLUGIN}/no-cancel-execution-listener`]: rule_no_cancel_execution_listener,
+  [`rule:${PLUGIN}/no-candidate-users`]: rule_no_candidate_users,
+  [`rule:${PLUGIN}/no-execution-listener-headers`]: rule_no_execution_listener_headers,
+  [`rule:${PLUGIN}/no-execution-listeners`]: rule_no_execution_listeners,
   [`rule:${PLUGIN}/no-expression`]: rule_no_expression,
   [`rule:${PLUGIN}/no-interrupting-event-subprocess`]: rule_no_interrupting_event_subprocess,
+  [`rule:${PLUGIN}/no-job-priority-definition`]: rule_no_job_priority_definition,
   [`rule:${PLUGIN}/no-loop`]: rule_no_loop,
   [`rule:${PLUGIN}/no-multiple-none-start-events`]: rule_no_multiple_none_start_events,
+  [`rule:${PLUGIN}/no-priority-definition`]: rule_no_priority_definition,
+  [`rule:${PLUGIN}/no-propagate-all-parent-variables`]: rule_no_propagate_all_parent_variables,
+  [`rule:${PLUGIN}/no-signal-event-sub-process`]: rule_no_signal_event_sub_process,
+  [`rule:${PLUGIN}/no-task-listeners`]: rule_no_task_listeners,
+  [`rule:${PLUGIN}/no-task-schedule`]: rule_no_task_schedule,
+  [`rule:${PLUGIN}/no-version-tag`]: rule_no_version_tag,
+  [`rule:${PLUGIN}/no-zeebe-properties`]: rule_no_zeebe_properties,
+  [`rule:${PLUGIN}/no-zeebe-user-task`]: rule_no_zeebe_user_task,
   [`rule:${PLUGIN}/priority-definition`]: rule_priority_definition,
   [`rule:${PLUGIN}/secrets`]: rule_secrets,
   [`rule:${PLUGIN}/sequence-flow-condition`]: rule_sequence_flow_condition,
