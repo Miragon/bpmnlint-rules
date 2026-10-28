@@ -19,7 +19,7 @@ export default tseslint.config(
   ...tseslint.configs.recommended,
   prettier,
   {
-    files: ['src/**/*.ts', 'test/**/*.ts'],
+    files: ['src/**/*.ts', 'test/**/*.ts', 'types/**/*.d.ts'],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
@@ -51,6 +51,31 @@ export default tseslint.config(
       'id-denylist': [
         'error',
         'data',
+        'info',
+        'item',
+        'obj',
+        'res',
+        'ret',
+        'temp',
+        'tmp',
+        'val',
+        'foo',
+        'bar',
+      ],
+    },
+  },
+  {
+    // camunda-compat's report shape names its payload `data`; the engine rules hand it over as is.
+    files: [
+      'src/rules/miragon/camunda-*/**/*.ts',
+      'src/lib/engine/**/*.ts',
+      'src/lib/moddle.ts',
+      'test/**/*.ts',
+      'types/**/*.d.ts',
+    ],
+    rules: {
+      'id-denylist': [
+        'error',
         'info',
         'item',
         'obj',

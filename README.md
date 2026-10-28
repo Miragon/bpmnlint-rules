@@ -92,6 +92,37 @@ The Miragon conventions this plugin adds — each with a docs page and a good/ba
 | [`@miragon/rules/exclusive-gateway-marker-visible`](docs/rules/exclusive-gateway-marker-visible.md) | An exclusive gateway drawn without its X marker                                |
 | [`@miragon/rules/async-continuations`](docs/rules/async-continuations.md)                           | Camunda 7 save points missing where Camunda recommends them, or redundant      |
 
+### Camunda engine rules
+
+The checks camunda-compat leaves out, one rule per check: `plugin:@miragon/rules/camunda-8` (see
+[Miragon engine layers](#miragon-engine-layers)). Each rule only checks diagrams for its engine.
+
+#### Camunda 8
+
+| Rule                                                                                        | What the engine refuses, ignores or misreads                                                                                                                                |
+| ------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`@miragon/rules/c8-ad-hoc-sub-process`](docs/rules/c8-ad-hoc-sub-process.md)               | Reports start and end events inside an ad-hoc sub-process                                                                                                                   |
+| [`@miragon/rules/c8-bad-value`](docs/rules/c8-bad-value.md)                                 | Job retries that are no number, task headers without key or value                                                                                                           |
+| [`@miragon/rules/c8-boundary-host`](docs/rules/c8-boundary-host.md)                         | A Camunda 8 boundary event on a compensation handler                                                                                                                        |
+| [`@miragon/rules/c8-duplicate-extension`](docs/rules/c8-duplicate-extension.md)             | A second zeebe extension element Camunda 8 reads once per element                                                                                                           |
+| [`@miragon/rules/c8-error`](docs/rules/c8-error.md)                                         | Reports error catch events with a FEEL error code, non-interrupting error events and one error code twice in a scope                                                        |
+| [`@miragon/rules/c8-event-definition`](docs/rules/c8-event-definition.md)                   | Reports event definitions the engine refuses (several on one event, a none event sub-process start, a missing definition id, a misplaced compensation, a condition missing) |
+| [`@miragon/rules/c8-event-gateway`](docs/rules/c8-event-gateway.md)                         | Reports an event-based gateway with fewer than two outgoing flows or a target other than a message, timer, signal or conditional catch event                                |
+| [`@miragon/rules/c8-extension`](docs/rules/c8-extension.md)                                 | Zeebe extension content Camunda 8 refuses (binding type, linked resource, variable events, header keys)                                                                     |
+| [`@miragon/rules/c8-feel-completion-condition`](docs/rules/c8-feel-completion-condition.md) | A multi-instance completion condition that is no FEEL expression                                                                                                            |
+| [`@miragon/rules/c8-feel-expression`](docs/rules/c8-feel-expression.md)                     | A FEEL value with a syntax slip, or a static / JUEL value where Camunda 8 needs FEEL                                                                                        |
+| [`@miragon/rules/c8-foreign-content`](docs/rules/c8-foreign-content.md)                     | Camunda 7 attributes and extension elements, which Camunda 8 ignores                                                                                                        |
+| [`@miragon/rules/c8-implementation`](docs/rules/c8-implementation.md)                       | A send task or message throw event whose message has no name                                                                                                                |
+| [`@miragon/rules/c8-link-event`](docs/rules/c8-link-event.md)                               | Reports a link throw event without a matching catch in its scope, and link definitions without a name                                                                       |
+| [`@miragon/rules/c8-listener`](docs/rules/c8-listener.md)                                   | Execution and task listeners Camunda 8 refuses (event type, placement, job worker user task)                                                                                |
+| [`@miragon/rules/c8-message`](docs/rules/c8-message.md)                                     | Reports a FEEL message name on a process start event and one message name twice among events subscribed together                                                            |
+| [`@miragon/rules/c8-misplaced-attribute`](docs/rules/c8-misplaced-attribute.md)             | A zeebe attribute on an element that does not carry it                                                                                                                      |
+| [`@miragon/rules/c8-misplaced-extension`](docs/rules/c8-misplaced-extension.md)             | Zeebe extension elements where Camunda 8 does not read them                                                                                                                 |
+| [`@miragon/rules/c8-schema`](docs/rules/c8-schema.md)                                       | Unprefixed attributes the BPMN schema does not define, extension elements on definitions, ids that are no NCName                                                            |
+| [`@miragon/rules/c8-signal`](docs/rules/c8-signal.md)                                       | Reports a FEEL signal name on a start event and one signal name twice on process starts or one activity's boundary events                                                   |
+| [`@miragon/rules/c8-start-event`](docs/rules/c8-start-event.md)                             | Reports a triggered start event of an embedded sub-process and several start events in one sub-process                                                                      |
+| [`@miragon/rules/c8-unknown-attribute`](docs/rules/c8-unknown-attribute.md)                 | Zeebe attributes Camunda 8 does not know, which it ignores                                                                                                                  |
+
 Turn any of them on individually, the usual way:
 
 ```json

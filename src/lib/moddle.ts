@@ -20,7 +20,6 @@ export type ReportPath = (string | number)[];
  */
 export interface ReportDetails {
   path?: ReportPath;
-  // eslint-disable-next-line id-denylist -- camunda-compat's name for it
   data?: { type: string; [key: string]: unknown };
   [key: string]: unknown;
 }

@@ -12,6 +12,9 @@ const isLayoutHint = (ruleName: string) =>
   miragonRecommendedForModeling.rules?.[`${MIRAGON_NAME}/${ruleName}`] !== 'off';
 const isAutomationRule = (ruleName: string) =>
   miragonRuleFactories[ruleName]?.kind === 'engine-specific';
+const isEngineLayerRule = (ruleName: string, engine: 'c7' | 'c8') =>
+  miragonRuleFactories[ruleName]?.targetEngine === engine &&
+  miragonRuleFactories[ruleName]?.impact !== undefined;
 const ruleNames = Object.keys(miragonRuleFactories);
 const engineAgnosticRuleNames = ruleNames.filter((name) => !isAutomationRule(name));
 const toSidebarItem = (ruleName: string) => ({ text: ruleName, link: `/rules/${ruleName}` });
@@ -64,7 +67,24 @@ export default miragonDocs({
         },
         {
           text: 'Automation',
-          items: ruleNames.filter(isAutomationRule).map(toSidebarItem),
+          items: ruleNames
+            .filter(
+              (name) =>
+                isAutomationRule(name) &&
+                !isEngineLayerRule(name, 'c7') &&
+                !isEngineLayerRule(name, 'c8'),
+            )
+            .map(toSidebarItem),
+        },
+        {
+          text: 'Camunda 7',
+          collapsed: true,
+          items: ruleNames.filter((name) => isEngineLayerRule(name, 'c7')).map(toSidebarItem),
+        },
+        {
+          text: 'Camunda 8',
+          collapsed: true,
+          items: ruleNames.filter((name) => isEngineLayerRule(name, 'c8')).map(toSidebarItem),
         },
       ],
     },

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_Shipping" targetNamespace="http://bpmn.io/schema/bpmn" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.10.0">
+  <bpmn:signal id="signal_shippingStopped" name="shippingStopped" />
+  <bpmn:process id="orderShipping" isExecutable="true">
+    <bpmn:startEvent id="startEvent_orderReceived" name="Order received">
+      <bpmn:outgoing>flow_orderReceived</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="serviceTask_shipOrder" name="Ship order">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="shipOrder" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_orderReceived</bpmn:incoming>
+      <bpmn:outgoing>flow_orderShipped</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="endEvent_orderShipped" name="Order shipped">
+      <bpmn:incoming>flow_orderShipped</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:boundaryEvent id="event_shippingStopped" name="Shipping stopped" attachedToRef="serviceTask_shipOrder">
+      <bpmn:outgoing>flow_shippingStopped</bpmn:outgoing>
+      <bpmn:signalEventDefinition id="signalEventDefinition_shippingStopped" signalRef="signal_shippingStopped" />
+    </bpmn:boundaryEvent>
+    <bpmn:endEvent id="endEvent_shippingCancelled" name="Shipping cancelled">
+      <bpmn:incoming>flow_shippingStopped</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:boundaryEvent id="event_recallIssued" name="Recall issued" attachedToRef="serviceTask_shipOrder">
+      <bpmn:outgoing>flow_recallIssued</bpmn:outgoing>
+      <bpmn:signalEventDefinition id="signalEventDefinition_recallIssued" signalRef="signal_shippingStopped" />
+    </bpmn:boundaryEvent>
+    <bpmn:endEvent id="endEvent_orderRecalled" name="Order recalled">
+      <bpmn:incoming>flow_recallIssued</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="flow_orderReceived" sourceRef="startEvent_orderReceived" targetRef="serviceTask_shipOrder" />
+    <bpmn:sequenceFlow id="flow_orderShipped" sourceRef="serviceTask_shipOrder" targetRef="endEvent_orderShipped" />
+    <bpmn:sequenceFlow id="flow_shippingStopped" sourceRef="event_shippingStopped" targetRef="endEvent_shippingCancelled" />
+    <bpmn:sequenceFlow id="flow_recallIssued" sourceRef="event_recallIssued" targetRef="endEvent_orderRecalled" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="orderShipping">
+      <bpmndi:BPMNShape id="startEvent_orderReceived_di" bpmnElement="startEvent_orderReceived">
+        <dc:Bounds x="160" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="serviceTask_shipOrder_di" bpmnElement="serviceTask_shipOrder">
+        <dc:Bounds x="250" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endEvent_orderShipped_di" bpmnElement="endEvent_orderShipped">
+        <dc:Bounds x="414" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="event_shippingStopped_di" bpmnElement="event_shippingStopped">
+        <dc:Bounds x="257" y="142" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="event_recallIssued_di" bpmnElement="event_recallIssued">
+        <dc:Bounds x="307" y="142" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endEvent_shippingCancelled_di" bpmnElement="endEvent_shippingCancelled">
+        <dc:Bounds x="414" y="282" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endEvent_orderRecalled_di" bpmnElement="endEvent_orderRecalled">
+        <dc:Bounds x="414" y="202" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="flow_orderReceived_di" bpmnElement="flow_orderReceived">
+        <di:waypoint x="196" y="120" />
+        <di:waypoint x="250" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_orderShipped_di" bpmnElement="flow_orderShipped">
+        <di:waypoint x="350" y="120" />
+        <di:waypoint x="414" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_shippingStopped_di" bpmnElement="flow_shippingStopped">
+        <di:waypoint x="275" y="178" />
+        <di:waypoint x="275" y="300" />
+        <di:waypoint x="414" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_recallIssued_di" bpmnElement="flow_recallIssued">
+        <di:waypoint x="325" y="178" />
+        <di:waypoint x="325" y="220" />
+        <di:waypoint x="414" y="220" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

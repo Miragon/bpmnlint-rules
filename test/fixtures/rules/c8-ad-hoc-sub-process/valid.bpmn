@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_Prepare" targetNamespace="http://bpmn.io/schema/bpmn" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.10.0">
+  <bpmn:process id="orderPreparation" isExecutable="true">
+    <bpmn:startEvent id="startEvent_orderReceived" name="Order received">
+      <bpmn:outgoing>flow_orderReceived</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:adHocSubProcess id="subProcess_prepareOrder" name="Prepare order">
+      <bpmn:incoming>flow_orderReceived</bpmn:incoming>
+      <bpmn:outgoing>flow_orderPrepared</bpmn:outgoing>
+      <bpmn:task id="task_pickItems" name="Pick items">
+      </bpmn:task>
+      <bpmn:task id="task_printInvoice" name="Print invoice">
+      </bpmn:task>
+    </bpmn:adHocSubProcess>
+    <bpmn:endEvent id="endEvent_orderPrepared" name="Order prepared">
+      <bpmn:incoming>flow_orderPrepared</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="flow_orderReceived" sourceRef="startEvent_orderReceived" targetRef="subProcess_prepareOrder" />
+    <bpmn:sequenceFlow id="flow_orderPrepared" sourceRef="subProcess_prepareOrder" targetRef="endEvent_orderPrepared" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="orderPreparation">
+      <bpmndi:BPMNShape id="startEvent_orderReceived_di" bpmnElement="startEvent_orderReceived">
+        <dc:Bounds x="160" y="142" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="subProcess_prepareOrder_di" bpmnElement="subProcess_prepareOrder" isExpanded="true">
+        <dc:Bounds x="250" y="80" width="400" height="160" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task_pickItems_di" bpmnElement="task_pickItems">
+        <dc:Bounds x="350" y="120" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="task_printInvoice_di" bpmnElement="task_printInvoice">
+        <dc:Bounds x="490" y="120" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endEvent_orderPrepared_di" bpmnElement="endEvent_orderPrepared">
+        <dc:Bounds x="714" y="142" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="flow_orderReceived_di" bpmnElement="flow_orderReceived">
+        <di:waypoint x="196" y="160" />
+        <di:waypoint x="250" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_orderPrepared_di" bpmnElement="flow_orderPrepared">
+        <di:waypoint x="650" y="160" />
+        <di:waypoint x="714" y="160" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

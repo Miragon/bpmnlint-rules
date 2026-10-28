@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_Shipping" targetNamespace="http://bpmn.io/schema/bpmn" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.10.0">
+  <bpmn:process id="orderShipping" isExecutable="true">
+    <bpmn:startEvent id="startEvent_orderReceived" name="Order received">
+      <bpmn:outgoing>flow_orderReceived</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="serviceTask_packOrder" name="Pack order">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="packOrder" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_orderReceived</bpmn:incoming>
+      <bpmn:outgoing>flow_orderPacked</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:intermediateThrowEvent id="event_toShipping" name="Go to shipping">
+      <bpmn:incoming>flow_orderPacked</bpmn:incoming>
+      <bpmn:linkEventDefinition id="linkEventDefinition_toShipping" name="shipping" />
+    </bpmn:intermediateThrowEvent>
+    <bpmn:boundaryEvent id="event_packingLate" name="Packing late" attachedToRef="serviceTask_packOrder">
+      <bpmn:outgoing>flow_packingLate</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="timerEventDefinition_packingLate">
+        <bpmn:timeDuration>PT1H</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:boundaryEvent>
+    <bpmn:intermediateThrowEvent id="event_toShippingWhenLate" name="Go to shipping">
+      <bpmn:incoming>flow_packingLate</bpmn:incoming>
+      <bpmn:linkEventDefinition id="linkEventDefinition_toShippingWhenLate" name="shiping" />
+    </bpmn:intermediateThrowEvent>
+    <bpmn:intermediateCatchEvent id="event_shipping" name="Shipping">
+      <bpmn:outgoing>flow_shipping</bpmn:outgoing>
+      <bpmn:linkEventDefinition id="linkEventDefinition_shipping" name="shipping" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:serviceTask id="serviceTask_shipOrder" name="Ship order">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="shipOrder" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_shipping</bpmn:incoming>
+      <bpmn:outgoing>flow_orderShipped</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="endEvent_orderShipped" name="Order shipped">
+      <bpmn:incoming>flow_orderShipped</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="flow_orderReceived" sourceRef="startEvent_orderReceived" targetRef="serviceTask_packOrder" />
+    <bpmn:sequenceFlow id="flow_orderPacked" sourceRef="serviceTask_packOrder" targetRef="event_toShipping" />
+    <bpmn:sequenceFlow id="flow_packingLate" sourceRef="event_packingLate" targetRef="event_toShippingWhenLate" />
+    <bpmn:sequenceFlow id="flow_shipping" sourceRef="event_shipping" targetRef="serviceTask_shipOrder" />
+    <bpmn:sequenceFlow id="flow_orderShipped" sourceRef="serviceTask_shipOrder" targetRef="endEvent_orderShipped" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="orderShipping">
+      <bpmndi:BPMNShape id="startEvent_orderReceived_di" bpmnElement="startEvent_orderReceived">
+        <dc:Bounds x="160" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="serviceTask_packOrder_di" bpmnElement="serviceTask_packOrder">
+        <dc:Bounds x="250" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="event_toShipping_di" bpmnElement="event_toShipping">
+        <dc:Bounds x="414" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="event_packingLate_di" bpmnElement="event_packingLate">
+        <dc:Bounds x="282" y="142" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="event_toShippingWhenLate_di" bpmnElement="event_toShippingWhenLate">
+        <dc:Bounds x="414" y="222" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="event_shipping_di" bpmnElement="event_shipping">
+        <dc:Bounds x="160" y="362" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="serviceTask_shipOrder_di" bpmnElement="serviceTask_shipOrder">
+        <dc:Bounds x="250" y="340" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endEvent_orderShipped_di" bpmnElement="endEvent_orderShipped">
+        <dc:Bounds x="414" y="362" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="flow_orderReceived_di" bpmnElement="flow_orderReceived">
+        <di:waypoint x="196" y="120" />
+        <di:waypoint x="250" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_orderPacked_di" bpmnElement="flow_orderPacked">
+        <di:waypoint x="350" y="120" />
+        <di:waypoint x="414" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_packingLate_di" bpmnElement="flow_packingLate">
+        <di:waypoint x="300" y="178" />
+        <di:waypoint x="300" y="240" />
+        <di:waypoint x="414" y="240" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_shipping_di" bpmnElement="flow_shipping">
+        <di:waypoint x="196" y="380" />
+        <di:waypoint x="250" y="380" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_orderShipped_di" bpmnElement="flow_orderShipped">
+        <di:waypoint x="350" y="380" />
+        <di:waypoint x="414" y="380" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

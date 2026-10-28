@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_Payment" targetNamespace="http://bpmn.io/schema/bpmn" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.10.0">
+  <bpmn:message id="message_paymentReceived" name="paymentReceived">
+    <bpmn:extensionElements>
+      <zeebe:subscription correlationKey="=orderId" />
+    </bpmn:extensionElements>
+  </bpmn:message>
+  <bpmn:process id="orderPayment" isExecutable="true">
+    <bpmn:startEvent id="startEvent_orderReceived" name="Order received">
+      <bpmn:outgoing>flow_orderReceived</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="serviceTask_requestPayment" name="Request payment">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="requestPayment" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_orderReceived</bpmn:incoming>
+      <bpmn:outgoing>flow_paymentRequested</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:eventBasedGateway id="gateway_paymentStatus" name="Payment status?">
+      <bpmn:incoming>flow_paymentRequested</bpmn:incoming>
+      <bpmn:outgoing>flow_toPaymentReceived</bpmn:outgoing>
+      <bpmn:outgoing>flow_toSecond</bpmn:outgoing>
+    </bpmn:eventBasedGateway>
+    <bpmn:intermediateCatchEvent id="event_paymentReceived" name="Payment received">
+      <bpmn:incoming>flow_toPaymentReceived</bpmn:incoming>
+      <bpmn:outgoing>flow_paymentReceived</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="messageEventDefinition_paymentReceived" messageRef="message_paymentReceived" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:endEvent id="endEvent_orderPaid" name="Order paid">
+      <bpmn:incoming>flow_paymentReceived</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:task id="task_remindCustomer" name="Remind customer">
+      <bpmn:incoming>flow_toSecond</bpmn:incoming>
+      <bpmn:outgoing>flow_second</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="endEvent_orderCancelled" name="Order cancelled">
+      <bpmn:incoming>flow_second</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="flow_orderReceived" sourceRef="startEvent_orderReceived" targetRef="serviceTask_requestPayment" />
+    <bpmn:sequenceFlow id="flow_paymentRequested" sourceRef="serviceTask_requestPayment" targetRef="gateway_paymentStatus" />
+    <bpmn:sequenceFlow id="flow_toPaymentReceived" sourceRef="gateway_paymentStatus" targetRef="event_paymentReceived" />
+    <bpmn:sequenceFlow id="flow_paymentReceived" sourceRef="event_paymentReceived" targetRef="endEvent_orderPaid" />
+    <bpmn:sequenceFlow id="flow_toSecond" sourceRef="gateway_paymentStatus" targetRef="task_remindCustomer" />
+    <bpmn:sequenceFlow id="flow_second" sourceRef="task_remindCustomer" targetRef="endEvent_orderCancelled" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="orderPayment">
+      <bpmndi:BPMNShape id="startEvent_orderReceived_di" bpmnElement="startEvent_orderReceived">
+        <dc:Bounds x="160" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="serviceTask_requestPayment_di" bpmnElement="serviceTask_requestPayment">
+        <dc:Bounds x="250" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="gateway_paymentStatus_di" bpmnElement="gateway_paymentStatus">
+        <dc:Bounds x="407" y="95" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="event_paymentReceived_di" bpmnElement="event_paymentReceived">
+        <dc:Bounds x="514" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endEvent_orderPaid_di" bpmnElement="endEvent_orderPaid">
+        <dc:Bounds x="614" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="flow_orderReceived_di" bpmnElement="flow_orderReceived">
+        <di:waypoint x="196" y="120" />
+        <di:waypoint x="250" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_paymentRequested_di" bpmnElement="flow_paymentRequested">
+        <di:waypoint x="350" y="120" />
+        <di:waypoint x="407" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_toPaymentReceived_di" bpmnElement="flow_toPaymentReceived">
+        <di:waypoint x="457" y="120" />
+        <di:waypoint x="514" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_paymentReceived_di" bpmnElement="flow_paymentReceived">
+        <di:waypoint x="550" y="120" />
+        <di:waypoint x="614" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="task_remindCustomer_di" bpmnElement="task_remindCustomer">
+        <dc:Bounds x="510" y="200" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endEvent_orderCancelled_di" bpmnElement="endEvent_orderCancelled">
+        <dc:Bounds x="664" y="222" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="flow_toSecond_di" bpmnElement="flow_toSecond">
+        <di:waypoint x="432" y="145" />
+        <di:waypoint x="432" y="240" />
+        <di:waypoint x="510" y="240" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_second_di" bpmnElement="flow_second">
+        <di:waypoint x="610" y="240" />
+        <di:waypoint x="664" y="240" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

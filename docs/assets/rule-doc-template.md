@@ -59,6 +59,12 @@ WORDING RULES (these keep the pages from reading as machine-written)
 
 > This rule is a non-blocking `warn` in both `plugin:@miragon/rules/recommended-for-modeling` and `plugin:@miragon/rules/recommended-for-automation`. In `plugin:@miragon/rules/all` it is an `error`. Override it to `warn`, `error` or `off` yourself.
 
+<!-- Severity blockquote, VARIANT C: engine rules in camunda-7/ or camunda-8/. Pick the
+     severity of the rule's impact: `error` (deploy), `warn` (runtime), `info` (practice). For an
+     engine rule, "Why this matters for agentic BPMN" may be dropped when it would only repeat Why. -->
+
+> This rule is <`an error` | `a warning` | `an info`> in `plugin:@miragon/rules/camunda-<n>`, the Camunda <n> engine layer that `getDefaultLintConfig({ engine: 'c<n>' })` adds next to camunda-compat. It is **off** in both `recommended-for-*` layers and an `error` in `plugin:@miragon/rules/all`. It only checks Camunda <n> diagrams.
+
 <One plain sentence: what the rule reports.>
 
 ## Why

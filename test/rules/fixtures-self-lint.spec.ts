@@ -12,7 +12,8 @@ import { fullConfigReports } from '../support/lint-file';
  * as exemplary can still be missing labels, start/end events or a connection and nobody notices.
  *
  * The one carve-out is per element, not per rule: an `invalid` model is *meant* to carry one
- * intentional defect, so any rule may fire — but only on the element(s) that carry that defect. No
+ * intentional defect, so any rule may fire — but only on the element(s) that carry that defect
+ * (the ones the demonstrated rule reports on or names in its message). No
  * rule may fire on any other element, and on the valid side nothing may fire at all. A per-element
  * check (rather than "only the demonstrated rule key may appear") is deliberate: a single defect can
  * legitimately trip more than one rule — a generated id like `Activity_0049ryx` violates both
@@ -73,8 +74,12 @@ describe('example models are sound against the full ruleset', () => {
           `invalid.bpmn does not trip its own rule <${miragonKey(rule)}>:\n${describeFindings(reports)}`,
         ).toBeGreaterThan(0);
 
-        // Nothing may be flagged outside the element(s) carrying that defect.
-        const stray = [...allReportedIds(reports)].filter((id) => !demonstrated.has(id));
+        // Nothing may be flagged outside the element(s) carrying that defect, or the elements the
+        // demonstrated rule names as part of it (a gateway's unconditioned flow, say).
+        const named = (reports[miragonKey(rule)] ?? []).map((finding) => finding.message).join(' ');
+        const stray = [...allReportedIds(reports)].filter(
+          (id) => !demonstrated.has(id) && !new RegExp(`\\b${id}\\b`).test(named),
+        );
         expect(
           stray,
           `invalid.bpmn flags elements unrelated to its defect:\n${describeFindings(reports)}`,

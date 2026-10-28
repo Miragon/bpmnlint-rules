@@ -8,6 +8,8 @@ example, the reasoning and its options.
 Start with the group pages for the reasoning and side-by-side examples: [Naming](./naming.md) and
 [Layout](./layout.md). Rules for one engine only, such as
 [`async-continuations`](./async-continuations.md), are grouped under Automation in the sidebar.
+The engine checks camunda-compat leaves out, the `c8-*` rules of the
+`plugin:@miragon/rules/camunda-8` layer, are grouped under Camunda 8.
 
 ## Bundled layers
 

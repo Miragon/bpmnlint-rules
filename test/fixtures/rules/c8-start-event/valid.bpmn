@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_Payment" targetNamespace="http://bpmn.io/schema/bpmn" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.10.0">
+  <bpmn:process id="orderPayment" isExecutable="true">
+    <bpmn:startEvent id="startEvent_orderReceived" name="Order received">
+      <bpmn:outgoing>flow_orderReceived</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:subProcess id="subProcess_collectPayment" name="Collect payment">
+      <bpmn:incoming>flow_orderReceived</bpmn:incoming>
+      <bpmn:outgoing>flow_paymentCollected</bpmn:outgoing>
+      <bpmn:startEvent id="startEvent_paymentDue" name="Payment due">
+        <bpmn:outgoing>flow_paymentDue</bpmn:outgoing>
+      </bpmn:startEvent>
+      <bpmn:serviceTask id="serviceTask_chargeCard" name="Charge card">
+        <bpmn:extensionElements>
+          <zeebe:taskDefinition type="chargeCard" />
+        </bpmn:extensionElements>
+        <bpmn:incoming>flow_paymentDue</bpmn:incoming>
+        <bpmn:outgoing>flow_cardCharged</bpmn:outgoing>
+      </bpmn:serviceTask>
+      <bpmn:endEvent id="endEvent_paymentCollected" name="Payment collected">
+        <bpmn:incoming>flow_cardCharged</bpmn:incoming>
+      </bpmn:endEvent>
+      <bpmn:sequenceFlow id="flow_paymentDue" sourceRef="startEvent_paymentDue" targetRef="serviceTask_chargeCard" />
+      <bpmn:sequenceFlow id="flow_cardCharged" sourceRef="serviceTask_chargeCard" targetRef="endEvent_paymentCollected" />
+    </bpmn:subProcess>
+    <bpmn:endEvent id="endEvent_orderPaid" name="Order paid">
+      <bpmn:incoming>flow_paymentCollected</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="flow_orderReceived" sourceRef="startEvent_orderReceived" targetRef="subProcess_collectPayment" />
+    <bpmn:sequenceFlow id="flow_paymentCollected" sourceRef="subProcess_collectPayment" targetRef="endEvent_orderPaid" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="orderPayment">
+      <bpmndi:BPMNShape id="startEvent_orderReceived_di" bpmnElement="startEvent_orderReceived">
+        <dc:Bounds x="160" y="152" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="subProcess_collectPayment_di" bpmnElement="subProcess_collectPayment" isExpanded="true">
+        <dc:Bounds x="250" y="80" width="360" height="180" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="startEvent_paymentDue_di" bpmnElement="startEvent_paymentDue">
+        <dc:Bounds x="282" y="152" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="serviceTask_chargeCard_di" bpmnElement="serviceTask_chargeCard">
+        <dc:Bounds x="370" y="130" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endEvent_paymentCollected_di" bpmnElement="endEvent_paymentCollected">
+        <dc:Bounds x="524" y="152" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endEvent_orderPaid_di" bpmnElement="endEvent_orderPaid">
+        <dc:Bounds x="664" y="152" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="flow_orderReceived_di" bpmnElement="flow_orderReceived">
+        <di:waypoint x="196" y="170" />
+        <di:waypoint x="250" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_paymentDue_di" bpmnElement="flow_paymentDue">
+        <di:waypoint x="318" y="170" />
+        <di:waypoint x="370" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_cardCharged_di" bpmnElement="flow_cardCharged">
+        <di:waypoint x="470" y="170" />
+        <di:waypoint x="524" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_paymentCollected_di" bpmnElement="flow_paymentCollected">
+        <di:waypoint x="610" y="170" />
+        <di:waypoint x="664" y="170" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
