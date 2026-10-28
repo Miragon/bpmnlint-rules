@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.19.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.18.0...v0.19.0) (2026-10-28)
+
+
+### Features
+
+* expose element-id prefix resolution on ElementIdConvention ([#111](https://github.com/Miragon/bpmnlint-rules/issues/111)) ([f0f3d72](https://github.com/Miragon/bpmnlint-rules/commit/f0f3d7236633a4474db54b26039f088e18220566)), closes [#110](https://github.com/Miragon/bpmnlint-rules/issues/110)
+
 ## [0.18.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.17.0...v0.18.0) (2026-10-28)
 
 
