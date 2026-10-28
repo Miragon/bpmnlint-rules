@@ -162,19 +162,24 @@ export class ElementIdConvention {
   }
 
   /**
-   * The prefix configured for this element: exact `$type` first, then inheritance over
-   * `FALLBACK_ORDER`. An element whose type is not configured at all — or switched off with an
-   * explicit `false`/`null` — gets `null`, which keeps a BPMN type nobody thought about from
-   * producing a spurious report.
+   * The prefix configured for this element and the configured type it comes from: exact `$type`
+   * first, then inheritance over `FALLBACK_ORDER`. An element whose type is not configured at all
+   * — or switched off with an explicit `false`/`null` — gets `null`, which keeps a BPMN type nobody
+   * thought about from producing a spurious report. A host writing ids reads the convention here.
    */
-  private prefixOf(node: ModdleElement): string | null {
+  prefixFor(node: ModdleElement): { type: string; prefix: string } | null {
     const configured = (type: string): boolean =>
       Object.prototype.hasOwnProperty.call(this.prefixes, type);
     const type = configured(node.$type)
       ? node.$type
       : FALLBACK_ORDER.find((fallback) => configured(fallback) && is(node, fallback));
+    const prefix = type && this.prefixes[type];
 
-    return (type && this.prefixes[type]) || null;
+    return type && prefix ? { type, prefix } : null;
+  }
+
+  private prefixOf(node: ModdleElement): string | null {
+    return this.prefixFor(node)?.prefix ?? null;
   }
 
   /**
@@ -182,7 +187,7 @@ export class ElementIdConvention {
    * event definitions, so a qualifier that does not match a definition is simply never in it.
    * Qualifiers name an *event* definition, so they only apply to `bpmn:Event`s.
    */
-  private acceptedPrefixes(node: ModdleElement, prefix: string): string[] {
+  acceptedPrefixes(node: ModdleElement, prefix: string): string[] {
     if (this.qualifierMode === 'off' || !is(node, 'bpmn:Event')) {
       return [prefix];
     }
