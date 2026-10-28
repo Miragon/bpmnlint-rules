@@ -153,6 +153,21 @@ The same, as XML. 👎 wrong:
 <bpmn:serviceTask id="serviceTask_claimMembership" name="Claim membership" />
 ```
 
+## For ID generators
+
+A tool that generates IDs can resolve the same convention the rule checks, from the same config:
+
+```ts
+import { naming } from '@miragon/bpmnlint-plugin-rules';
+
+const convention = new naming.ElementIdConvention(config);
+
+convention.prefixOf(element); // 'startEvent_', or null when the type is not checked
+convention.prefixesFor(element); // every accepted prefix, e.g. ['startEvent_', 'messageStartEvent_']
+convention.case; // the case the name part must follow, e.g. { label: 'camelCase', pattern }
+convention.qualifier; // 'off' | 'optional' | 'required'
+```
+
 ## Further reading
 
 - [Camunda: Naming technically relevant IDs](https://docs.camunda.io/docs/components/best-practices/modeling/naming-technically-relevant-ids/): "Define developer-friendly and business-relevant IDs" with a structured type-prefix convention (e.g. `Task_ReviewTweet`, `Gateway_TweetApproved`).
