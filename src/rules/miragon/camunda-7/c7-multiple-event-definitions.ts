@@ -36,6 +36,7 @@ class C7MultipleEventDefinitions extends EngineRule {
         type: ERROR_TYPES.ELEMENT_MULTIPLE_NOT_ALLOWED,
         node,
         parentNode: null,
+        kept: definitions.acting(),
       },
     });
   }
