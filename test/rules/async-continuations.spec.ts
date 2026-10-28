@@ -107,6 +107,16 @@ verify('async-continuations', rule, {
       moddleElement: model(NO_SAVE_POINTS),
     },
     {
+      name: 'both vendor namespaces without an execution platform are not checked',
+      moddleElement: model({
+        ...NO_SAVE_POINTS,
+        definitionsAttributes: {
+          ...CAMUNDA_NAMESPACE,
+          'xmlns:zeebe': 'http://camunda.org/schema/zeebe/1.0',
+        },
+      }),
+    },
+    {
       name: 'a declared camunda namespace beside a Camunda 8 platform is not checked',
       moddleElement: model({
         ...NO_SAVE_POINTS,
@@ -231,6 +241,18 @@ verify('async-continuations', rule, {
       }),
       report: { id: 'serviceTask_chargeCard', message: MESSAGES.serviceTasks },
     },
+    ...['Camunda 7', 'Operaton', 'CIB seven'].map((executionPlatform) => ({
+      name: `${executionPlatform} counts as Camunda 7`,
+      moddleElement: model({
+        shapes: [{ id: 'serviceTask_chargeCard', tag: 'serviceTask' }],
+        definitionsAttributes: {
+          ...CAMUNDA_NAMESPACE,
+          ...MODELER_NAMESPACE,
+          'modeler:executionPlatform': executionPlatform,
+        },
+      }),
+      report: { id: 'serviceTask_chargeCard', message: MESSAGES.serviceTasks },
+    })),
     {
       name: 'a message throw and a message end event need asyncBefore',
       moddleElement: camunda7([

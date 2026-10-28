@@ -28,6 +28,36 @@
         "default": "./dist/index.cjs"
       }
     },
+    "./engine": {
+      "import": {
+        "types": "./dist/engine.d.ts",
+        "default": "./dist/engine.js"
+      },
+      "require": {
+        "types": "./dist/engine.d.cts",
+        "default": "./dist/engine.cjs"
+      }
+    },
+    "./camunda-7": {
+      "import": {
+        "types": "./dist/camunda-7.d.ts",
+        "default": "./dist/camunda-7.js"
+      },
+      "require": {
+        "types": "./dist/camunda-7.d.cts",
+        "default": "./dist/camunda-7.cjs"
+      }
+    },
+    "./camunda-8": {
+      "import": {
+        "types": "./dist/camunda-8.d.ts",
+        "default": "./dist/camunda-8.js"
+      },
+      "require": {
+        "types": "./dist/camunda-8.d.cts",
+        "default": "./dist/camunda-8.cjs"
+      }
+    },
     "./rules/*": {
       "import": {
         "types": "./dist/rules/miragon/*.d.ts",
