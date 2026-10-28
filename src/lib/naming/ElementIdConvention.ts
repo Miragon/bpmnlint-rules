@@ -139,6 +139,16 @@ export class ElementIdConvention {
     this.qualifierMode = mode !== undefined && QUALIFIER_MODES.has(mode) ? mode : 'optional';
   }
 
+  /** The case the name after the prefix must follow, resolved from the configured case name. */
+  get case(): CaseSpec {
+    return this.namingCase;
+  }
+
+  /** How the element's event definition qualifies its prefix; `'optional'` unless configured. */
+  get qualifier(): QualifierMode {
+    return this.qualifierMode;
+  }
+
   /**
    * The reason this element's id breaks the convention, or `null` when it follows it — or is not
    * checked at all (no id, or a type without a prefix). An id that claims an event definition the
@@ -183,7 +193,7 @@ export class ElementIdConvention {
    * explicit `false`/`null` — gets `null`, which keeps a BPMN type nobody thought about from
    * producing a spurious report.
    */
-  private prefixOf(node: ModdleElement): string | null {
+  prefixOf(node: ModdleElement): string | null {
     const configured = (type: string): boolean =>
       Object.prototype.hasOwnProperty.call(this.prefixes, type);
     const type = configured(node.$type)
@@ -191,6 +201,15 @@ export class ElementIdConvention {
       : FALLBACK_ORDER.find((fallback) => configured(fallback) && is(node, fallback));
 
     return (type && this.prefixes[type]) || null;
+  }
+
+  /**
+   * Every prefix an id of this element may start with — the qualified forms included, as the
+   * qualifier mode allows. Empty when the element's type carries no prefix.
+   */
+  prefixesFor(node: ModdleElement): string[] {
+    const prefix = this.prefixOf(node);
+    return prefix ? this.acceptedPrefixes(node, prefix) : [];
   }
 
   /**
