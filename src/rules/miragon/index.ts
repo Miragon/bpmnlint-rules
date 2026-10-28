@@ -21,6 +21,7 @@ import elementIdNaming from './element-id-naming';
 import exclusiveGatewayMarkerVisible from './exclusive-gateway-marker-visible';
 import flowConnectionSide from './flow-connection-side';
 import flowCrossing from './flow-crossing';
+import flowIdNamesEnds from './flow-id-names-ends';
 import flowOrthogonal from './flow-orthogonal';
 import flowTargetAlignment from './flow-target-alignment';
 import flowThroughElement from './flow-through-element';
@@ -44,6 +45,7 @@ const ruleFactoriesByName = {
   [flowTargetAlignment.ruleName]: flowTargetAlignment,
   [flowCrossing.ruleName]: flowCrossing,
   [flowOrthogonal.ruleName]: flowOrthogonal,
+  [flowIdNamesEnds.ruleName]: flowIdNamesEnds,
   [boundaryEventMarkerOverlap.ruleName]: boundaryEventMarkerOverlap,
   [exclusiveGatewayMarkerVisible.ruleName]: exclusiveGatewayMarkerVisible,
   [asyncContinuations.ruleName]: asyncContinuations,
@@ -119,6 +121,7 @@ export {
   exclusiveGatewayMarkerVisible,
   flowConnectionSide,
   flowCrossing,
+  flowIdNamesEnds,
   flowOrthogonal,
   flowTargetAlignment,
   flowThroughElement,

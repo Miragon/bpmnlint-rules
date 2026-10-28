@@ -17,6 +17,7 @@ const OFFENDER_BY_RULE: Record<MiragonRuleName, string> = {
   'flow-target-alignment': 'flow_archived',
   'flow-crossing': 'flow_orderRevised',
   'flow-orthogonal': 'flow_reject',
+  'flow-id-names-ends': 'flow_reviewToApproved',
   'boundary-event-marker-overlap': 'event_orderCancelled',
   'exclusive-gateway-marker-visible': 'gateway_approved',
   'async-continuations': 'serviceTask_chargeCard',
