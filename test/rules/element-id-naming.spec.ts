@@ -1,7 +1,93 @@
+import { createModdle } from 'bpmnlint/lib/testers/helper';
 import { verify } from 'bpmnlint/lib/testers/rule-tester';
 
 import rule from '../../src/rules/miragon/element-id-naming';
 import { model } from '../support/model';
+
+interface CollaborationIds {
+  collaboration: string;
+  participant: string;
+  externalParticipant: string;
+  messageFlow: string;
+  lane: string;
+  dataObject: string;
+  dataStore: string;
+  annotation: string;
+  group: string;
+  association: string;
+  dataInputAssociation: string;
+  dataOutputAssociation: string;
+}
+
+const CONVENTIONAL_IDS: CollaborationIds = {
+  collaboration: 'collaboration_membership',
+  participant: 'participant_club',
+  externalParticipant: 'participant_member',
+  messageFlow: 'messageFlow_requestMembership',
+  lane: 'lane_backOffice',
+  dataObject: 'dataObject_application',
+  dataStore: 'dataStore_members',
+  annotation: 'textAnnotation_reviewHint',
+  group: 'group_review',
+  association: 'association_reviewHint',
+  dataInputAssociation: 'association_readApplication',
+  dataOutputAssociation: 'association_storeMember',
+};
+
+const GENERATED_IDS: CollaborationIds = {
+  collaboration: 'Collaboration_0x1y2z3',
+  participant: 'Participant_1a2b3c4',
+  externalParticipant: 'Participant_0d5e6f7',
+  messageFlow: 'Flow_0g8h9i0',
+  lane: 'Lane_1j2k3l4',
+  dataObject: 'DataObjectReference_0m5n6o7',
+  dataStore: 'DataStoreReference_1p8q9r0',
+  annotation: 'TextAnnotation_0s1t2u3',
+  group: 'Group_1v4w5x6',
+  association: 'Association_0y7z8a9',
+  dataInputAssociation: 'DataInputAssociation_1b2c3d4',
+  dataOutputAssociation: 'DataOutputAssociation_0e5f6g7',
+};
+
+/**
+ * A pool with a lane, data, an annotation and a group, talking to a second pool. The `model`
+ * helper only builds a bare process, so the collaboration-level elements need their own XML.
+ */
+const collaboration = (ids: CollaborationIds) =>
+  createModdle(`<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" id="definitions_Test" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:collaboration id="${ids.collaboration}">
+    <bpmn:participant id="${ids.participant}" processRef="membershipRequest" />
+    <bpmn:participant id="${ids.externalParticipant}" />
+    <bpmn:messageFlow id="${ids.messageFlow}" sourceRef="${ids.externalParticipant}" targetRef="${ids.participant}" />
+  </bpmn:collaboration>
+  <bpmn:process id="membershipRequest" isExecutable="true">
+    <bpmn:laneSet id="LaneSet_1q2w3e4">
+      <bpmn:lane id="${ids.lane}">
+        <bpmn:flowNodeRef>serviceTask_reviewApplication</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:serviceTask id="serviceTask_reviewApplication">
+      <bpmn:dataInputAssociation id="${ids.dataInputAssociation}">
+        <bpmn:sourceRef>${ids.dataObject}</bpmn:sourceRef>
+      </bpmn:dataInputAssociation>
+      <bpmn:dataOutputAssociation id="${ids.dataOutputAssociation}">
+        <bpmn:targetRef>${ids.dataStore}</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:serviceTask>
+    <bpmn:dataObjectReference id="${ids.dataObject}" dataObjectRef="DataObject_0a1b2c3" />
+    <bpmn:dataObject id="DataObject_0a1b2c3" />
+    <bpmn:dataStoreReference id="${ids.dataStore}" />
+    <bpmn:textAnnotation id="${ids.annotation}" />
+    <bpmn:association id="${ids.association}" sourceRef="serviceTask_reviewApplication" targetRef="${ids.annotation}" />
+    <bpmn:group id="${ids.group}" />
+  </bpmn:process>
+</bpmn:definitions>`);
+
+const conventionViolation = (id: string, prefix: string) => ({
+  id,
+  message: `Element id must match the naming convention <${prefix}camelCase>`,
+});
 
 verify('element-id-naming', rule, {
   valid: [
@@ -43,12 +129,19 @@ verify('element-id-naming', rule, {
       }),
     },
     {
-      // Nothing in the default map covers a text annotation, and an unconfigured type must
-      // never produce a report — otherwise every exotic BPMN element becomes a false positive.
+      // Nothing in the default map covers a message, and an unconfigured type must never
+      // produce a report — otherwise every exotic BPMN element becomes a false positive.
       name: 'unconfigured element types are not checked',
       moddleElement: model({
-        shapes: [{ id: 'whatever_Name_1', tag: 'textAnnotation' }],
+        messages: [{ id: 'Message_0abc123' }],
+        shapes: [],
       }),
+    },
+    {
+      // The lane set and the data object behind a reference are never drawn, so their
+      // generated ids stay unchecked.
+      name: 'collaboration, pool, lane, data, artifact and message flow ids follow the convention',
+      moddleElement: collaboration(CONVENTIONAL_IDS),
     },
     {
       name: 'the process id is not this rule business',
@@ -187,6 +280,24 @@ verify('element-id-naming', rule, {
   ],
 
   invalid: [
+    {
+      name: 'collaboration, pool, lane, data, artifact and message flow ids are held to the convention',
+      moddleElement: collaboration(GENERATED_IDS),
+      report: [
+        conventionViolation(GENERATED_IDS.collaboration, 'collaboration_'),
+        conventionViolation(GENERATED_IDS.participant, 'participant_'),
+        conventionViolation(GENERATED_IDS.externalParticipant, 'participant_'),
+        conventionViolation(GENERATED_IDS.messageFlow, 'messageFlow_'),
+        conventionViolation(GENERATED_IDS.lane, 'lane_'),
+        conventionViolation(GENERATED_IDS.dataInputAssociation, 'association_'),
+        conventionViolation(GENERATED_IDS.dataOutputAssociation, 'association_'),
+        conventionViolation(GENERATED_IDS.dataObject, 'dataObject_'),
+        conventionViolation(GENERATED_IDS.dataStore, 'dataStore_'),
+        conventionViolation(GENERATED_IDS.annotation, 'textAnnotation_'),
+        conventionViolation(GENERATED_IDS.association, 'association_'),
+        conventionViolation(GENERATED_IDS.group, 'group_'),
+      ],
+    },
     {
       name: 'a generated id has neither the prefix nor the case',
       moddleElement: model({

@@ -31,6 +31,11 @@ export interface ElementIdNamingConfig {
  * `bpmn:Process` is deliberately absent. A process ID is a public contract — the deployment
  * key, and what a call activity references — not a diagram-internal identifier, so projects
  * legitimately name it after the business process rather than after its BPMN type.
+ *
+ * Elements no modeler ever shows — `bpmn:LaneSet`, `bpmn:DataObject`, `bpmn:Category`,
+ * `bpmn:CategoryValue`, `bpmn:Property` — are absent too: nobody reads their IDs, so a report on
+ * them would be noise. Message, signal, error and escalation definitions are left to the engine,
+ * as in `no-generated-ids`.
  */
 export const DEFAULT_PREFIXES: PrefixMap = {
   'bpmn:StartEvent': 'startEvent_',
@@ -50,6 +55,17 @@ export const DEFAULT_PREFIXES: PrefixMap = {
   'bpmn:SubProcess': 'subProcess_',
   'bpmn:Gateway': 'gateway_',
   'bpmn:SequenceFlow': 'flow_',
+  'bpmn:MessageFlow': 'messageFlow_',
+  'bpmn:Collaboration': 'collaboration_',
+  'bpmn:Participant': 'participant_',
+  'bpmn:Lane': 'lane_',
+  'bpmn:DataObjectReference': 'dataObject_',
+  'bpmn:DataStoreReference': 'dataStore_',
+  'bpmn:TextAnnotation': 'textAnnotation_',
+  'bpmn:Group': 'group_',
+  'bpmn:Association': 'association_',
+  'bpmn:DataInputAssociation': 'association_',
+  'bpmn:DataOutputAssociation': 'association_',
 };
 
 /**

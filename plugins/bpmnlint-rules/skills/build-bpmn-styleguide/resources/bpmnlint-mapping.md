@@ -16,7 +16,9 @@ or stays `llm`. bpmnlint enforces the deterministic half; `/validate-bpmn-style`
 
 A camelCase name after the type prefix: `startEvent_`, `endEvent_`, `event_` (boundary and intermediate
 events), `serviceTask_`, `userTask_`, `sendTask_`, `receiveTask_`, `manualTask_`, `scriptTask_`,
-`businessRuleTask_`, `task_`, `callActivity_`, `subProcess_`, `gateway_` (every kind), `flow_`.
+`businessRuleTask_`, `task_`, `callActivity_`, `subProcess_`, `gateway_` (every kind), `flow_`,
+`messageFlow_`, `collaboration_`, `participant_`, `lane_`, `dataObject_` (reference), `dataStore_`
+(reference), `textAnnotation_`, `group_`, `association_` (incl. data input/output associations).
 Process IDs are not covered — keep `process-id-format` as a `pattern` rule.
 
 `case`: `camelCase` (default), `PascalCase`, `snake_case`, `kebab-case`, `any`.
