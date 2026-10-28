@@ -1,7 +1,7 @@
 {
   "name": "bpmnlint-rules",
   "displayName": "BPMN Style Guide",
-  "version": "0.18.0",
+  "version": "0.19.0",
   "description": "Agent skills for BPMN modeling conventions with @miragon/bpmnlint-plugin-rules: define your team's conventions and check BPMN models against them.",
   "author": {
     "name": "Miragon GmbH",
