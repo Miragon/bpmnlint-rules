@@ -1,7 +1,7 @@
 ---
 name: fix-model-layout
 argument-hint: '[path/to/file.bpmn]'
-description: Use while modeling a BPMN process to fix the layout problems that bpmnlint or /verify-model-visually report — crossing flows, overlaps, flows routed through shapes, invisible or messy elements. Changes only the diagram (BPMNDI), never the executable process, and redraws the whole layout only with approval. The fixing counterpart to verify-model-visually. Trigger phrases: "fix the layout", "fix the crossing flow", "repair the diagram", "clean up the BPMN layout", "auto-fix the model".
+description: Fixes BPMN layout problems such as crossing flows, overlaps or flows through shapes, changing only the diagram (BPMNDI). Use when asked to fix the layout or after verify-model-visually reports layout issues.
 allowed-tools: Read, Bash, Edit, Glob, AskUserQuestion
 ---
 

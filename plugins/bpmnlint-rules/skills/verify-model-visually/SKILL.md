@@ -1,7 +1,7 @@
 ---
 name: verify-model-visually
 argument-hint: '[path/to/file.bpmn]'
-description: Use while modeling a BPMN process to review a model you just edited. Runs both quality nets — the deterministic bpmnlint geometry rules and a visual review of the rendered image — and reports a combined verdict. Catches invisible elements, overlaps, crossing flows, flows routed through a shape (lint), plus messy or hard-to-read layout that needs judgment (image). Use after editing a model, or when asked to review the diagram, check the layout, or verify the model looks right.
+description: Reviews a just-edited BPMN model with the bpmnlint geometry rules and a visual check of the rendered image, and reports a combined verdict. Use after editing a model or when asked to check the diagram layout.
 allowed-tools: Read, Bash, Glob
 ---
 

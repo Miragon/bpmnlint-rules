@@ -1,5 +1,6 @@
 ---
 name: build-bpmn-styleguide
+disable-model-invocation: true
 description: "Interactively author a BPMN_STYLE_GUIDE.md for your project — a handbook that explains how the team models BPMN processes (naming, allowed elements, IDs, topics, engine-specific special cases). The output is a document humans can read; embedded YAML annotations let downstream tools enforce the rules, and a .bpmnlintrc is generated for the rules bpmnlint can check. Use when the user asks to 'create a BPMN style guide', 'set up BPMN conventions', or 'define BPMN naming rules'."
 allowed-tools: Read, Write, Edit, Glob, Grep, AskUserQuestion
 ---
