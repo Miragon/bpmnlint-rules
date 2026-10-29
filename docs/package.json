@@ -20,7 +20,7 @@
     "dayjs": "1.11.23",
     "debug": "4.4.3",
     "esbuild": "0.28.2",
-    "mermaid": "11.17.2",
+    "mermaid": "12.2.0",
     "playwright": "1.64.1",
     "vitepress": "1.6.4",
     "vitepress-plugin-llms": "1.14.0",
