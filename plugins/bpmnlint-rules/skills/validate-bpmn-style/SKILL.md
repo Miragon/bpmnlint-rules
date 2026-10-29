@@ -1,7 +1,7 @@
 ---
 name: validate-bpmn-style
 argument-hint: '[path/to/file.bpmn]'
-description: "Check BPMN files against a team-defined BPMN_STYLE_GUIDE.md and report violations with explanations and suggested fixes. Routes each rule through the right check: deterministic (bpmnlint or regex), llm (semantic judgement), or hybrid (both). Use when the user asks to 'check BPMN style', 'validate BPMN conventions', 'review BPMN naming', or 'lint BPMN files'."
+description: "Checks BPMN files against the project's BPMN_STYLE_GUIDE.md and reports violations with suggested fixes. Use when asked to check BPMN style, lint BPMN files or review BPMN naming conventions."
 allowed-tools: Read, Glob, Grep, Bash(npx bpmnlint:*)
 ---
 

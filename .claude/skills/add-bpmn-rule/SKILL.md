@@ -1,6 +1,6 @@
 ---
 name: add-bpmn-rule
-description: "Use when adding a new Miragon bpmnlint rule to @miragon/bpmnlint-plugin-rules (or when the user says 'add a rule', 'new lint rule', /add-bpmn-rule). The standard playbook for a rule end-to-end — implementation, wiring, tests, docs and the verify gate — so every rule lands the same way."
+description: 'Adds a new rule to @miragon/bpmnlint-plugin-rules end to end: implementation, wiring, tests, docs and the verify gate. Use when adding a new bpmnlint rule.'
 ---
 
 # /add-bpmn-rule
