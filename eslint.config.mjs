@@ -26,20 +26,13 @@ export default tseslint.config(
       globals: globals.node,
     },
     rules: {
-      // Deep imports into untyped upstream packages (bpmnlint rules, camunda-compat rules, moddle
-      // descriptors) are resolved by ambient module declarations in `types/`, and rule bodies walk
-      // an untyped moddle tree — so a measured amount of `any` at those seams is deliberate.
+      curly: ['error', 'all'],
+
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/consistent-type-imports': [
         'error',
         { prefer: 'type-imports', fixStyle: 'inline-type-imports' },
       ],
-
-      // A linter can enforce identifier *length*, not meaningfulness — but length catches the
-      // failure mode we actually hit: `a`, `b`, `p1`, `i`, `j` in geometry code. The exceptions
-      // are the names that are genuinely clearer short:
-      //   el — the moddle element (bpmn-js/bpmnlint's own spelling); id — a BPMN element id;
-      //   is — the bpmnlint-utils predicate; x/y — coordinates; fs/os — Node module names.
       'id-length': [
         'error',
         {
