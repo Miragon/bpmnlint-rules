@@ -1,6 +1,6 @@
 ---
 name: add-bpmn-rule
-description: "Adds a new rule to @miragon/bpmnlint-plugin-rules end to end: implementation, wiring, tests, docs and the verify gate. Use when adding a new bpmnlint rule."
+description: 'Adds a new rule to @miragon/bpmnlint-plugin-rules end to end: implementation, wiring, tests, docs and the verify gate. Use when adding a new bpmnlint rule.'
 ---
 
 # /add-bpmn-rule
