@@ -23,7 +23,7 @@ import { resolverEntries as miragonEntries } from '../rules/miragon';
  * The bpmnlint resolver over {@link BundledResolver.entries}.
  *
  * Of camunda-compat's configs it carries only the latest per engine: `camunda-platform-7-24` and
- * `camunda-cloud-8-10`. To lint against an older engine version in Node, chain bpmnlint's
+ * `camunda-cloud-8-11`. To lint against an older engine version in Node, chain bpmnlint's
  * `NodeResolver` behind it, so `plugin:camunda-compat/camunda-cloud-8-5` and the like resolve from
  * the installed `bpmnlint-plugin-camunda-compat`. The README's Camunda engine rules section shows
  * how.

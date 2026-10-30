@@ -162,7 +162,7 @@ extension for you.
   "extends": [
     "bpmnlint:recommended",
     "plugin:@miragon/rules/recommended-for-automation",
-    "plugin:camunda-compat/camunda-cloud-8-10"
+    "plugin:camunda-compat/camunda-cloud-8-11"
   ],
   "moddleExtensions": {
     "zeebe": "zeebe-bpmn-moddle/resources/zeebe.json"
@@ -178,7 +178,7 @@ name, for example `plugin:camunda-compat/camunda-cloud-8-5`. The bpmnlint CLI lo
 installed `bpmnlint-plugin-camunda-compat`.
 
 The bundled resolver, `createBundledResolver()`, carries only the latest config per engine:
-`camunda-platform-7-24` and `camunda-cloud-8-10`. A host that has only the bundle, such as a browser
+`camunda-platform-7-24` and `camunda-cloud-8-11`. A host that has only the bundle, such as a browser
 modeler, lints against these two. In Node, chain bpmnlint's `NodeResolver` behind the bundle, so the
 configs and rules the bundle does not carry load from the installed packages:
 

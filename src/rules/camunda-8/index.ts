@@ -1,5 +1,5 @@
 /**
- * The Camunda 8 engine layer — `bpmnlint-plugin-camunda-compat`'s `camunda-cloud-8-10` config and
+ * The Camunda 8 engine layer — `bpmnlint-plugin-camunda-compat`'s `camunda-cloud-8-11` config and
  * every rule module it references.
  *
  * These rule bodies are the camunda-compat plugin's, not ours: this folder only enumerates the
@@ -57,6 +57,7 @@ import rule_subscription from 'bpmnlint-plugin-camunda-compat/rules/camunda-clou
 import rule_task_listener from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/task-listener.js';
 import rule_task_schedule from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/task-schedule.js';
 import rule_timer from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/timer/index.js';
+import rule_timer_past_date from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/timer-past-date.js';
 import rule_unresolvable_secret_reference from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/unresolvable-secret-reference.js';
 import rule_user_task_definition from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/user-task-definition.js';
 import rule_user_task_form from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/user-task-form.js';
@@ -66,7 +67,7 @@ import rule_wait_for_completion from 'bpmnlint-plugin-camunda-compat/rules/camun
 import rule_zeebe_user_task from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/zeebe-user-task.js';
 
 const PLUGIN = 'bpmnlint-plugin-camunda-compat';
-const CONFIG = 'camunda-cloud-8-10';
+const CONFIG = 'camunda-cloud-8-11';
 
 /**
  * The pinned camunda-compat config this layer targets. Deliberately explicit (not auto-latest) so a
@@ -127,6 +128,7 @@ export const resolverEntries: ResolverEntries = {
   [`rule:${PLUGIN}/task-listener`]: rule_task_listener,
   [`rule:${PLUGIN}/task-schedule`]: rule_task_schedule,
   [`rule:${PLUGIN}/timer`]: rule_timer,
+  [`rule:${PLUGIN}/timer-past-date`]: rule_timer_past_date,
   [`rule:${PLUGIN}/unresolvable-secret-reference`]: rule_unresolvable_secret_reference,
   [`rule:${PLUGIN}/user-task-definition`]: rule_user_task_definition,
   [`rule:${PLUGIN}/user-task-form`]: rule_user_task_form,

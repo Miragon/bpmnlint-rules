@@ -77,7 +77,7 @@
     "bpmnlint": ">=11.14.0"
   },
   "dependencies": {
-    "bpmnlint-plugin-camunda-compat": "2.61.1",
+    "bpmnlint-plugin-camunda-compat": "2.63.0",
     "bpmnlint-utils": "1.1.1",
     "camunda-bpmn-moddle": "8.0.2",
     "zeebe-bpmn-moddle": "2.0.0"

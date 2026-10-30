@@ -54,7 +54,7 @@ bpmnlint rule in `@miragon/bpmnlint-plugin-rules`. Keep them as `pattern`, struc
      | `Engine:`               | Engine layer                                                 | `moddleExtensions`                                        |
      | ----------------------- | ------------------------------------------------------------ | --------------------------------------------------------- |
      | `CAMUNDA_7` (and CIB-7) | `plugin:camunda-compat/camunda-platform-7-24`                | `"camunda": "camunda-bpmn-moddle/resources/camunda.json"` |
-     | `ZEEBE`                 | `plugin:camunda-compat/camunda-cloud-8-10`                   | `"zeebe": "zeebe-bpmn-moddle/resources/zeebe.json"`       |
+     | `ZEEBE`                 | `plugin:camunda-compat/camunda-cloud-8-11`                   | `"zeebe": "zeebe-bpmn-moddle/resources/zeebe.json"`       |
      | `OPERATON`              | none — camunda-compat doesn't read the `operaton:` namespace | none                                                      |
 
      Use the team's engine version in the config name when it is older (e.g. `camunda-cloud-8-5`).
