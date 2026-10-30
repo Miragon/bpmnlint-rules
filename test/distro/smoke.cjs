@@ -113,7 +113,7 @@ function main() {
     }
     const c8 = dist.getDefaultLintConfig({ engine: 'c8' });
     assert.ok(
-      Array.isArray(c8.extends) && c8.extends.includes('plugin:camunda-compat/camunda-cloud-8-10'),
+      Array.isArray(c8.extends) && c8.extends.includes('plugin:camunda-compat/camunda-cloud-8-11'),
       'c8 config must extend the Camunda 8 layer',
     );
     step('programmatic path: bundled resolver + c8 config OK');

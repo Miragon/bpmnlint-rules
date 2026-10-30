@@ -14,7 +14,7 @@ import { configName as camunda8Config } from '../../src/rules/camunda-8';
  *     updated — rather than silently dropping a rule at lint time.
  *
  *  2. **Config version** — the folders deliberately pin an explicit engine config (e.g.
- *     `camunda-cloud-8-10`) rather than auto-selecting the latest, so a dependency bump never
+ *     `camunda-cloud-8-11`) rather than auto-selecting the latest, so a dependency bump never
  *     silently moves the engine target. The tripwire below fails when camunda-compat ships a *newer*
  *     config in the same family, turning "time to bump the engine target" into a red CI instead of
  *     silent staleness.
@@ -30,7 +30,7 @@ function ruleKey(ruleName: string): string {
     : `rule:bpmnlint-plugin-camunda-compat/${ruleName}`;
 }
 
-/** Splits `camunda-cloud-8-10` into its family (`camunda-cloud`) and numeric `[major, minor]`. */
+/** Splits `camunda-cloud-8-11` into its family (`camunda-cloud`) and numeric `[major, minor]`. */
 function parseConfig(name: string): { family: string; version: [number, number] } | null {
   const match = /^(camunda-(?:cloud|platform))-(\d+)-(\d+)$/.exec(name);
   if (!match) {
