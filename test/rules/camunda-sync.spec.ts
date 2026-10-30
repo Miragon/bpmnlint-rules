@@ -1,6 +1,8 @@
 import camundaCompat from 'bpmnlint-plugin-camunda-compat';
 
 import { BundledResolver } from '../../src/resolver/BundledResolver';
+import * as camunda7Versions from '../../src/rules/camunda-7/versions';
+import * as camunda8Versions from '../../src/rules/camunda-8/versions';
 import { configName as camunda7Config } from '../../src/rules/camunda-7';
 import { configName as camunda8Config } from '../../src/rules/camunda-8';
 
@@ -85,6 +87,31 @@ describe('bundled resolver stays in sync with camunda-compat', () => {
         `camunda-compat now ships newer config(s) than the pinned ${configName}: ${newer.join(', ')}. ` +
           `Bump CONFIG in src/rules/${folder}/index.ts and add any newly referenced rule imports.`,
       ).toEqual([]);
+    });
+  }
+});
+
+describe('the engine entries bundle every camunda-compat version', () => {
+  const versions = {
+    ...camunda7Versions.configNamesByVersion,
+    ...camunda8Versions.configNamesByVersion,
+  };
+  const entries = { ...camunda7Versions.resolverEntries, ...camunda8Versions.resolverEntries };
+
+  it('bundles every camunda-cloud-8-* and camunda-platform-7-* config camunda-compat ships', () => {
+    const shipped = Object.keys(camundaCompat.configs).filter((name) =>
+      /^camunda-(cloud-8|platform-7)-\d+$/.test(name),
+    );
+    expect(Object.values(versions).sort()).toEqual(shipped.sort());
+  });
+
+  for (const configName of Object.values(versions)) {
+    it(`resolves every rule referenced by ${configName}`, () => {
+      const missing = Object.keys(camundaCompat.configs[configName]!.rules ?? {})
+        .filter((ruleName) => !ruleName.includes('/'))
+        .filter((ruleName) => !entries[`rule:bpmnlint-plugin-camunda-compat/${ruleName}`]);
+      expect(missing).toEqual([]);
+      expect(entries[`config:bpmnlint-plugin-camunda-compat/${configName}`]).toBeDefined();
     });
   }
 });

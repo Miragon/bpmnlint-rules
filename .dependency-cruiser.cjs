@@ -2,7 +2,7 @@
  * Architecture guardrail for the package's module graph.
  *
  * Layering (imports only ever point "down"):
- *   index / plugin        -> presets, config, resolver, rules   (public surface + registry)
+ *   index / plugin / camunda-<n> -> presets, config, resolver, rules (public surface + registry)
  *   presets / config      -> the rule-set folders' data + lib    (compose layers)
  *   resolver              -> the rule-set folders' resolverEntries
  *   rules/miragon/<rule>  -> lib/                                 (a rule is a check over helpers)
@@ -35,8 +35,8 @@ module.exports = {
       comment:
         'Rules are resolved independently by bpmnlint. Share code through lib/, never another rule.',
       severity: 'error',
-      from: { path: '^src/rules/miragon/(?!index\\.ts$).+' },
-      to: { path: '^src/rules/miragon/(?!index\\.ts$).+' },
+      from: { path: '^src/rules/miragon/(?!(camunda-[78]/)?index\\.ts$).+' },
+      to: { path: '^src/rules/miragon/(?!(camunda-[78]/)?index\\.ts$).+' },
     },
     {
       name: 'rules-not-upwards',

@@ -36,17 +36,21 @@ opening a PR — the "Before opening a PR" section below is the exact sequence.
 
 ```
 src/rules/common/       the bpmnlint built-in rules (structural base) — static-import glue
-src/rules/camunda-7/    the camunda-compat C7 engine layer — static-import glue
-src/rules/camunda-8/    the camunda-compat C8 engine layer — static-import glue
+src/rules/camunda-7/    the camunda-compat C7 engine layer (versions.ts: every version) — static-import glue
+src/rules/camunda-8/    the camunda-compat C8 engine layer (versions.ts: every version) — static-import glue
 src/rules/miragon/      the ONLY folder whose rule source we author (one file per rule) + index
-src/lib/                shared helpers — a leaf layer: geometry/, di/, naming/ (classes + utils/),
-                        SeverityPolicy (rule kind -> layer severity), utils/defineRule
-src/resolver/           BundledResolver: merges every folder's resolver entries
-src/config/             EngineConfig: getDefaultLintConfig / getRulesForEngine
+src/lib/                shared helpers — a leaf layer: geometry/, di/, naming/, engine/ (classes +
+                        utils/), SeverityPolicy (rule kind -> layer severity), utils/defineRule
+src/resolver/           BundledResolver: merges every folder's resolver entries; SinglePassLinter:
+                        runs a list of rules in one walk over the tree (the ./engine `lint`)
+src/config/             EngineConfig: getDefaultLintConfig / getRulesForEngine; EngineLayer: version -> rules
+src/camunda-7.ts        the ./camunda-7 and ./camunda-8 entry points: compatRules(version) of one engine
+src/camunda-8.ts
+src/engine.ts           the ./engine entry point: the base for a host's engine rules, and lint
 src/presets/            ready-to-use recommended-for-modeling / -for-automation / all configs
 test/                   RuleTester specs, the resolver integration + sync specs, and fixtures
 test/fixtures/rules/    valid.bpmn / invalid.bpmn pairs per rule (rendered to the docs SVGs)
-test/bench/             the per-rule benchmark: synthetic model, target times, the benchmark itself
+test/bench/             the per-rule benchmark (synthetic model, target times) and engine-lint.bench.ts: Linter vs lint
 docs/rules/             one documentation page per rule
 plugins/bpmnlint-rules/ the Claude Code plugin: style-guide and layout skills built on the rules (not published to npm)
 ```
@@ -138,7 +142,8 @@ measured and listed, not enforced: they cannot be fixed here.
 - **No false positives.** When in doubt, ship it as `warn`, or leave it out of the `recommended-for-*` layers.
 - **Not already covered.** Check core bpmnlint and
   [`bpmnlint-plugin-camunda-compat`](https://github.com/camunda/bpmnlint-plugin-camunda-compat)
-  first. Engine-compatibility rules are not this plugin's job.
+  first. Engine-compatibility rules are not this plugin's job: they belong to camunda-compat, or to
+  a host that writes its own on `./engine` and runs them with `./camunda-7` / `./camunda-8`.
 
 ## Ground rules
 

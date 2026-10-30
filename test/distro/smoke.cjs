@@ -118,6 +118,15 @@ function main() {
     );
     step('programmatic path: bundled resolver + c8 config OK');
 
+    const { compatRules } = require(
+      path.join(project, 'node_modules', name, 'dist', 'camunda-8.cjs'),
+    );
+    assert.ok(
+      compatRules('8.9').some((entry) => entry.name === 'camunda-compat/feel'),
+      'the camunda-8 entry must build camunda-compat rules',
+    );
+    step('per-engine entry: camunda-8 compatRules OK');
+
     // (3) ESM path: the same checks through `import`, run from inside the consumer project.
     fs.copyFileSync(
       path.join(__dirname, 'esm-consumer.mjs'),

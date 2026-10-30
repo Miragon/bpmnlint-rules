@@ -210,6 +210,58 @@ const resolver = {
 Pass this `resolver` to the `Linter` in place of `createBundledResolver()`, with an `extends` that
 names the older config.
 
+### Engine rules of a host
+
+A host that checks the structure itself and loads one engine on demand imports that engine alone:
+`compatRules(version)` of `./camunda-7` or `./camunda-8` builds camunda-compat's rules for an engine
+version, picking the config of that version (`'8.9'`, or `'8.9.1'` as
+`modeler:executionPlatformVersion` writes it), the nearest older one, or the latest without a
+version. The host adds rules of its own, written on `@miragon/bpmnlint-plugin-rules/engine`, and
+runs them all with `lint`, in one walk over the tree:
+
+```ts
+import {
+  defineRule,
+  EngineRule,
+  lint,
+} from '@miragon/bpmnlint-plugin-rules/engine';
+import { compatRules } from '@miragon/bpmnlint-plugin-rules/camunda-8';
+
+class SignalName extends EngineRule {
+  protected readonly engine = 'c8';
+  protected checkElement(node, reporter) {
+    /* report with camunda-compat's path and data.type */
+  }
+}
+
+const signalName = defineRule(
+  {
+    ruleName: 'signal-name',
+    kind: 'engine-specific',
+    targetEngine: 'c8',
+  },
+  SignalName,
+);
+
+// built once per engine version, reused like a bpmnlint Linter
+const rules = [
+  ...compatRules('8.9'),
+  {
+    name: 'host/signal-name',
+    category: 'error',
+    rule: signalName({ version: '8.9' }),
+  },
+];
+
+const reports = lint(definitions, rules);
+```
+
+`lint` reports what bpmnlint's `Linter` reports for the same rules, in the same order, synchronously.
+`EngineRule` skips diagrams for the other engine and tells a check the engine version it runs for:
+its `version` config, else the diagram's `modeler:executionPlatformVersion`. It reads the diagram's
+engine and version anew on every run, so a modeler that changes them and lints again gets the new
+target. The host sets each rule's `category` itself.
+
 <!-- #endregion engines -->
 
 ## Programmatic use
