@@ -10,14 +10,32 @@
 /** A node in the bpmn-moddle tree — untyped by nature (see the module comment). */
 export type ModdleElement = any;
 
-/** What a rule calls to record a violation on an element. */
-export interface Reporter {
-  report(id: string, message: string): void;
+/** A step from an element into its properties, e.g. `['extensionElements', 'values', 0, 'type']`. */
+export type ReportPath = (string | number)[];
+
+/**
+ * What a report can say besides its message, in camunda-compat's shape: the `path` to the offending
+ * property and `data.type`, one of camunda-compat's `ERROR_TYPES`, so a host can tell a missing
+ * property from a disallowed value without parsing the message.
+ */
+export interface ReportDetails {
+  path?: ReportPath;
+  // eslint-disable-next-line id-denylist -- camunda-compat's name for it
+  data?: { type: string; [key: string]: unknown };
+  [key: string]: unknown;
 }
 
-/** The visitor a bpmnlint rule returns: `check` runs on every element. */
+/** What a rule calls to record a violation on an element. */
+export interface Reporter {
+  report(id: string, message: string, pathOrDetails?: ReportPath | ReportDetails): void;
+}
+
+/**
+ * The visitor a bpmnlint rule returns: `check` runs on every element. Returning `false` skips the
+ * element's children.
+ */
 export interface Rule {
-  check: (node: ModdleElement, reporter: Reporter) => void;
+  check: (node: ModdleElement, reporter: Reporter) => boolean | void;
 }
 
 /**

@@ -1,5 +1,6 @@
 import { is, isAny } from 'bpmnlint-utils';
 
+import { EngineTarget } from '../../lib/engine/EngineTarget';
 import type { ModdleElement, Reporter, Rule } from '../../lib/moddle';
 import { defineRule } from '../../lib/utils/defineRule';
 
@@ -11,9 +12,6 @@ export interface AsyncContinuationsConfig {
   multiInstance?: boolean;
   waitStates?: boolean;
 }
-
-const CAMUNDA_7_NAMESPACE = 'http://camunda.org/schema/1.0/bpmn';
-const CAMUNDA_7_EXECUTION_PLATFORM = 'Camunda Platform';
 
 const REMOTE_CALL_TASKS = ['bpmn:ServiceTask', 'bpmn:ScriptTask', 'bpmn:SendTask'];
 const EXTERNAL_CAPABLE_TASKS = ['bpmn:ServiceTask', 'bpmn:SendTask', 'bpmn:BusinessRuleTask'];
@@ -59,7 +57,7 @@ const MESSAGES = {
  *     } ]
  *
  * Only Camunda 7 diagrams are checked: `modeler:executionPlatform="Camunda Platform"`, or no
- * execution platform but the `camunda:` namespace declared. External tasks count as wait states.
+ * execution platform but the `camunda:` namespace declared (and not the `zeebe:` one). External tasks count as wait states.
  */
 class AsyncContinuations implements Rule {
   private readonly checks: Required<AsyncContinuationsConfig>;
@@ -77,7 +75,7 @@ class AsyncContinuations implements Rule {
   }
 
   check(node: ModdleElement, reporter: Reporter): void {
-    if (!node.id || !is(node, 'bpmn:FlowNode') || !this.isCamunda7Diagram(node)) {
+    if (!node.id || !is(node, 'bpmn:FlowNode') || !EngineTarget.forElement(node).targets('c7')) {
       return;
     }
 
@@ -125,34 +123,6 @@ class AsyncContinuations implements Rule {
 
   private hasAsyncAfter(node: ModdleElement): boolean {
     return this.isFlagSet(node.get('camunda:asyncAfter'));
-  }
-
-  private definitionsOf(node: ModdleElement): ModdleElement | undefined {
-    let current = node;
-    while (current && !is(current, 'bpmn:Definitions')) {
-      current = current.$parent;
-    }
-    return current;
-  }
-
-  private declaresCamunda7Namespace(definitions: ModdleElement): boolean {
-    return Object.entries(definitions.$attrs ?? {}).some(
-      ([name, value]) => name.startsWith('xmlns:') && value === CAMUNDA_7_NAMESPACE,
-    );
-  }
-
-  private isCamunda7Diagram(node: ModdleElement): boolean {
-    const definitions = this.definitionsOf(node);
-    if (!definitions) {
-      return false;
-    }
-
-    const executionPlatform = definitions.get('modeler:executionPlatform');
-    if (executionPlatform !== undefined) {
-      return executionPlatform === CAMUNDA_7_EXECUTION_PLATFORM;
-    }
-
-    return this.declaresCamunda7Namespace(definitions);
   }
 
   private messageEventDefinitionOf(node: ModdleElement): ModdleElement | undefined {

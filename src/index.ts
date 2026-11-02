@@ -60,7 +60,14 @@ export type {
   RuleSetting,
   RuleSeverity,
 } from './lib/bpmnlint-config';
-export type { ModdleElement, Reporter, Rule, RuleFactory } from './lib/moddle';
+export type {
+  ModdleElement,
+  ReportDetails,
+  ReportPath,
+  Reporter,
+  Rule,
+  RuleFactory,
+} from './lib/moddle';
 export * as naming from './lib/naming';
 export * as di from './lib/di';
 export * as geometry from './lib/geometry';
