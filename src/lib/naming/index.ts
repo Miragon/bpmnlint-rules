@@ -10,3 +10,4 @@ export { resolveCase } from './utils/cases';
 export type { CaseSpec } from './utils/cases';
 export { isExpression } from './utils/expressions';
 export { isGeneratedId } from './utils/generatedIds';
+export { ElementIdNamingSetting } from './ElementIdNamingSetting';

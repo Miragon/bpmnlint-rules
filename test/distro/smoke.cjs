@@ -54,6 +54,60 @@ function lint(project, fixture) {
   }
 }
 
+const NAMING_BUNDLE_LIMIT_BYTES = 16 * 1024;
+
+/**
+ * (4) The `./naming` subpath, in a consumer without bpmnlint: it loads through `require` and
+ * `import`, and an esbuild browser bundle of it builds, stays small and pulls in nothing but the
+ * naming files and `bpmnlint-utils`.
+ */
+function checkNamingSubpath(sandbox, tarball) {
+  const project = path.join(sandbox, 'naming-consumer');
+  fs.mkdirSync(project);
+  fs.writeFileSync(
+    path.join(project, 'package.json'),
+    JSON.stringify({ name: 'naming-consumer', version: '1.0.0', private: true }, null, 2),
+  );
+  npm(['install', '--no-audit', '--no-fund', '--legacy-peer-deps', tarball], project);
+  assert.ok(
+    !fs.existsSync(path.join(project, 'node_modules', 'bpmnlint')),
+    'bpmnlint must not be installed',
+  );
+
+  const loadBoth = [
+    `const cjs = require('${name}/naming');`,
+    `import('${name}/naming').then((esm) => {`,
+    `  for (const naming of [cjs, esm]) {`,
+    `    if (naming.DEFAULT_PREFIXES['bpmn:ServiceTask'] !== 'serviceTask_') process.exit(1);`,
+    `    const setting = naming.ElementIdNamingSetting.fromBpmnlintrc({ extends: 'plugin:@miragon/rules/all' });`,
+    `    if (setting.severity !== 'error' || typeof naming.ElementIdConvention !== 'function') process.exit(1);`,
+    `  }`,
+    `});`,
+  ].join('\n');
+  execFileSync(process.execPath, ['-e', loadBoth], { cwd: project, stdio: 'inherit' });
+  step('naming subpath: require + import work without bpmnlint');
+
+  const { buildSync } = require('esbuild');
+  const result = buildSync({
+    stdin: { contents: `export * from '${name}/naming';`, resolveDir: project },
+    bundle: true,
+    minify: true,
+    platform: 'browser',
+    format: 'esm',
+    write: false,
+    metafile: true,
+  });
+  const inputs = Object.keys(result.metafile.inputs).filter((input) => input !== '<stdin>');
+  const foreign = inputs.filter(
+    (input) =>
+      !/node_modules\/(@miragon\/bpmnlint-plugin-rules\/dist|bpmnlint-utils)\//.test(input),
+  );
+  assert.deepEqual(foreign, [], 'the naming bundle reached a package beyond bpmnlint-utils');
+  const size = result.outputFiles[0].contents.length;
+  assert.ok(size < NAMING_BUNDLE_LIMIT_BYTES, `naming bundle is ${size} bytes`);
+  step(`naming subpath: browser bundle builds, ${size} bytes minified`);
+}
+
 function main() {
   const sandbox = fs.mkdtempSync(path.join(os.tmpdir(), 'bpmnlint-rules-distro-'));
   const project = path.join(sandbox, 'consumer');
@@ -124,6 +178,8 @@ function main() {
       path.join(project, 'esm-consumer.mjs'),
     );
     execFileSync(process.execPath, ['esm-consumer.mjs'], { cwd: project, stdio: 'inherit' });
+
+    checkNamingSubpath(sandbox, tarball);
 
     console.log('distro smoke OK');
   } finally {

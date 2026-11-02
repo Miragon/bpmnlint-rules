@@ -19,7 +19,7 @@ import { defineConfig } from 'tsup';
  * to share our copy.
  */
 export default defineConfig({
-  entry: ['src/index.ts', 'src/rules/miragon/*.ts'],
+  entry: ['src/index.ts', 'src/naming.ts', 'src/rules/miragon/*.ts'],
   format: ['esm', 'cjs'],
   dts: true,
   clean: true,

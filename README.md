@@ -268,6 +268,45 @@ if (errors.length) process.exit(1);
 
 Every rule factory, rule-set and helper is exported from the package root as well.
 
+### The id naming convention alone (`./naming`)
+
+A tool that generates element ids, or a browser bundle, can import the `element-id-naming`
+convention without bpmnlint, the Camunda layers or any rule. `@miragon/bpmnlint-plugin-rules/naming`
+exports `DEFAULT_PREFIXES`, `ElementIdConvention`, `ElementIdNamingSetting`, `ValueNamingScheme`,
+`resolveCase`, `isExpression`, `isGeneratedId` and their types. Its only runtime dependency is
+`bpmnlint-utils`.
+
+Generate ids that pass the rule:
+
+```ts
+import {
+  DEFAULT_PREFIXES,
+  ElementIdConvention,
+} from '@miragon/bpmnlint-plugin-rules/naming';
+
+const id = `${DEFAULT_PREFIXES['bpmn:ServiceTask']}claimMembership`; // serviceTask_claimMembership
+const violation = new ElementIdConvention().violationOf(element); // null when the id passes
+```
+
+Read the effective setting of `@miragon/rules/element-id-naming` from a project's parsed
+`.bpmnlintrc`. Its own `rules` entry wins, otherwise the last `plugin:@miragon/rules/<preset>` in
+`extends` that sets the rule decides:
+
+```ts
+import {
+  ElementIdConvention,
+  ElementIdNamingSetting,
+} from '@miragon/bpmnlint-plugin-rules/naming';
+
+const setting = ElementIdNamingSetting.fromBpmnlintrc(
+  JSON.parse(bpmnlintrc),
+);
+// { severity: 'off' | 'warn' | 'error', config?: ElementIdNamingConfig }
+if (setting.severity !== 'off') {
+  const convention = new ElementIdConvention(setting.config);
+}
+```
+
 <!-- #endregion programmatic -->
 
 <!-- #endregion usage -->

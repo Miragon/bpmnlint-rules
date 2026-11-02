@@ -28,6 +28,16 @@
         "default": "./dist/index.cjs"
       }
     },
+    "./naming": {
+      "import": {
+        "types": "./dist/naming.d.ts",
+        "default": "./dist/naming.js"
+      },
+      "require": {
+        "types": "./dist/naming.d.cts",
+        "default": "./dist/naming.cjs"
+      }
+    },
     "./rules/*": {
       "import": {
         "types": "./dist/rules/miragon/*.d.ts",
@@ -87,6 +97,7 @@
     "@types/node": "26.6.5",
     "bpmnlint": "11.15.0",
     "dependency-cruiser": "18.7.0",
+    "esbuild": "0.28.2",
     "eslint": "10.13.0",
     "eslint-config-prettier": "10.1.8",
     "globals": "17.13.0",

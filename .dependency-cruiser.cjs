@@ -46,6 +46,17 @@ module.exports = {
       to: { path: '^src/(config|presets|resolver)/' },
     },
     {
+      name: 'naming-entry-stays-light',
+      comment:
+        'The ./naming subpath must load without bpmnlint, its rules or presets: it runs in browsers.',
+      severity: 'error',
+      from: { path: '^src/(naming\\.ts|lib/naming/)' },
+      to: {
+        path: '^src/(?!naming\\.ts$|lib/naming/|lib/moddle\\.ts$|lib/bpmnlint-config\\.ts$)',
+        dependencyTypesNot: ['type-only'],
+      },
+    },
+    {
       name: 'no-dead-helpers',
       comment: 'A lib/ helper nobody imports is dead code — delete it or wire it up.',
       severity: 'error',
