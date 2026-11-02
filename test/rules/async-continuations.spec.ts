@@ -18,16 +18,22 @@ const ASYNC_BEFORE = { 'camunda:asyncBefore': 'true' };
 const ASYNC_AFTER = { 'camunda:asyncAfter': 'true' };
 
 const MESSAGES = {
-  serviceTasks:
+  remoteCall:
     'Add camunda:asyncBefore so a failing call rolls back to this task, not the last wait state',
-  userTasks: 'Add camunda:asyncAfter so completing the task commits before the following steps run',
-  startEvents: 'Add camunda:asyncBefore so the caller gets the instance back before work starts',
-  joins:
-    'Add camunda:asyncBefore so joining paths do not collide with an OptimisticLockingException',
-  multiInstance:
+  userTask: 'Add camunda:asyncAfter so completing the task commits before the following steps run',
+  start: 'Add camunda:asyncBefore so the caller gets the instance back before work starts',
+  join: 'Add camunda:asyncBefore so joining paths do not collide with an OptimisticLockingException',
+  multiInstanceBody:
     'Add camunda:asyncBefore so the instances start in their own transaction, not the caller one',
-  waitStates:
+  waitState:
     'Remove camunda:asyncBefore: a wait state already commits, the extra job is only overhead',
+  timerStart:
+    'Remove camunda:asyncBefore: a timer start event already fires as a job, a second one is overhead',
+  forbiddenAfter: 'Remove camunda:asyncAfter: the save-point policy forbids it for serviceTasks',
+  forbiddenBefore:
+    'Remove camunda:asyncBefore: the save-point policy forbids it for exclusiveGateways',
+  requiredAfter:
+    'Add camunda:asyncAfter: the save-point policy requires it for externalServiceTasks',
 };
 
 const camunda7 = (shapes: ShapeSpec[], edges: EdgeSpec[] = []) =>
@@ -48,6 +54,7 @@ const SAVE_POINTS_IN_PLACE: { shapes: ShapeSpec[]; edges: EdgeSpec[] } = {
       tag: 'serviceTask',
       isMultiInstance: true,
       attributes: ASYNC_BEFORE,
+      multiInstanceAttributes: ASYNC_BEFORE,
     },
     { id: 'endEvent_orderShipped', tag: 'endEvent' },
   ],
@@ -66,7 +73,11 @@ const SAVE_POINTS_IN_PLACE: { shapes: ShapeSpec[]; edges: EdgeSpec[] } = {
 
 /** The same model with every async flag stripped: it trips every "missing" check at once. */
 const NO_SAVE_POINTS = {
-  shapes: SAVE_POINTS_IN_PLACE.shapes.map((shape) => ({ ...shape, attributes: {} })),
+  shapes: SAVE_POINTS_IN_PLACE.shapes.map((shape) => ({
+    ...shape,
+    attributes: {},
+    multiInstanceAttributes: {},
+  })),
   edges: SAVE_POINTS_IN_PLACE.edges,
 };
 
@@ -163,13 +174,14 @@ verify('async-continuations', rule, {
       ),
     },
     {
-      name: 'asyncBefore on a multi-instance user task belongs to the multi-instance body',
+      name: 'a multi-instance user task commits each instance through its loop characteristics',
       moddleElement: camunda7([
         {
           id: 'userTask_reviewItems',
           tag: 'userTask',
           isMultiInstance: true,
-          attributes: { ...ASYNC_BEFORE, ...ASYNC_AFTER },
+          attributes: ASYNC_BEFORE,
+          multiInstanceAttributes: ASYNC_AFTER,
         },
       ]),
     },
@@ -198,44 +210,143 @@ verify('async-continuations', rule, {
       config: {
         serviceTasks: false,
         userTasks: false,
+        sendTasks: false,
+        scriptTasks: false,
         startEvents: false,
-        joins: false,
-        multiInstance: false,
+        parallelJoins: false,
+        multiInstanceBodies: false,
       },
       moddleElement: camunda7(NO_SAVE_POINTS.shapes, NO_SAVE_POINTS.edges),
     },
     {
-      name: 'waitStates switched off accepts asyncBefore on a user task',
-      config: { waitStates: false },
+      name: 'the defaults allow asyncAfter on an external service task',
       moddleElement: camunda7([
         {
-          id: 'userTask_approveOrder',
-          tag: 'userTask',
-          attributes: { ...ASYNC_BEFORE, ...ASYNC_AFTER },
+          id: 'serviceTask_chargeCard',
+          tag: 'serviceTask',
+          attributes: { ...ASYNC_AFTER, 'camunda:type': 'external' },
+        },
+      ]),
+    },
+    {
+      name: 'a key set to false allows every slot of it',
+      config: { userTasks: false },
+      moddleElement: camunda7([
+        { id: 'userTask_approveOrder', tag: 'userTask', attributes: ASYNC_BEFORE },
+      ]),
+    },
+    {
+      name: 'a slot override replaces only that slot',
+      config: { serviceTasks: { before: 'allowed' } },
+      moddleElement: camunda7([{ id: 'serviceTask_chargeCard', tag: 'serviceTask' }]),
+    },
+    {
+      name: 'the minimal preset keeps the required asyncBefore on a multi-instance body',
+      config: { preset: 'minimal' },
+      moddleElement: camunda7([
+        {
+          id: 'serviceTask_shipParcels',
+          tag: 'serviceTask',
+          isMultiInstance: true,
+          attributes: ASYNC_BEFORE,
+          multiInstanceAttributes: ASYNC_BEFORE,
         },
       ]),
     },
   ],
   invalid: [
     {
+      name: 'a multi-instance user task checks the body and each instance on its own',
+      moddleElement: camunda7([
+        {
+          id: 'userTask_reviewItems',
+          tag: 'userTask',
+          isMultiInstance: true,
+        },
+      ]),
+      report: [
+        { id: 'userTask_reviewItems', message: MESSAGES.multiInstanceBody },
+        { id: 'userTask_reviewItems', message: MESSAGES.userTask },
+      ],
+    },
+    {
+      name: 'asyncBefore on a timer start event only adds a second job',
+      moddleElement: camunda7Xml(`
+    <bpmn:startEvent id="startEvent_everyNight" camunda:asyncBefore="true">
+      <bpmn:timerEventDefinition id="def_everyNight" />
+    </bpmn:startEvent>`),
+      report: { id: 'startEvent_everyNight', message: MESSAGES.timerStart },
+    },
+    {
+      name: 'the minimal preset forbids an asyncAfter in front of a multi-instance body',
+      config: { preset: 'minimal' },
+      moddleElement: camunda7(
+        [
+          {
+            id: 'serviceTask_loadParcels',
+            tag: 'serviceTask',
+            attributes: { ...ASYNC_BEFORE, ...ASYNC_AFTER },
+          },
+          {
+            id: 'serviceTask_shipParcels',
+            tag: 'serviceTask',
+            isMultiInstance: true,
+            attributes: ASYNC_BEFORE,
+            multiInstanceAttributes: ASYNC_BEFORE,
+          },
+        ],
+        [{ id: 'flow_1', source: 'serviceTask_loadParcels', target: 'serviceTask_shipParcels' }],
+      ),
+      report: { id: 'serviceTask_loadParcels', message: MESSAGES.forbiddenAfter },
+    },
+    {
+      name: 'a slot override on a specific key replaces its default',
+      config: { externalServiceTasks: { after: 'required' } },
+      moddleElement: camunda7([
+        {
+          id: 'serviceTask_chargeCard',
+          tag: 'serviceTask',
+          attributes: { 'camunda:type': 'external' },
+        },
+      ]),
+      report: { id: 'serviceTask_chargeCard', message: MESSAGES.requiredAfter },
+    },
+    {
+      name: 'a forbidden slot on a non-wait state gets the policy message',
+      config: { exclusiveGateways: { before: 'forbidden' } },
+      moddleElement: camunda7([
+        { id: 'gateway_isPaid', tag: 'exclusiveGateway', attributes: ASYNC_BEFORE },
+      ]),
+      report: { id: 'gateway_isPaid', message: MESSAGES.forbiddenBefore },
+    },
+    {
+      name: 'each instance of a multi-instance service task needs its own asyncBefore',
+      moddleElement: camunda7Xml(`
+    <bpmn:serviceTask id="serviceTask_shipParcels" camunda:asyncBefore="true">
+      <bpmn:multiInstanceLoopCharacteristics id="loop_shipParcels" />
+    </bpmn:serviceTask>`),
+      report: { id: 'serviceTask_shipParcels', message: MESSAGES.remoteCall },
+    },
+    {
       name: 'a message start event still needs asyncBefore',
       moddleElement: camunda7Xml(`
     <bpmn:startEvent id="startEvent_orderReceived">
       <bpmn:messageEventDefinition id="def_orderReceived" />
     </bpmn:startEvent>`),
-      report: { id: 'startEvent_orderReceived', message: MESSAGES.startEvents },
+      report: { id: 'startEvent_orderReceived', message: MESSAGES.start },
     },
     {
       name: 'a diagram without any save point trips every missing check',
       moddleElement: camunda7(NO_SAVE_POINTS.shapes, NO_SAVE_POINTS.edges),
       report: [
-        { id: 'startEvent_orderPlaced', message: MESSAGES.startEvents },
-        { id: 'userTask_approveOrder', message: MESSAGES.userTasks },
-        { id: 'serviceTask_chargeCard', message: MESSAGES.serviceTasks },
-        { id: 'scriptTask_packItems', message: MESSAGES.serviceTasks },
-        { id: 'sendTask_notifyCustomer', message: MESSAGES.serviceTasks },
-        { id: 'gateway_join', message: MESSAGES.joins },
-        { id: 'serviceTask_shipParcels', message: MESSAGES.multiInstance },
+        { id: 'startEvent_orderPlaced', message: MESSAGES.start },
+        { id: 'userTask_approveOrder', message: MESSAGES.userTask },
+        { id: 'serviceTask_chargeCard', message: MESSAGES.remoteCall },
+        { id: 'scriptTask_packItems', message: MESSAGES.remoteCall },
+        { id: 'sendTask_notifyCustomer', message: MESSAGES.remoteCall },
+        { id: 'gateway_join', message: MESSAGES.join },
+        { id: 'serviceTask_shipParcels', message: MESSAGES.multiInstanceBody },
+        { id: 'serviceTask_shipParcels', message: MESSAGES.remoteCall },
       ],
     },
     {
@@ -244,7 +355,7 @@ verify('async-continuations', rule, {
         shapes: [{ id: 'serviceTask_chargeCard', tag: 'serviceTask' }],
         definitionsAttributes: CAMUNDA_NAMESPACE,
       }),
-      report: { id: 'serviceTask_chargeCard', message: MESSAGES.serviceTasks },
+      report: { id: 'serviceTask_chargeCard', message: MESSAGES.remoteCall },
     },
     {
       name: 'a message throw and a message end event need asyncBefore',
@@ -257,8 +368,8 @@ verify('async-continuations', rule, {
         { id: 'endEvent_orderSent', tag: 'endEvent', eventDefinitions: ['message'] },
       ]),
       report: [
-        { id: 'event_orderConfirmed', message: MESSAGES.serviceTasks },
-        { id: 'endEvent_orderSent', message: MESSAGES.serviceTasks },
+        { id: 'event_orderConfirmed', message: MESSAGES.remoteCall },
+        { id: 'endEvent_orderSent', message: MESSAGES.remoteCall },
       ],
     },
     {
@@ -274,7 +385,7 @@ verify('async-continuations', rule, {
           { id: 'flow_fromPrint', source: 'task_printLabel', target: 'gateway_join' },
         ],
       ),
-      report: { id: 'gateway_join', message: MESSAGES.joins },
+      report: { id: 'gateway_join', message: MESSAGES.join },
     },
     {
       name: 'asyncBefore on a wait state is overhead',
@@ -299,11 +410,11 @@ verify('async-continuations', rule, {
         },
       ]),
       report: [
-        { id: 'userTask_approveOrder', message: MESSAGES.waitStates },
-        { id: 'receiveTask_paymentReceived', message: MESSAGES.waitStates },
-        { id: 'event_reminderDue', message: MESSAGES.waitStates },
-        { id: 'gateway_awaitAnswer', message: MESSAGES.waitStates },
-        { id: 'serviceTask_chargeCard', message: MESSAGES.waitStates },
+        { id: 'userTask_approveOrder', message: MESSAGES.waitState },
+        { id: 'receiveTask_paymentReceived', message: MESSAGES.waitState },
+        { id: 'event_reminderDue', message: MESSAGES.waitState },
+        { id: 'gateway_awaitAnswer', message: MESSAGES.waitState },
+        { id: 'serviceTask_chargeCard', message: MESSAGES.waitState },
       ],
     },
     {
@@ -312,8 +423,8 @@ verify('async-continuations', rule, {
         { id: 'userTask_approveOrder', tag: 'userTask', attributes: ASYNC_BEFORE },
       ]),
       report: [
-        { id: 'userTask_approveOrder', message: MESSAGES.waitStates },
-        { id: 'userTask_approveOrder', message: MESSAGES.userTasks },
+        { id: 'userTask_approveOrder', message: MESSAGES.waitState },
+        { id: 'userTask_approveOrder', message: MESSAGES.userTask },
       ],
     },
     {
@@ -323,7 +434,21 @@ verify('async-continuations', rule, {
         { id: 'userTask_approveOrder', tag: 'userTask' },
         { id: 'serviceTask_chargeCard', tag: 'serviceTask' },
       ]),
-      report: { id: 'serviceTask_chargeCard', message: MESSAGES.serviceTasks },
+      report: { id: 'serviceTask_chargeCard', message: MESSAGES.remoteCall },
     },
   ],
+});
+
+describe('async-continuations config', () => {
+  it.each<[object]>([
+    [{ joins: false }],
+    [{ waitStates: false }],
+    [{ serviceTask: false }],
+    [{ serviceTasks: true }],
+    [{ serviceTasks: { before: 'sometimes' } }],
+    [{ serviceTasks: { external: { before: 'forbidden' } } }],
+    [{ preset: 'lazy' }],
+  ])('rejects %j', (config) => {
+    expect(() => rule(config as never)).toThrow(/async-continuations: invalid option/);
+  });
 });
