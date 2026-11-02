@@ -142,6 +142,13 @@ verify('async-continuations', rule, {
       ]),
     },
     {
+      name: 'a timer start event already runs as a job and needs no asyncBefore',
+      moddleElement: camunda7Xml(`
+    <bpmn:startEvent id="startEvent_everyNight">
+      <bpmn:timerEventDefinition id="def_everyNight" />
+    </bpmn:startEvent>`),
+    },
+    {
       name: 'a forking parallel gateway needs no asyncBefore',
       moddleElement: camunda7(
         [
@@ -210,6 +217,14 @@ verify('async-continuations', rule, {
     },
   ],
   invalid: [
+    {
+      name: 'a message start event still needs asyncBefore',
+      moddleElement: camunda7Xml(`
+    <bpmn:startEvent id="startEvent_orderReceived">
+      <bpmn:messageEventDefinition id="def_orderReceived" />
+    </bpmn:startEvent>`),
+      report: { id: 'startEvent_orderReceived', message: MESSAGES.startEvents },
+    },
     {
       name: 'a diagram without any save point trips every missing check',
       moddleElement: camunda7(NO_SAVE_POINTS.shapes, NO_SAVE_POINTS.edges),

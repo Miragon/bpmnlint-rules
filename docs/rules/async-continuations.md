@@ -51,6 +51,8 @@ The rule deliberately leaves these alone:
 - **Multi-instance activities** may carry `asyncBefore` even when they are a wait state: on a
   multi-instance activity the flag belongs to the multi-instance body.
 - **Start events of sub-processes and event sub-processes** are not checked.
+- **Timer start events** are not checked: the timer already fires as a job, so there is no caller
+  to hand the instance back to, and `asyncBefore` would only add a second job.
 - **Forking gateways** and exclusive gateways are not checked.
 - The legacy `camunda:async="true"` counts as `asyncBefore`.
 
@@ -85,7 +87,7 @@ Every check is on by default. Switch one off where your process deliberately dif
 | --------------- | ------- | ------------------------------------------------------------------------ |
 | `serviceTasks`  | `true`  | Require `asyncBefore` on service, script, send tasks and message throws. |
 | `userTasks`     | `true`  | Require `asyncAfter` on user tasks.                                      |
-| `startEvents`   | `true`  | Require `asyncBefore` on process start events.                           |
+| `startEvents`   | `true`  | Require `asyncBefore` on process start events, except timer starts.      |
 | `joins`         | `true`  | Require `asyncBefore` on parallel and inclusive joins.                   |
 | `multiInstance` | `true`  | Require `asyncBefore` on multi-instance activities.                      |
 | `waitStates`    | `true`  | Report `asyncBefore` on wait states.                                     |
