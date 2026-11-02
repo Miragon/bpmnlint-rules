@@ -79,6 +79,13 @@ function main() {
     npm(['install', '--no-audit', '--no-fund', tarball, `bpmnlint@${BPMNLINT_VERSION}`], project);
     step('installed the tarball next to bpmnlint');
 
+    const installedRuleDocs = path.join(project, 'node_modules', name, 'docs/rules');
+    assert.ok(
+      fs.existsSync(path.join(installedRuleDocs, 'async-continuations.md')),
+      'the rule docs must ship in the package',
+    );
+    step('rule docs ship in the package');
+
     // (1) Classic path: a known-bad model trips a Miragon rule via the CLI.
     const badFixture = path.join(project, 'bad.bpmn');
     fs.copyFileSync(
