@@ -1,4 +1,4 @@
-import type { ModdleElement } from '../moddle';
+import type { ModdleElement } from '../../../lib/moddle';
 import type { Slot } from './SavePointDefaults';
 
 /**

@@ -1,6 +1,6 @@
 import { is } from 'bpmnlint-utils';
 
-import type { ModdleElement } from '../moddle';
+import type { ModdleElement } from '../../../lib/moddle';
 import type { SavePointKey } from './SavePointDefaults';
 
 /**

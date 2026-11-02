@@ -27,8 +27,11 @@ Templates to copy from, by shape:
 
 The rule is a class implementing `Rule` (`check(node, reporter)`); the file's only export is
 `defineRule({ ruleName, kind }, RuleClass)` — the factory bpmnlint calls. Filter by type inside
-`check`; early-return means no report. Put reusable, linter-free logic in `src/lib/` (typed against
-`ModdleElement`/`Reporter`/`Rule` from `src/lib/moddle.ts`) — never import another rule. Classes
+`check`; early-return means no report. Logic shared with other rules goes in `src/lib/` (typed
+against `ModdleElement`/`Reporter`/`Rule` from `src/lib/moddle.ts`) — never import another rule.
+Helper classes only this rule needs make the rule a folder: `src/rules/miragon/<name>/index.ts` next
+to them, imported directly (see `src/rules/miragon/async-continuations/`). Move a helper to
+`src/lib/` once a second rule needs it. Classes
 first: no top-level functions outside a `utils/` folder (ESLint enforces it), so a rule's helpers
 are private methods.
 
