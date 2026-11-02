@@ -34,6 +34,11 @@ export interface ShapeSpec {
   eventDefinitionAttributes?: Record<string, string>;
   hasLoop?: boolean;
   isMultiInstance?: boolean;
+  /**
+   * Extra attributes written onto the multi-instance loop characteristics, e.g.
+   * `camunda:asyncBefore` for each instance.
+   */
+  multiInstanceAttributes?: Record<string, string>;
   /** Extra attributes written verbatim onto the semantic element, e.g. `camunda:asyncBefore`. */
   attributes?: Record<string, string>;
   /**
@@ -125,7 +130,11 @@ function semanticShape(
 
   const loopCharacteristics = [
     ...(shape.hasLoop ? ['      <bpmn:standardLoopCharacteristics />'] : []),
-    ...(shape.isMultiInstance ? ['      <bpmn:multiInstanceLoopCharacteristics />'] : []),
+    ...(shape.isMultiInstance
+      ? [
+          `      <bpmn:multiInstanceLoopCharacteristics${xmlAttributes(shape.multiInstanceAttributes)} />`,
+        ]
+      : []),
   ];
 
   if (
