@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.20.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.19.0...v0.20.0) (2026-11-02)
+
+
+### Features
+
+* **camunda-8:** target Camunda 8.11 and bundle timer-past-date ([#124](https://github.com/Miragon/bpmnlint-rules/issues/124)) ([a9a4905](https://github.com/Miragon/bpmnlint-rules/commit/a9a490528634d8f89454ddcb43b3d90d9b0abf20))
+
+
+### Bug Fixes
+
+* **async-continuations:** skip timer start events in the startEvents check ([#128](https://github.com/Miragon/bpmnlint-rules/issues/128)) ([6310a26](https://github.com/Miragon/bpmnlint-rules/commit/6310a26c4fb29d742cb8958edaa9ace6c2c19382))
+
 ## [0.19.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.18.0...v0.19.0) (2026-10-28)
 
 
