@@ -52,7 +52,7 @@ const MESSAGES = {
  *     "@miragon/rules/async-continuations": [ "error", {
  *       "serviceTasks": true,   // asyncBefore on service, script, send tasks and message throws
  *       "userTasks": true,      // asyncAfter on user tasks
- *       "startEvents": true,    // asyncBefore on process start events
+ *       "startEvents": true,    // asyncBefore on process start events, except timer starts
  *       "joins": true,          // asyncBefore on parallel and inclusive joins
  *       "multiInstance": true,  // asyncBefore on multi-instance activities
  *       "waitStates": true      // no asyncBefore on user, receive tasks, catch events, ...
@@ -104,7 +104,11 @@ class AsyncContinuations implements Rule {
     if (this.checks.serviceTasks && this.isRemoteCall(node)) {
       return MESSAGES.serviceTasks;
     }
-    if (this.checks.startEvents && this.isProcessStartEvent(node)) {
+    if (
+      this.checks.startEvents &&
+      this.isProcessStartEvent(node) &&
+      !this.isTimerStartEvent(node)
+    ) {
       return MESSAGES.startEvents;
     }
     if (this.checks.joins && this.isJoin(node)) {
@@ -195,6 +199,12 @@ class AsyncContinuations implements Rule {
 
   private isProcessStartEvent(node: ModdleElement): boolean {
     return is(node, 'bpmn:StartEvent') && is(node.$parent, 'bpmn:Process');
+  }
+
+  private isTimerStartEvent(node: ModdleElement): boolean {
+    return (node.eventDefinitions ?? []).some((definition: ModdleElement) =>
+      is(definition, 'bpmn:TimerEventDefinition'),
+    );
   }
 
   private isJoin(node: ModdleElement): boolean {
