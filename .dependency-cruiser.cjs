@@ -5,12 +5,13 @@
  *   index / plugin        -> presets, config, resolver, rules   (public surface + registry)
  *   presets / config      -> the rule-set folders' data + lib    (compose layers)
  *   resolver              -> the rule-set folders' resolverEntries
- *   rules/miragon/<rule>  -> lib/                                 (a rule is a check over helpers)
+ *   rules/miragon/<rule>  -> lib/, its own folder                 (a rule is a check over helpers)
  *   rules/{common,camunda-7,camunda-8} -> upstream packages only (static-import glue)
  *   lib/                  -> (leaf)                               (pure moddle/DI/geometry helpers)
  *
  * The boundaries that matter:
  *  - A rule may never import another rule — bpmnlint resolves each independently; share via lib/.
+ *    A folder-style rule (rules/miragon/<rule>/index.ts) may import its own folder only.
  *  - lib/ stays a leaf so the helpers are testable in isolation.
  */
 module.exports = {
@@ -35,8 +36,14 @@ module.exports = {
       comment:
         'Rules are resolved independently by bpmnlint. Share code through lib/, never another rule.',
       severity: 'error',
-      from: { path: '^src/rules/miragon/(?!index\\.ts$).+' },
-      to: { path: '^src/rules/miragon/(?!index\\.ts$).+' },
+      from: {
+        path: '^src/rules/miragon/([^/.]+)(\\.ts$|/)',
+        pathNot: '^src/rules/miragon/index\\.ts$',
+      },
+      to: {
+        path: '^src/rules/miragon/',
+        pathNot: ['^src/rules/miragon/index\\.ts$', '^src/rules/miragon/$1(\\.ts$|/)'],
+      },
     },
     {
       name: 'rules-not-upwards',

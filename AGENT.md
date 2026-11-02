@@ -12,7 +12,9 @@ Use the **`/add-bpmn-rule` skill** (`.claude/skills/add-bpmn-rule/`) — it is t
 (impl + wiring + tests + docs + verify). The rationale and the bar for a new rule live in
 [`CONTRIBUTING.md`](CONTRIBUTING.md#writing-a-new-rule); the skill is the mechanical version.
 
-Only `src/rules/miragon/` holds rule source we author. Shared, linter-free logic goes in `src/lib/`.
+Only `src/rules/miragon/` holds rule source we author. `src/lib/` holds only logic used by at least
+two rules; helpers only one rule needs live next to it in a rule folder
+(`src/rules/miragon/<rule>/index.ts`, direct imports, no barrel).
 
 ## Before saying "done" — the verify gate
 

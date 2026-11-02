@@ -1,10 +1,14 @@
 import { is } from 'bpmnlint-utils';
 
-import { ExecutionEngine } from '../../lib/ExecutionEngine';
-import type { ModdleElement, Reporter, Rule } from '../../lib/moddle';
-import { SavePointFlag, SavePointLocator, SavePointPolicy } from '../../lib/savepoints';
-import type { SavePointConfig, Slot } from '../../lib/savepoints';
-import { defineRule } from '../../lib/utils/defineRule';
+import { ExecutionEngine } from '../../../lib/ExecutionEngine';
+import type { ModdleElement, Reporter, Rule } from '../../../lib/moddle';
+import { defineRule } from '../../../lib/utils/defineRule';
+
+import type { Slot } from './SavePointDefaults';
+import { SavePointFlag } from './SavePointFlag';
+import { SavePointLocator } from './SavePointLocator';
+import { SavePointPolicy } from './SavePointPolicy';
+import type { SavePointConfig } from './SavePointPolicy';
 
 const SLOTS: Slot[] = ['before', 'after'];
 
