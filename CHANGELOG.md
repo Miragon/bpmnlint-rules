@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.21.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.20.0...v0.21.0) (2026-11-02)
+
+
+### ⚠ BREAKING CHANGES
+
+* **async-continuations:** configure expected save points per BPMN element ([#131](https://github.com/Miragon/bpmnlint-rules/issues/131))
+
+### Features
+
+* **async-continuations:** configure expected save points per BPMN element ([#131](https://github.com/Miragon/bpmnlint-rules/issues/131)) ([c0b0de3](https://github.com/Miragon/bpmnlint-rules/commit/c0b0de3ae30f4e39319fa4999173c8debe4178ce))
+
 ## [0.20.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.19.0...v0.20.0) (2026-11-02)
 
 
