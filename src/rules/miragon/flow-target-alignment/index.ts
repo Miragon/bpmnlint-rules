@@ -1,9 +1,9 @@
-import { inst, PlaneRule } from '../../toolkit/diagram';
-import type { DiagramPlane } from '../../toolkit/diagram';
-import { sameRow } from '../../toolkit/geometry';
-import type { Rect } from '../../toolkit/geometry';
-import type { ModdleElement, Reporter } from '../../core/moddle';
-import { defineRule } from '../../core/utils/defineRule';
+import { inst, PlaneRule } from '../../../toolkit/diagram';
+import type { DiagramPlane } from '../../../toolkit/diagram';
+import { sameRow } from '../../../toolkit/geometry';
+import type { Rect } from '../../../toolkit/geometry';
+import type { ModdleElement, Reporter } from '../../../core/moddle';
+import { defineRule } from '../../../core/utils/defineRule';
 
 export interface FlowTargetAlignmentConfig {
   /**

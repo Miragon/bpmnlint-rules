@@ -1,6 +1,6 @@
-import { inst } from '../../toolkit/diagram';
-import type { ModdleElement, Reporter, Rule } from '../../core/moddle';
-import { defineRule } from '../../core/utils/defineRule';
+import { inst } from '../../../toolkit/diagram';
+import type { ModdleElement, Reporter, Rule } from '../../../core/moddle';
+import { defineRule } from '../../../core/utils/defineRule';
 
 /**
  * Reports an exclusive gateway drawn without its `X` marker (`isMarkerVisible` missing or false on

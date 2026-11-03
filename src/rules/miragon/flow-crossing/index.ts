@@ -1,9 +1,9 @@
-import { flowEndpointIds, PlaneRule } from '../../toolkit/diagram';
-import type { DiagramPlane } from '../../toolkit/diagram';
-import { BboxIndex, bboxOfPoints, segments, segmentsCross } from '../../toolkit/geometry';
-import type { Bbox, Point } from '../../toolkit/geometry';
-import type { ModdleElement, Reporter } from '../../core/moddle';
-import { defineRule } from '../../core/utils/defineRule';
+import { flowEndpointIds, PlaneRule } from '../../../toolkit/diagram';
+import type { DiagramPlane } from '../../../toolkit/diagram';
+import { BboxIndex, bboxOfPoints, segments, segmentsCross } from '../../../toolkit/geometry';
+import type { Bbox, Point } from '../../../toolkit/geometry';
+import type { ModdleElement, Reporter } from '../../../core/moddle';
+import { defineRule } from '../../../core/utils/defineRule';
 
 interface Flow {
   el: ModdleElement;

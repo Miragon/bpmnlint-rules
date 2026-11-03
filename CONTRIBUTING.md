@@ -44,8 +44,8 @@ opening a PR — the "Before opening a PR" section below is the exact sequence.
 src/rules/common/       the bpmnlint built-in rules (structural base) — static-import glue
 src/rules/camunda-7/    the camunda-compat C7 engine layer — static-import glue
 src/rules/camunda-8/    the camunda-compat C8 engine layer — static-import glue
-src/rules/miragon/      the ONLY folder whose rule source we author (one file per rule, or one
-                        folder <rule>/index.ts when the rule has helpers of its own) + index
+src/rules/miragon/      the ONLY folder whose rule source we author (one folder <rule>/index.ts
+                        per rule, next to its own helpers) + index
 src/core/               the bpmnlint contract — a leaf: config + moddle types, defineRule,
                         SeverityPolicy (rule kind -> layer severity)
 src/toolkit/            BPMN knowledge rules reuse: diagram/, geometry/, naming/ (public namespaces,
@@ -68,7 +68,7 @@ Two boundaries are enforced by `npm run lint:deps` and matter more than they loo
 
 - **A rule may never import another rule.** bpmnlint resolves and instantiates every rule
   independently, so a rule-to-rule import would make one rule's behaviour depend on another's
-  internals — invisible from `.bpmnlintrc`. Reusable logic goes in `src/toolkit/`. A folder-style rule
+  internals — invisible from `.bpmnlintrc`. Reusable logic goes in `src/toolkit/`. A rule
   (`src/rules/miragon/<rule>/`) may import its own folder, and nothing else may.
 - **`src/core/` and `src/toolkit/` never import upwards.** `core/` imports nothing, `toolkit/` only
   `core/` and itself, and `toolkit/geometry/` is pure math with no BPMN. The helpers work over
@@ -79,8 +79,8 @@ Two boundaries are enforced by `npm run lint:deps` and matter more than they loo
 mentioning a specific rule. If yes, it is BPMN knowledge and goes to `src/toolkit/` — even with a
 single rule using it today (`ExecutionEngine`, `SavePointFlag`). If it only makes sense in one rule's
 terms — its options, defaults, messages or decision policy (`SavePointPolicy`, `SavePointLocator`) —
-it stays next to that rule: turn the rule into a folder (`src/rules/miragon/<rule>/index.ts` plus its
-helper classes, imported directly, no barrel). The build still emits a folder-style rule at
+it stays next to that rule, in its folder (`src/rules/miragon/<rule>/index.ts` plus its helper
+classes, imported directly, no barrel). The build emits each rule at
 `dist/rules/miragon/<rule>.{js,cjs}`. Barrels exist only for the public `naming`, `diagram` and
 `geometry` namespaces (`src/index.ts`).
 
@@ -94,7 +94,7 @@ dependencies in `package.json`.
 
 ## Writing a new rule
 
-1. **Rule file.** Add `src/rules/miragon/<name>.ts`: a class implementing `Rule`
+1. **Rule file.** Add `src/rules/miragon/<name>/index.ts`: a class implementing `Rule`
    (`check(node, reporter)`, see bpmnlint's
    [plugin docs](https://github.com/bpmn-io/bpmnlint/blob/main/docs/plugins/README.md)), or extending
    `PlaneRule` for a rule that decides on DI coordinates. The file's only export is
@@ -102,7 +102,7 @@ dependencies in `package.json`.
    carrying the declaration as properties, because a second export would break the bare
    `module.exports = factory` shape bpmnlint's classic resolver needs. Logic that other rules
    can reuse goes in `src/toolkit/` (typed against `ModdleElement`/`Reporter` from `src/core/moddle.ts`);
-   helper classes only this rule needs make it a folder, `src/rules/miragon/<name>/index.ts`.
+   helper classes only this rule needs sit next to `index.ts` in the rule's folder.
 2. **Spec + fixtures.** Add `test/rules/<name>.spec.ts` using `bpmnlint`'s `RuleTester`, and a
    `test/fixtures/rules/<name>/{valid,invalid}.bpmn` pair (the SVGs in the docs are rendered from
    them by `npm run docs:examples`). Cover both sides: every exclusion the rule makes (a shape it
