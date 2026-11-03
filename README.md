@@ -68,7 +68,7 @@ It ships three configs — pick one by who's modeling and why:
 - `plugin:@miragon/rules/strict` — every Miragon rule at `error`, engine-agnostic. The gate to opt into
   when you want findings to fail the build. Not covered by semver: a minor release may add rules or
   widen what they report. See the
-  [semantic versioning policy](CONTRIBUTING.md#semantic-versioning-policy).
+  [semantic versioning policy](https://github.com/Miragon/bpmnlint-rules/blob/main/CONTRIBUTING.md#semantic-versioning-policy).
 
 <!-- #endregion presets -->
 
