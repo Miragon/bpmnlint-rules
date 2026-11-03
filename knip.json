@@ -3,7 +3,7 @@
   "workspaces": {
     ".": {
       "entry": [
-        "src/rules/miragon/*.ts!",
+        "src/rules/miragon/index.ts!",
         "src/rules/miragon/*/index.ts!",
         "test/**/*.spec.ts",
         "test/distro/*.{cjs,mjs}"

@@ -18,19 +18,18 @@ version. Use `<name>` for the kebab-case rule name (e.g. `flow-connection-side`)
 
 Templates to copy from, by shape:
 
-- `src/rules/miragon/no-generated-ids.ts` — simplest (per-element, no config).
-- `src/rules/miragon/element-id-naming.ts` — takes config.
-- `src/rules/miragon/flow-through-element.ts` — DI/geometry (extends `PlaneRule` from
+- `src/rules/miragon/no-generated-ids/index.ts` — simplest (per-element, no config).
+- `src/rules/miragon/element-id-naming/index.ts` — takes config.
+- `src/rules/miragon/flow-through-element/index.ts` — DI/geometry (extends `PlaneRule` from
   `src/toolkit/diagram/`, which runs once on `bpmn:Definitions` and hands it one `DiagramPlane` at a time).
 
-## 1. Rule file — `src/rules/miragon/<name>.ts`
+## 1. Rule file — `src/rules/miragon/<name>/index.ts`
 
 The rule is a class implementing `Rule` (`check(node, reporter)`); the file's only export is
 `defineRule({ ruleName, kind }, RuleClass)` — the factory bpmnlint calls. Filter by type inside
 `check`; early-return means no report. Rule-agnostic BPMN logic goes in `src/toolkit/` (typed
 against `ModdleElement`/`Reporter`/`Rule` from `src/core/moddle.ts`) — never import another rule.
-Helper classes only this rule needs make the rule a folder: `src/rules/miragon/<name>/index.ts` next
-to them, imported directly (see `src/rules/miragon/async-continuations/`). A helper that can be named and
+Helper classes only this rule needs sit next to `index.ts` in the rule's folder, imported directly (see `src/rules/miragon/async-continuations/`). A helper that can be named and
 tested without this rule belongs in `src/toolkit/`, even with one consumer. Classes
 first: no top-level functions outside a `utils/` folder (ESLint enforces it), so a rule's helpers
 are private methods.
