@@ -13,8 +13,8 @@
  *
  * The boundaries that matter:
  *  - A rule may never import another rule — bpmnlint resolves each independently; move
- *    rule-agnostic logic to toolkit/. A folder-style rule (rules/miragon/<rule>/index.ts) is the
- *    only entry into its folder; the rest of the folder is private to it.
+ *    rule-agnostic logic to toolkit/. A rule folder's index.ts (rules/miragon/<rule>/index.ts) is
+ *    its only entry; the rest of the folder is private to it.
  *  - core/ and toolkit/ never reach up into rules/config/presets/resolver.
  */
 module.exports = {

@@ -1,14 +1,14 @@
-import { flowEndpointIds, inst, isPassableShape, PlaneRule } from '../../toolkit/diagram';
-import type { DiagramPlane, PlaneEdge } from '../../toolkit/diagram';
+import { flowEndpointIds, inst, isPassableShape, PlaneRule } from '../../../toolkit/diagram';
+import type { DiagramPlane, PlaneEdge } from '../../../toolkit/diagram';
 import {
   BboxIndex,
   bboxOfPoints,
   bboxOfRect,
   segments,
   segThroughRect,
-} from '../../toolkit/geometry';
-import type { Reporter } from '../../core/moddle';
-import { defineRule } from '../../core/utils/defineRule';
+} from '../../../toolkit/geometry';
+import type { Reporter } from '../../../core/moddle';
+import { defineRule } from '../../../core/utils/defineRule';
 
 /**
  * Reports a sequence flow whose drawn path is routed THROUGH the body of a shape it does not
