@@ -10,7 +10,7 @@
  * `warn`, id conventions off); {@link recommendedForAutomation} for executable processes (every
  * engine-agnostic Miragon rule at a non-blocking `warn`).
  */
-import type { BpmnlintConfig } from '../lib/bpmnlint-config';
+import type { BpmnlintConfig } from '../core/bpmnlint-config';
 import { MIRAGON_NAME } from '../rules/miragon';
 
 export const recommendedForModeling: BpmnlintConfig = {

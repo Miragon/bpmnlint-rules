@@ -9,7 +9,7 @@
  * Each import names the file with its `.js` extension: bpmnlint has no `exports` map, so Node's
  * ESM resolver needs the full path.
  */
-import type { ResolverEntries } from '../../lib/bpmnlint-config';
+import type { ResolverEntries } from '../../core/bpmnlint-config';
 
 import recommended from 'bpmnlint/config/recommended.js';
 import all from 'bpmnlint/config/all.js';

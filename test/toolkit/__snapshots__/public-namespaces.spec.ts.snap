@@ -1,0 +1,38 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`public toolkit namespaces > expose a stable set of names 1`] = `
+{
+  "diagram": [
+    "DiagramPlane",
+    "PlaneRule",
+    "flowEndpointIds",
+    "inst",
+    "isPassableShape",
+    "markerZones",
+  ],
+  "geometry": [
+    "BboxIndex",
+    "attachSide",
+    "bboxDisjoint",
+    "bboxOfPoints",
+    "bboxOfRect",
+    "circleOverlapsRect",
+    "gatewayTipSide",
+    "isBackwardFlow",
+    "isOrthogonalPath",
+    "sameRow",
+    "segThroughRect",
+    "segments",
+    "segmentsCross",
+    "stubLength",
+  ],
+  "naming": [
+    "DEFAULT_PREFIXES",
+    "ElementIdConvention",
+    "ValueNamingScheme",
+    "isExpression",
+    "isGeneratedId",
+    "resolveCase",
+  ],
+}
+`;

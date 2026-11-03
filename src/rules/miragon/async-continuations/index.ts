@@ -1,11 +1,11 @@
 import { is } from 'bpmnlint-utils';
 
-import { ExecutionEngine } from '../../../lib/ExecutionEngine';
-import type { ModdleElement, Reporter, Rule } from '../../../lib/moddle';
-import { defineRule } from '../../../lib/utils/defineRule';
+import { ExecutionEngine } from '../../../toolkit/engine/ExecutionEngine';
+import type { ModdleElement, Reporter, Rule } from '../../../core/moddle';
+import { defineRule } from '../../../core/utils/defineRule';
 
 import type { Slot } from './SavePointDefaults';
-import { SavePointFlag } from './SavePointFlag';
+import { SavePointFlag } from '../../../toolkit/engine/SavePointFlag';
 import { SavePointLocator } from './SavePointLocator';
 import { SavePointPolicy } from './SavePointPolicy';
 import type { SavePointConfig } from './SavePointPolicy';

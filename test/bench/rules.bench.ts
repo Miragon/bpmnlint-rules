@@ -4,8 +4,8 @@ import Linter from 'bpmnlint/lib/linter';
 import { createModdle } from 'bpmnlint/lib/testers/helper';
 
 import type * as plugin from '../../src/index';
-import type { ResolverEntries, RuleSet } from '../../src/lib/bpmnlint-config';
-import type { ModdleElement } from '../../src/lib/moddle';
+import type { ResolverEntries, RuleSet } from '../../src/core/bpmnlint-config';
+import type { ModdleElement } from '../../src/core/moddle';
 
 import { EngineConfig } from '../../src/config/EngineConfig';
 import * as common from '../../src/rules/common';
@@ -19,7 +19,7 @@ import { MAX_TIME_RATIO_5000_TO_2000_NODES, targetTimeMsAt5000Nodes } from './ta
 /**
  * The rules are timed as they ship: from the built bundle, loaded by Node itself. Vitest's module
  * runner routes every cross-module call in `src/` through an import accessor, which doubles the
- * time of a rule that calls `src/lib/` helpers per element.
+ * time of a rule that calls `src/toolkit/` helpers per element.
  */
 const { createBundledResolver }: typeof plugin = createRequire(import.meta.url)(
   '../../dist/index.cjs',

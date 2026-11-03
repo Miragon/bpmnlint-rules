@@ -2,7 +2,7 @@
  * Moddle type tests over the elements a DI shape or edge draws. No semantic guessing, just moddle
  * type tests.
  */
-import type { ModdleElement } from '../../moddle';
+import type { ModdleElement } from '../../../core/moddle';
 
 /**
  * Inheritance-safe moddle type test — handles `bpmn:Transaction` extending `bpmn:SubProcess`,

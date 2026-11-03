@@ -1,8 +1,8 @@
-import { PlaneRule } from '../../lib/di';
-import type { DiagramPlane } from '../../lib/di';
-import { isOrthogonalPath } from '../../lib/geometry';
-import type { Reporter } from '../../lib/moddle';
-import { defineRule } from '../../lib/utils/defineRule';
+import { PlaneRule } from '../../toolkit/diagram';
+import type { DiagramPlane } from '../../toolkit/diagram';
+import { isOrthogonalPath } from '../../toolkit/geometry';
+import type { Reporter } from '../../core/moddle';
+import { defineRule } from '../../core/utils/defineRule';
 
 /**
  * Reports a sequence flow drawn on a slant: one with a segment that runs diagonally instead of

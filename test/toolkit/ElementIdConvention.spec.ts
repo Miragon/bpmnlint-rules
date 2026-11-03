@@ -1,8 +1,8 @@
 import { createModdle } from 'bpmnlint/lib/testers/helper';
 
-import { ElementIdConvention, resolveCase } from '../../src/lib/naming';
-import type { ElementIdNamingConfig } from '../../src/lib/naming';
-import type { ModdleElement } from '../../src/lib/moddle';
+import { ElementIdConvention, resolveCase } from '../../src/toolkit/naming';
+import type { ElementIdNamingConfig } from '../../src/toolkit/naming';
+import type { ModdleElement } from '../../src/core/moddle';
 
 interface ElementFactory {
   create: (type: string, attrs?: object) => ModdleElement;

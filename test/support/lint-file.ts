@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import Linter from 'bpmnlint/lib/linter';
 import { createModdle } from 'bpmnlint/lib/testers/helper';
 
-import type { RuleFactory } from '../../src/lib/moddle';
+import type { RuleFactory } from '../../src/core/moddle';
 
 import { all } from '../../src/presets/all';
 import { BundledResolver } from '../../src/resolver/BundledResolver';

@@ -1,5 +1,6 @@
-import type { ModdleElement } from '../../../lib/moddle';
-import type { Slot } from './SavePointDefaults';
+import type { ModdleElement } from '../../core/moddle';
+
+export type Slot = 'before' | 'after';
 
 /**
  * The `camunda:asyncBefore` / `camunda:asyncAfter` flag behind a slot.

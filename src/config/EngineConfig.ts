@@ -16,7 +16,7 @@
  * The engine layer's moddle descriptor is embedded directly (not referenced by module path) so a
  * config-less host can still parse the typed `zeebe:`/`camunda:` properties those rules inspect.
  */
-import type { BpmnlintConfig, Engine } from '../lib/bpmnlint-config';
+import type { BpmnlintConfig, Engine } from '../core/bpmnlint-config';
 
 import { extendsLayer as structuralLayer, commonRules } from '../rules/common';
 import { MIRAGON_NAME } from '../rules/miragon';

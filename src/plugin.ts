@@ -12,7 +12,7 @@
  * Programmatic consumers don't use this — they use `createBundledResolver()` (self-contained, also
  * bundles the structural + Camunda layers) or the exported `miragonRuleFactories`.
  */
-import type { BpmnlintConfig } from './lib/bpmnlint-config';
+import type { BpmnlintConfig } from './core/bpmnlint-config';
 
 import { miragonLayers, miragonRuleFactories } from './rules/miragon';
 

@@ -1,7 +1,7 @@
-import type { ModdleElement, Reporter, Rule } from '../../lib/moddle';
-import { ElementIdConvention } from '../../lib/naming';
-import type { ElementIdNamingConfig } from '../../lib/naming';
-import { defineRule } from '../../lib/utils/defineRule';
+import type { ModdleElement, Reporter, Rule } from '../../core/moddle';
+import { ElementIdConvention } from '../../toolkit/naming';
+import type { ElementIdNamingConfig } from '../../toolkit/naming';
+import { defineRule } from '../../core/utils/defineRule';
 
 /**
  * Reports an element whose ID does not follow the project's naming convention.

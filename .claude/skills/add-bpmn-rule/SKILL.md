@@ -21,25 +21,25 @@ Templates to copy from, by shape:
 - `src/rules/miragon/no-generated-ids.ts` — simplest (per-element, no config).
 - `src/rules/miragon/element-id-naming.ts` — takes config.
 - `src/rules/miragon/flow-through-element.ts` — DI/geometry (extends `PlaneRule` from
-  `src/lib/di/`, which runs once on `bpmn:Definitions` and hands it one `DiagramPlane` at a time).
+  `src/toolkit/diagram/`, which runs once on `bpmn:Definitions` and hands it one `DiagramPlane` at a time).
 
 ## 1. Rule file — `src/rules/miragon/<name>.ts`
 
 The rule is a class implementing `Rule` (`check(node, reporter)`); the file's only export is
 `defineRule({ ruleName, kind }, RuleClass)` — the factory bpmnlint calls. Filter by type inside
-`check`; early-return means no report. Logic shared with other rules goes in `src/lib/` (typed
-against `ModdleElement`/`Reporter`/`Rule` from `src/lib/moddle.ts`) — never import another rule.
+`check`; early-return means no report. Rule-agnostic BPMN logic goes in `src/toolkit/` (typed
+against `ModdleElement`/`Reporter`/`Rule` from `src/core/moddle.ts`) — never import another rule.
 Helper classes only this rule needs make the rule a folder: `src/rules/miragon/<name>/index.ts` next
-to them, imported directly (see `src/rules/miragon/async-continuations/`). Move a helper to
-`src/lib/` once a second rule needs it. Classes
+to them, imported directly (see `src/rules/miragon/async-continuations/`). A helper that can be named and
+tested without this rule belongs in `src/toolkit/`, even with one consumer. Classes
 first: no top-level functions outside a `utils/` folder (ESLint enforces it), so a rule's helpers
 are private methods.
 
 ```ts
 import { isAny } from 'bpmnlint-utils';
 
-import type { ModdleElement, Reporter, Rule } from '../../lib/moddle';
-import { defineRule } from '../../lib/utils/defineRule';
+import type { ModdleElement, Reporter, Rule } from '../../core/moddle';
+import { defineRule } from '../../core/utils/defineRule';
 
 /** One sentence: what this reports and why. */
 class <ClassName> implements Rule {
@@ -60,8 +60,8 @@ The declaration is how the rule states its own name and kind: `index.ts` keys th
 the constructor.
 
 For a geometry rule, extend `PlaneRule` and implement `checkPlane(plane, reporter)` instead — see
-`flow-through-element.ts`. Geometry math belongs in `src/lib/geometry/` (pure, no BPMN), DI reading
-in `src/lib/di/`.
+`flow-through-element.ts`. Geometry math belongs in `src/toolkit/geometry/` (pure, no BPMN), DI reading
+in `src/toolkit/diagram/`.
 
 ## 2. Wire it in — `src/rules/miragon/index.ts`
 
@@ -73,7 +73,7 @@ file. Make three edits:
 3. Re-export the factory in the trailing `export { ... }`.
 
 The `kind` in the rule's `defineRule` declaration sets its severity in every layer via
-`SEVERITY_BY_KIND` in `src/lib/SeverityPolicy.ts`: `layout-hint` (warn/warn/error), `misdrawn`
+`SEVERITY_BY_KIND` in `src/core/SeverityPolicy.ts`: `layout-hint` (warn/warn/error), `misdrawn`
 (error/warn/error), `convention` (off/warn/error), `scheme` (off/off/error), `engine-specific`
 (off/off/error — also declare `targetEngine: 'c7'` and skip diagrams for other engines). Columns
 are modeling/automation/all.
@@ -106,7 +106,7 @@ verify('<name>', rule, {
 
 `model({ shapes, edges })` (see `test/support/model.ts`) writes a full DI layer; give shapes
 `x/y/width/height` and edges `waypoints` when geometry matters, omit them when it doesn't. Pure
-helpers added to `src/lib/` get their own direct unit `verify`/`expect` cases.
+helpers added to `src/toolkit/` get their own direct unit `verify`/`expect` cases.
 
 ## 4. Fixtures + docs
 
@@ -115,7 +115,7 @@ helpers added to `src/lib/` get their own direct unit `verify`/`expect` cases.
   folder — no wiring), which lints each through `bpmnlint:recommended` + `plugin:@miragon/rules/all`:
   - `valid.bpmn` must be **clean against every rule** — a complete, labeled process (start/end
     events, nothing disconnected, labels on tasks/events/forking gateways and conditional flows),
-    with ids on the `<typePrefix>_<camelCase>` convention (`src/lib/naming/ElementIdConvention.ts`). Not just clean w.r.t.
+    with ids on the `<typePrefix>_<camelCase>` convention (`src/toolkit/naming/ElementIdConvention.ts`). Not just clean w.r.t.
     the new rule.
   - `invalid.bpmn` is the same clean model with **exactly one intentional defect**: it must trip the
     new rule (on the element the doc points at) and nothing may be flagged on any other element.
@@ -147,7 +147,7 @@ entry exists. Then run `npm run bench` and read the rule's row:
 - **`5,000` over the target:** make the rule faster. Raise the target only with a measured reason
   (e.g. the rule reports on every element of the benchmark model).
 - **`5k / 2k` at 4 or above:** the rule is not linear (linear is about 2.5, quadratic about 6.25).
-  Replace the pairwise loop with an index, see `BboxIndex` in `src/lib/geometry/`.
+  Replace the pairwise loop with an index, see `BboxIndex` in `src/toolkit/geometry/`.
 
 ## 6. Verify gate (must be green)
 

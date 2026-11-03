@@ -11,7 +11,7 @@
  */
 import StaticResolver from 'bpmnlint/lib/resolver/static-resolver.js';
 
-import type { ResolverEntries } from '../lib/bpmnlint-config';
+import type { ResolverEntries } from '../core/bpmnlint-config';
 import type { Resolver } from './Resolver';
 
 import { resolverEntries as commonEntries } from '../rules/common';

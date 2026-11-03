@@ -1,9 +1,9 @@
 import { is, isAny } from 'bpmnlint-utils';
 
-import type { ModdleElement, Reporter, Rule } from '../../lib/moddle';
-import { isExpression, ValueNamingScheme } from '../../lib/naming';
-import type { ValueNamingConfig } from '../../lib/naming';
-import { defineRule } from '../../lib/utils/defineRule';
+import type { ModdleElement, Reporter, Rule } from '../../core/moddle';
+import { isExpression, ValueNamingScheme } from '../../toolkit/naming';
+import type { ValueNamingConfig } from '../../toolkit/naming';
+import { defineRule } from '../../core/utils/defineRule';
 
 const EXTERNAL_TASK_TYPES = ['bpmn:ServiceTask', 'bpmn:BusinessRuleTask', 'bpmn:SendTask'];
 
