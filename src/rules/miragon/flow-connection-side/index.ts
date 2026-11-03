@@ -1,73 +1,29 @@
-import { inst, PlaneRule } from '../../../toolkit/diagram';
+import { PlaneRule } from '../../../toolkit/diagram';
 import type { DiagramPlane } from '../../../toolkit/diagram';
-import { attachSide, gatewayTipSide, isBackwardFlow, stubLength } from '../../../toolkit/geometry';
-import type { Point, Side } from '../../../toolkit/geometry';
-import type { ModdleElement, Reporter } from '../../../core/moddle';
+import { attachSide, gatewayTipSide, stubLength } from '../../../toolkit/geometry';
+import type { Reporter } from '../../../core/moddle';
 import { defineRule } from '../../../core/utils/defineRule';
+import { ConnectionSideMessages } from './ConnectionSideMessages';
+import { ReturnFlows } from './ReturnFlows';
+import { SidePolicy } from './SidePolicy';
+import type { Endpoint, Route } from './types';
 
 export interface FlowConnectionSideConfig {
   allowBackwardsFlow?: boolean;
   minStubLength?: number;
 }
 
-type Category = 'event' | 'gateway' | 'activity';
-type Direction = 'incoming' | 'outgoing';
-
-/** One end of a flow: `point` is the waypoint docked onto `ref`, `neighbor` the adjacent one. */
-interface Endpoint {
-  direction: Direction;
-  ref: ModdleElement;
-  point: Point | undefined;
-  neighbor: Point | undefined;
-}
-
-/** What picks the policy for both ends of one flow. */
-interface Route {
-  flowId: string;
-  backward: boolean;
-  sourceIsChainMember: boolean;
-}
-
-/**
- * Allowed docking sides per direction and category — the single knob for what counts as clean.
- * `incoming` is a flow's target end, `outgoing` its source. Left-to-right model: the main flow enters
- * on the left; activities exit right; events and gateways branch out any side but the incoming-left
- * one. A gateway is entered at any tip but the forward-right one (mirror of that exit rule), and only
- * ever connects at one of its four tips.
- */
-const POLICY: Record<Direction, Record<Category, Side[]>> = {
-  incoming: {
-    event: ['left'],
-    activity: ['left'],
-    gateway: ['top', 'bottom', 'left'],
-  },
-  outgoing: {
-    event: ['top', 'right', 'bottom'],
-    activity: ['right'],
-    gateway: ['top', 'right', 'bottom'],
-  },
-};
-
-const CATEGORY_LABEL: Record<Category, string> = {
-  event: 'an event',
-  gateway: 'a gateway',
-  activity: 'an activity',
-};
-
-/** Left ↔ right, top/bottom unchanged — the horizontal mirror applied to a return flow's policy. */
-const MIRROR: Record<Side, Side> = { left: 'right', right: 'left', top: 'top', bottom: 'bottom' };
-
 /**
  * Reports a sequence flow that docks at the wrong side — an event entered from the top, an activity
  * exited to the left, a gateway connected on a diagonal flank instead of one of its four tips.
  *
  * Only DI coordinates decide: a flow's first waypoint is its exit off the source, its last waypoint
- * the entry into the target; the side each sits on is checked against {@link POLICY}. Scoped per
- * BPMNPlane; uncategorised shapes (data objects, pools, lanes) and boundary events are left alone.
+ * the entry into the target; the side each sits on is checked against the {@link SidePolicy}. Scoped
+ * per BPMNPlane; uncategorised shapes (data objects, pools, lanes) and boundary events are left alone.
  *
- * A **return flow** — target drawn clearly left of its source (see {@link isBackwardFlow}) — is a
+ * A **return flow** — target drawn clearly left of its source (see {@link ReturnFlows}) — is a
  * legitimate right-to-left loop-back, so its policy is mirrored;
- * {@link FlowConnectionSide.allowedSidesFor} spells out how per endpoint.
+ * {@link SidePolicy.allowedSidesFor} spells out how per endpoint.
  *
  * Each endpoint must also leave/enter with a **stub**: the first segment runs at least
  * `minStubLength` px straight out of the docked side before turning, so an edge cannot dock and
@@ -80,25 +36,28 @@ const MIRROR: Record<Side, Side> = { left: 'right', right: 'left', top: 'top', b
 class FlowConnectionSide extends PlaneRule {
   private readonly allowBackwardsFlow: boolean;
   private readonly minStubLength: number;
+  private readonly sidePolicy = new SidePolicy();
+  private readonly messages: ConnectionSideMessages;
 
   constructor(config?: FlowConnectionSideConfig) {
     super();
     const { allowBackwardsFlow = true, minStubLength = 20 } = config ?? {};
     this.allowBackwardsFlow = allowBackwardsFlow;
     this.minStubLength = minStubLength;
+    this.messages = new ConnectionSideMessages(minStubLength);
   }
 
   protected checkPlane(plane: DiagramPlane, reporter: Reporter): void {
-    const returnTargets = this.returnTargetIds(plane);
+    const returnFlows = new ReturnFlows(plane, this.allowBackwardsFlow);
 
     for (const flow of plane.sequenceFlows) {
       const source = flow.el.sourceRef;
       const target = flow.el.targetRef;
-      const backward = this.isReturnFlow(plane, source, target);
+      const backward = returnFlows.isReturnFlow(source, target);
       const route: Route = {
         flowId: flow.el.id,
         backward,
-        sourceIsChainMember: backward && !!source && returnTargets.has(source.id),
+        sourceIsChainMember: backward && returnFlows.isChainMember(source),
       };
 
       this.checkEndpoint(plane, reporter, route, {
@@ -117,37 +76,9 @@ class FlowConnectionSide extends PlaneRule {
   }
 
   /**
-   * Targets of return flows sit inside the return lane. A return flow whose source is one of them is
-   * a "chain member" (exits mirrored); any other is an "initiator" (exits forward).
-   */
-  private returnTargetIds(plane: DiagramPlane): Set<string> {
-    const returnTargets = new Set<string>();
-    for (const flow of plane.sequenceFlows) {
-      const target = flow.el.targetRef;
-      if (target && this.isReturnFlow(plane, flow.el.sourceRef, target)) {
-        returnTargets.add(target.id);
-      }
-    }
-    return returnTargets;
-  }
-
-  /**
-   * Right-to-left loop-back — target drawn clearly left of its source. A missing end or
-   * `allowBackwardsFlow: false` counts as not backward, keeping the strict policy.
-   */
-  private isReturnFlow(plane: DiagramPlane, source: ModdleElement, target: ModdleElement): boolean {
-    if (!this.allowBackwardsFlow || !source || !target) {
-      return false;
-    }
-    const sourceBounds = plane.boundsOf(source.id);
-    const targetBounds = plane.boundsOf(target.id);
-    return !!sourceBounds && !!targetBounds && isBackwardFlow(sourceBounds, targetBounds);
-  }
-
-  /**
-   * Checks the side `endpoint.point` docks onto against {@link allowedSidesFor}, then — if the side
-   * is clean — that its stub reaches `minStubLength`. Reports a wrong side or a too-short stub on
-   * the route's flow.
+   * Checks the side `endpoint.point` docks onto against {@link SidePolicy.allowedSidesFor}, then — if
+   * the side is clean — that its stub reaches `minStubLength`. Reports a wrong side or a too-short
+   * stub on the route's flow.
    */
   private checkEndpoint(
     plane: DiagramPlane,
@@ -160,7 +91,7 @@ class FlowConnectionSide extends PlaneRule {
     }
 
     const bounds = plane.boundsOf(ref.id);
-    const category = this.categoryOf(ref);
+    const category = this.sidePolicy.categoryOf(ref);
     if (!bounds || !category) {
       return;
     }
@@ -170,19 +101,16 @@ class FlowConnectionSide extends PlaneRule {
     const side = category === 'gateway' ? gatewayTipSide(point, bounds) : attachSide(point, bounds);
     if (side === null) {
       if (category === 'gateway') {
-        reporter.report(
-          route.flowId,
-          `Sequence flow connects to <${ref.id}> on a diagonal; a gateway must connect at one of its four tips`,
-        );
+        reporter.report(route.flowId, this.messages.diagonalGateway(ref.id));
       }
       return;
     }
 
-    const allowed = this.allowedSidesFor(direction, category, route);
+    const allowed = this.sidePolicy.allowedSidesFor(direction, category, route);
     if (!allowed.includes(side)) {
       reporter.report(
         route.flowId,
-        this.wrongSideMessage(direction, ref.id, side, category, allowed),
+        this.messages.wrongSide(direction, ref.id, side, category, allowed),
       );
       return;
     }
@@ -190,72 +118,9 @@ class FlowConnectionSide extends PlaneRule {
     if (this.minStubLength > 0 && neighbor) {
       const stub = stubLength(point, neighbor, side);
       if (stub < this.minStubLength) {
-        reporter.report(route.flowId, this.shortStubMessage(direction, ref.id, side, stub));
+        reporter.report(route.flowId, this.messages.shortStub(direction, ref.id, side, stub));
       }
     }
-  }
-
-  /**
-   * Resolves the allowed docking sides for one endpoint, mirroring the policy on a return flow:
-   * - incoming (target): mirrored — event/activity left → right.
-   * - outgoing activity: mirrored only for a chain member (right → left); else strict right — the
-   *   linear backbone stays strict.
-   * - outgoing gateway/event: a branch point may leave any tip on a return flow (forward ∪ mirror).
-   */
-  private allowedSidesFor(direction: Direction, category: Category, route: Route): Side[] {
-    const policy = POLICY[direction][category];
-    const mirrored = policy.map((side) => MIRROR[side]);
-
-    if (direction === 'incoming') {
-      return route.backward ? mirrored : policy;
-    }
-    if (category === 'activity') {
-      return route.sourceIsChainMember ? mirrored : policy;
-    }
-    return route.backward ? [...new Set([...policy, ...mirrored])] : policy;
-  }
-
-  /** The category whose side policy applies, or `null` for shapes the rule leaves alone. */
-  private categoryOf(el: ModdleElement): Category | null {
-    if (inst(el, 'bpmn:BoundaryEvent')) {
-      return null; // sits on its host's border — any side is legitimate
-    }
-    if (inst(el, 'bpmn:Event')) {
-      return 'event';
-    }
-    if (inst(el, 'bpmn:Gateway')) {
-      return 'gateway';
-    }
-    if (inst(el, 'bpmn:Activity')) {
-      return 'activity';
-    }
-    return null;
-  }
-
-  private wrongSideMessage(
-    direction: Direction,
-    id: string,
-    side: Side,
-    category: Category,
-    allowed: Side[],
-  ): string {
-    const sides =
-      allowed.length <= 1
-        ? (allowed[0] ?? '')
-        : `${allowed.slice(0, -1).join(', ')} or ${allowed.at(-1)}`;
-
-    return direction === 'incoming'
-      ? `Sequence flow enters <${id}> from the ${side}; ${CATEGORY_LABEL[category]} must be entered from the ${sides}`
-      : `Sequence flow leaves <${id}> to the ${side}; ${CATEGORY_LABEL[category]} must exit to the ${sides}`;
-  }
-
-  private shortStubMessage(direction: Direction, id: string, side: Side, stub: number): string {
-    const stubPx = Math.max(0, Math.round(stub));
-    const min = this.minStubLength;
-
-    return direction === 'incoming'
-      ? `Sequence flow enters <${id}> from the ${side} with only a ${stubPx}px stub; it must run at least ${min}px straight in before turning`
-      : `Sequence flow leaves <${id}> to the ${side} with only a ${stubPx}px stub; it must run at least ${min}px straight out before turning`;
   }
 }
 
