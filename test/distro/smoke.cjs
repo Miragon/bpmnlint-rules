@@ -6,7 +6,7 @@
  * Unit tests run through Vite against `src/`. This packs a real tarball, installs it into a
  * throwaway consumer next to `bpmnlint`, and checks the consumer paths end to end:
  *
- *   1. Classic `.bpmnlintrc` + `bpmnlint` CLI — `plugin:@miragon/rules/all` resolves, a known-bad
+ *   1. Classic `.bpmnlintrc` + `bpmnlint` CLI — `plugin:@miragon/rules/strict` resolves, a known-bad
  *      model trips a Miragon rule, a clean model stays silent. This is the path that a missing
  *      `files` entry, a non-bare rule export, or a wrong config name would silently break.
  *   2. Programmatic, `require` — the bundled resolver resolves rules from every layer and the
@@ -74,7 +74,11 @@ function main() {
     );
     fs.writeFileSync(
       path.join(project, '.bpmnlintrc'),
-      JSON.stringify({ extends: ['bpmnlint:recommended', 'plugin:@miragon/rules/all'] }, null, 2),
+      JSON.stringify(
+        { extends: ['bpmnlint:recommended', 'plugin:@miragon/rules/strict'] },
+        null,
+        2,
+      ),
     );
     npm(['install', '--no-audit', '--no-fund', tarball, `bpmnlint@${BPMNLINT_VERSION}`], project);
     step('installed the tarball next to bpmnlint');

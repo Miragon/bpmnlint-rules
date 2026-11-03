@@ -84,7 +84,7 @@ async function copyInstall() {
           <pre><span class="quiet">{</span>
   <span class="key">"extends"</span><span class="quiet">: [</span>
     <span class="quiet">"bpmnlint:recommended"</span><span class="quiet">,</span>
-    <strong>"plugin:@miragon/rules/all"</strong>
+    <strong>"plugin:@miragon/rules/strict"</strong>
   <span class="quiet">]</span>
 <span class="quiet">}</span></pre>
         </figure>

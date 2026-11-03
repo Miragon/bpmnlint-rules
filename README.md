@@ -65,8 +65,10 @@ It ships three configs — pick one by who's modeling and why:
 - `plugin:@miragon/rules/recommended-for-automation` — for **developers automating processes**, locally
   and in CI, on models wired up to a Camunda engine. Every Miragon rule on but as a non-blocking `warn`
   (`standard-size` too), so ids and layout get flagged without failing the build.
-- `plugin:@miragon/rules/all` — every Miragon rule at `error`, engine-agnostic. The strict gate to opt
-  into when you want findings to fail the build.
+- `plugin:@miragon/rules/strict` — every Miragon rule at `error`, engine-agnostic. The gate to opt into
+  when you want findings to fail the build. Not covered by semver: a minor release may add rules or
+  widen what they report. See the
+  [semantic versioning policy](https://github.com/Miragon/bpmnlint-rules/blob/main/CONTRIBUTING.md#semantic-versioning-policy).
 
 <!-- #endregion presets -->
 

@@ -1,6 +1,6 @@
 # `@miragon/rules/worker-topic-naming`
 
-> This rule is **off** in both `plugin:@miragon/rules/recommended-for-modeling` and `plugin:@miragon/rules/recommended-for-automation` (the scheme is a project decision, so you configure it before you switch the rule on). It is an `error` in `plugin:@miragon/rules/all`, with the default scheme. Set it to `warn`, `error` or `off` yourself to override.
+> This rule is **off** in both `plugin:@miragon/rules/recommended-for-modeling` and `plugin:@miragon/rules/recommended-for-automation` (the scheme is a project decision, so you configure it before you switch the rule on). It is an `error` in `plugin:@miragon/rules/strict`, with the default scheme. Set it to `warn`, `error` or `off` yourself to override.
 
 Reports a worker topic that does not follow the project's naming scheme: the topic of a Camunda 7 or
 Operaton external task, or the job type of a Camunda 8 task.

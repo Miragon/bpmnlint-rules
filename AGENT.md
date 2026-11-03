@@ -30,23 +30,23 @@ npm run typecheck && npm run lint && npm run format:check && npm run knip \
 
 ## Guardrails (easy to break, load-bearing)
 
-- **New rules ship `error` in `miragonAll` and a non-blocking `warn` in
+- **New rules ship `error` in `miragonStrict` and a non-blocking `warn` in
   `miragonRecommendedForAutomation`; in `miragonRecommendedForModeling` a rule is `off` unless it is
   a non-blocking layout hint, which ships at `warn`** (each rule declares its `kind`;
   `src/core/SeverityPolicy.ts` maps it to these severities). The two
-  `recommended-for-*` layers never fail a build on their own — only `all` is `error`. The one
+  `recommended-for-*` layers never fail a build on their own — only `strict` is `error`. The one
   exception is `exclusive-gateway-marker-visible`, `error` in the modeling layer, because a gateway
   without its marker is misdrawn. The modeling
   layer must also stay usable on hand-drawn diagrams — never block a modeler on execution-only
   conventions. Engine-specific rules (they set `targetEngine` next to `ruleName`) are `off` in both `recommended-for-*` layers
-  and `error` only in `all`, and skip diagrams for other engines. The scheme rules `worker-topic-naming` and
+  and `error` only in `strict`, and skip diagrams for other engines. The scheme rules `worker-topic-naming` and
   `message-name-naming` follow the same `off` / `off` / `error` pattern, because a project has to
   choose its scheme before they can say anything useful.
-- **Preset-aware Conventional Commits.** A change is breaking (`feat!:`) only if it can turn a
-  consumer's green build red — i.e. it introduces or raises an `error`-level finding. Since the two
-  `recommended-for-*` layers emit only `warn` (bar that one exception), adding a rule there is not breaking; raising a rule to
-  `error` (in `all`, or a consumer's own config) is. Adding a rule at `warn`, or lowering a severity
-  → not breaking.
+- **Semver covers the two `recommended-for-*` layers, not `strict`.** A change is breaking
+  (`feat!:`) only if it can add an `error` finding under `recommended-for-*`, or removes/renames a
+  rule, preset or option, or changes an option's meaning. A new rule, a rule that detects more, a
+  stricter default — anything that only changes what `strict` reports — is `feat:`/`fix:`. Full
+  policy: [`CONTRIBUTING.md`](CONTRIBUTING.md#semantic-versioning-policy).
 - **Exact dependency versions.** No `^`, no `~` (`.npmrc` `save-exact=true`, CI-verified).
 - **Classes first.** Behaviour lives in classes (one per file), pure helpers in a `utils/` folder;
   `npm run lint` rejects a top-level function anywhere else. A rule is a class wrapped by

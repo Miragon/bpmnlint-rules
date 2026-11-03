@@ -72,7 +72,7 @@ that skipped the instruction still cannot ship a broken model.
 
 `npx bpmnlint` exits non-zero only on `error` findings. With the recommended presets the Miragon
 naming and layout findings are `warn`: the agent sees them, the hook does not block on them. To make
-them blocking for agents, extend `plugin:@miragon/rules/all` in the config the agent lints with. See
+them blocking for agents, extend `plugin:@miragon/rules/strict` in the config the agent lints with. See
 [Presets](../presets.md).
 
 ## Write the conventions down first

@@ -8,7 +8,7 @@ const categories = [
   { key: 'layout', label: 'Layout' },
   { key: 'automation', label: 'Automation' },
 ] as const;
-const presets = ['modeling', 'automation', 'all'] as const;
+const presets = ['modeling', 'automation', 'strict'] as const;
 </script>
 
 <template>
@@ -19,7 +19,7 @@ const presets = ['modeling', 'automation', 'all'] as const;
           <th>Rule</th>
           <th>recommended-for-modeling<small>layout hints only</small></th>
           <th>recommended-for-automation<small>everything, non-blocking</small></th>
-          <th>all<small>fails the build</small></th>
+          <th>strict<small>fails the build</small></th>
         </tr>
       </thead>
       <tbody>

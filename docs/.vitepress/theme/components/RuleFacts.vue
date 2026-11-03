@@ -5,7 +5,7 @@ const rule = useCurrentRule();
 const presets = [
   { key: 'modeling', label: 'recommended-for-modeling' },
   { key: 'automation', label: 'recommended-for-automation' },
-  { key: 'all', label: 'all' },
+  { key: 'strict', label: 'strict' },
 ] as const;
 const engineLabels = { c7: 'Camunda 7', c8: 'Camunda 8' } as const;
 </script>

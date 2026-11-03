@@ -6,7 +6,7 @@ import { createModdle } from 'bpmnlint/lib/testers/helper';
 
 import type { RuleFactory } from '../../src/core/moddle';
 
-import { all } from '../../src/presets/all';
+import { strict } from '../../src/presets/strict';
 import { BundledResolver } from '../../src/resolver/BundledResolver';
 import { miragonRuleFactories } from '../../src/rules/miragon';
 
@@ -53,7 +53,7 @@ export interface Finding {
 
 /**
  * Lints `test/fixtures/rules/<ruleName>/<kind>.bpmn` through the plugin's strictest engine-agnostic
- * bar — `bpmnlint:recommended` + `plugin:@miragon/rules/all`, driven by the real bundled resolver —
+ * bar — `bpmnlint:recommended` + `plugin:@miragon/rules/strict`, driven by the real bundled resolver —
  * and returns every finding grouped by the rule that raised it. The key is the rule name exactly as
  * bpmnlint reports it: bare (e.g. `label-required`) for the structural base, prefixed
  * (`@miragon/rules/<rule>`) for a Miragon rule.
@@ -70,5 +70,5 @@ export async function fullConfigReports(
   const { root } = await createModdle(xml);
 
   const linter = new Linter({ resolver: BundledResolver.create() });
-  return linter.lint(root, all) as Promise<Record<string, Finding[]>>;
+  return linter.lint(root, strict) as Promise<Record<string, Finding[]>>;
 }

@@ -1,6 +1,6 @@
 # `@miragon/rules/message-name-naming`
 
-> This rule is **off** in both `plugin:@miragon/rules/recommended-for-modeling` and `plugin:@miragon/rules/recommended-for-automation` (the scheme is a project decision, so you configure it before you switch the rule on). It is an `error` in `plugin:@miragon/rules/all`, with the default scheme. Set it to `warn`, `error` or `off` yourself to override.
+> This rule is **off** in both `plugin:@miragon/rules/recommended-for-modeling` and `plugin:@miragon/rules/recommended-for-automation` (the scheme is a project decision, so you configure it before you switch the rule on). It is an `error` in `plugin:@miragon/rules/strict`, with the default scheme. Set it to `warn`, `error` or `off` yourself to override.
 
 Reports a message whose name does not follow the project's naming scheme.
 
