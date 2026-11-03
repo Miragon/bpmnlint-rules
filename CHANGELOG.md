@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.22.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.21.0...v0.22.0) (2026-11-03)
+
+
+### ⚠ BREAKING CHANGES
+
+* rename all preset to strict and define the semver contract ([#137](https://github.com/Miragon/bpmnlint-rules/issues/137))
+* split src/lib into core and toolkit, rename di namespace to diagram ([#138](https://github.com/Miragon/bpmnlint-rules/issues/138))
+
+### Features
+
+* rename all preset to strict and define the semver contract ([#137](https://github.com/Miragon/bpmnlint-rules/issues/137)) ([abed69b](https://github.com/Miragon/bpmnlint-rules/commit/abed69bf2285da3d6b43eb8e6fb6d71b79568164))
+
+
+### Code Refactoring
+
+* split src/lib into core and toolkit, rename di namespace to diagram ([#138](https://github.com/Miragon/bpmnlint-rules/issues/138)) ([5cf41c0](https://github.com/Miragon/bpmnlint-rules/commit/5cf41c0a36b4ce4dcdda83d7888af8150a6834d7))
+
 ## [0.21.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.20.0...v0.21.0) (2026-11-02)
 
 
