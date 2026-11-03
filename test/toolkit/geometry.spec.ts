@@ -4,9 +4,9 @@ import {
   circleOverlapsRect,
   gatewayTipSide,
   isOrthogonalPath,
-} from '../../src/lib/geometry';
-import { BboxIndex } from '../../src/lib/geometry';
-import type { Bbox } from '../../src/lib/geometry';
+} from '../../src/toolkit/geometry';
+import { BboxIndex } from '../../src/toolkit/geometry';
+import type { Bbox } from '../../src/toolkit/geometry';
 
 // A 100×80 box at the origin-ish: left x=100, right x=200, top y=100, bottom y=180, centre (150,140).
 const BOX = { x: 100, y: 100, width: 100, height: 80 };

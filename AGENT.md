@@ -12,8 +12,11 @@ Use the **`/add-bpmn-rule` skill** (`.claude/skills/add-bpmn-rule/`) — it is t
 (impl + wiring + tests + docs + verify). The rationale and the bar for a new rule live in
 [`CONTRIBUTING.md`](CONTRIBUTING.md#writing-a-new-rule); the skill is the mechanical version.
 
-Only `src/rules/miragon/` holds rule source we author. `src/lib/` holds only logic used by at least
-two rules; helpers only one rule needs live next to it in a rule folder
+Only `src/rules/miragon/` holds rule source we author. `src/core/` is the bpmnlint contract (types,
+`defineRule`, `SeverityPolicy`); `src/toolkit/` holds BPMN knowledge future rules can reuse
+(`diagram/`, `geometry/`, `naming/`, `engine/`). Code goes to `toolkit/` when it can be named and
+tested without mentioning a specific rule — how many rules use it today does not matter. A rule's own
+opinion (options, defaults, messages, decision policy) stays in its rule folder
 (`src/rules/miragon/<rule>/index.ts`, direct imports, no barrel).
 
 ## Before saying "done" — the verify gate
@@ -30,7 +33,7 @@ npm run typecheck && npm run lint && npm run format:check && npm run knip \
 - **New rules ship `error` in `miragonAll` and a non-blocking `warn` in
   `miragonRecommendedForAutomation`; in `miragonRecommendedForModeling` a rule is `off` unless it is
   a non-blocking layout hint, which ships at `warn`** (each rule declares its `kind`;
-  `src/lib/SeverityPolicy.ts` maps it to these severities). The two
+  `src/core/SeverityPolicy.ts` maps it to these severities). The two
   `recommended-for-*` layers never fail a build on their own — only `all` is `error`. The one
   exception is `exclusive-gateway-marker-visible`, `error` in the modeling layer, because a gateway
   without its marker is misdrawn. The modeling
@@ -47,8 +50,9 @@ npm run typecheck && npm run lint && npm run format:check && npm run knip \
 - **Exact dependency versions.** No `^`, no `~` (`.npmrc` `save-exact=true`, CI-verified).
 - **Classes first.** Behaviour lives in classes (one per file), pure helpers in a `utils/` folder;
   `npm run lint` rejects a top-level function anywhere else. A rule is a class wrapped by
-  `defineRule` (`src/lib/utils/defineRule.ts`); a layout rule extends `PlaneRule`.
-- **`src/lib/` is a leaf and a rule never imports another rule** — enforced by `npm run lint:deps`.
-  Shared logic goes in `src/lib/`; `npm run knip` catches exports imported nowhere.
+  `defineRule` (`src/core/utils/defineRule.ts`); a layout rule extends `PlaneRule`.
+- **`src/core/` and `src/toolkit/` never import upwards, and a rule never imports another rule** —
+  enforced by `npm run lint:deps`. Reusable logic goes in `src/toolkit/`; `npm run knip` catches
+  exports imported nowhere.
 - **Rules must be deterministic and free of false positives.** When in doubt keep a rule out of
   the `recommended-for-*` layers or ship it at `warn`. Layout rules decide on DI coordinates, never on guesswork.

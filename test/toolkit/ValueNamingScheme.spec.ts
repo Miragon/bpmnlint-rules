@@ -1,4 +1,4 @@
-import { isExpression, resolveCase, ValueNamingScheme } from '../../src/lib/naming';
+import { isExpression, resolveCase, ValueNamingScheme } from '../../src/toolkit/naming';
 
 describe('ValueNamingScheme', () => {
   it('defaults to camelCase segments joined by a dot', () => {

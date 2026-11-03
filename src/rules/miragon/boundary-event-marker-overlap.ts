@@ -1,8 +1,8 @@
-import { inst, markerZones, PlaneRule } from '../../lib/di';
-import type { DiagramPlane } from '../../lib/di';
-import { circleOverlapsRect } from '../../lib/geometry';
-import type { Reporter } from '../../lib/moddle';
-import { defineRule } from '../../lib/utils/defineRule';
+import { inst, markerZones, PlaneRule } from '../../toolkit/diagram';
+import type { DiagramPlane } from '../../toolkit/diagram';
+import { circleOverlapsRect } from '../../toolkit/geometry';
+import type { Reporter } from '../../core/moddle';
+import { defineRule } from '../../core/utils/defineRule';
 
 const GRAZE_TOLERANCE = 3;
 

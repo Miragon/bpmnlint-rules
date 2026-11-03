@@ -1,4 +1,4 @@
-import type { ModdleElement, Reporter, Rule } from '../moddle';
+import type { ModdleElement, Reporter, Rule } from '../../core/moddle';
 import { DiagramPlane } from './DiagramPlane';
 
 /**

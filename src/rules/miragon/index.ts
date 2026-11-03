@@ -10,10 +10,10 @@
  * (`@miragon/rules`), while the resolver cache keys use the expanded {@link MIRAGON_PLUGIN}
  * (`@miragon/bpmnlint-plugin-rules`) that bpmnlint normalises to before calling the resolver.
  */
-import type { BpmnlintConfig, ResolverEntries } from '../../lib/bpmnlint-config';
-import { SeverityPolicy } from '../../lib/SeverityPolicy';
-import type { MiragonLayerName } from '../../lib/SeverityPolicy';
-import type { DeclaredRuleFactory } from '../../lib/utils/defineRule';
+import type { BpmnlintConfig, ResolverEntries } from '../../core/bpmnlint-config';
+import { SeverityPolicy } from '../../core/SeverityPolicy';
+import type { MiragonLayerName } from '../../core/SeverityPolicy';
+import type { DeclaredRuleFactory } from '../../core/utils/defineRule';
 
 import boundaryEventMarkerOverlap from './boundary-event-marker-overlap';
 import asyncContinuations from './async-continuations';

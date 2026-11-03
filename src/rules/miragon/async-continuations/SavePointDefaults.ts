@@ -1,5 +1,7 @@
 export type Expectation = 'required' | 'allowed' | 'forbidden';
-export type Slot = 'before' | 'after';
+import type { Slot } from '../../../toolkit/engine/SavePointFlag';
+
+export type { Slot };
 export type SlotExpectations = Partial<Record<Slot, Expectation>>;
 
 /**

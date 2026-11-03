@@ -46,8 +46,10 @@ src/rules/camunda-7/    the camunda-compat C7 engine layer — static-import glu
 src/rules/camunda-8/    the camunda-compat C8 engine layer — static-import glue
 src/rules/miragon/      the ONLY folder whose rule source we author (one file per rule, or one
                         folder <rule>/index.ts when the rule has helpers of its own) + index
-src/lib/                shared helpers — a leaf layer: geometry/, di/, naming/ (classes + utils/),
-                        SeverityPolicy (rule kind -> layer severity), utils/defineRule
+src/core/               the bpmnlint contract — a leaf: config + moddle types, defineRule,
+                        SeverityPolicy (rule kind -> layer severity)
+src/toolkit/            BPMN knowledge rules reuse: diagram/, geometry/, naming/ (public namespaces,
+                        classes + utils/), engine/ (Camunda engine facts, internal)
 src/resolver/           BundledResolver: merges every folder's resolver entries
 src/config/             EngineConfig: getDefaultLintConfig / getRulesForEngine
 src/presets/            ready-to-use recommended-for-modeling / -for-automation / all configs
@@ -66,18 +68,21 @@ Two boundaries are enforced by `npm run lint:deps` and matter more than they loo
 
 - **A rule may never import another rule.** bpmnlint resolves and instantiates every rule
   independently, so a rule-to-rule import would make one rule's behaviour depend on another's
-  internals — invisible from `.bpmnlintrc`. Shared logic goes in `src/lib/`. A folder-style rule
+  internals — invisible from `.bpmnlintrc`. Reusable logic goes in `src/toolkit/`. A folder-style rule
   (`src/rules/miragon/<rule>/`) may import its own folder, and nothing else may.
-- **`src/lib/` stays a leaf.** The helpers work over geometry and moddle data only. That is what
-  makes them testable without a linter around them.
+- **`src/core/` and `src/toolkit/` never import upwards.** `core/` imports nothing, `toolkit/` only
+  `core/` and itself, and `toolkit/geometry/` is pure math with no BPMN. The helpers work over
+  geometry and moddle data only. That is what makes them testable without a linter around them.
+  A rule folder's helpers are private to it; everyone else goes through its `index.ts`.
 
-**Where a helper lives.** `src/lib/` holds only logic that at least two rules use. A helper only
-one rule needs lives next to that rule: turn the rule into a folder
-(`src/rules/miragon/<rule>/index.ts` plus its helper classes, imported directly, no barrel). Move a
-helper to `src/lib/` once a second rule needs it. The build still emits a folder-style rule at
-`dist/rules/miragon/<rule>.{js,cjs}`. One exception: anything the package root exports as the
-`naming`, `di` or `geometry` namespace (`src/index.ts`) stays in `src/lib/`, even with a single
-rule using it. `naming.ElementIdConvention`, for example, is public API for ID generators.
+**Where a helper lives.** Ask whether the code can be named, explained and unit-tested without
+mentioning a specific rule. If yes, it is BPMN knowledge and goes to `src/toolkit/` — even with a
+single rule using it today (`ExecutionEngine`, `SavePointFlag`). If it only makes sense in one rule's
+terms — its options, defaults, messages or decision policy (`SavePointPolicy`, `SavePointLocator`) —
+it stays next to that rule: turn the rule into a folder (`src/rules/miragon/<rule>/index.ts` plus its
+helper classes, imported directly, no barrel). The build still emits a folder-style rule at
+`dist/rules/miragon/<rule>.{js,cjs}`. Barrels exist only for the public `naming`, `diagram` and
+`geometry` namespaces (`src/index.ts`).
 
 One convention is enforced by `npm run lint` instead: **classes first.** Behaviour lives in
 classes (one per file); pure helpers go to a `utils/` folder. ESLint rejects a top-level function
@@ -96,7 +101,7 @@ dependencies in `package.json`.
    `export default defineRule({ ruleName: '<name>', kind }, <Class>)` — the factory bpmnlint calls,
    carrying the declaration as properties, because a second export would break the bare
    `module.exports = factory` shape bpmnlint's classic resolver needs. Logic that other rules
-   share goes in `src/lib/` (typed against `ModdleElement`/`Reporter` from `src/lib/moddle.ts`);
+   can reuse goes in `src/toolkit/` (typed against `ModdleElement`/`Reporter` from `src/core/moddle.ts`);
    helper classes only this rule needs make it a folder, `src/rules/miragon/<name>/index.ts`.
 2. **Spec + fixtures.** Add `test/rules/<name>.spec.ts` using `bpmnlint`'s `RuleTester`, and a
    `test/fixtures/rules/<name>/{valid,invalid}.bpmn` pair (the SVGs in the docs are rendered from
@@ -117,7 +122,7 @@ dependencies in `package.json`.
    `resolverEntries` and the `MiragonRuleName` type pick it up automatically, and the bundled
    resolver with it.
 5. **Severity.** Declare the rule's `kind` next to its `ruleName`; `SEVERITY_BY_KIND` in
-   `src/lib/SeverityPolicy.ts` turns it into its severity in every layer: `error` in `miragonAll`,
+   `src/core/SeverityPolicy.ts` turns it into its severity in every layer: `error` in `miragonAll`,
    `warn` in `miragonRecommendedForAutomation`, and in `miragonRecommendedForModeling` `off` unless it
    is a non-blocking `layout-hint` safe on hand-drawn diagrams, which ships at `warn`. The two
    `recommended-for-*` layers stay non-blocking (only `all` is `error`; the one exception is

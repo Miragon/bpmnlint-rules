@@ -8,7 +8,7 @@
 import camundaModdle from 'camunda-bpmn-moddle/resources/camunda.json';
 import camundaCompat from 'bpmnlint-plugin-camunda-compat';
 
-import type { ResolverEntries } from '../../lib/bpmnlint-config';
+import type { ResolverEntries } from '../../core/bpmnlint-config';
 
 import rule_history_time_to_live from 'bpmnlint-plugin-camunda-compat/rules/camunda-platform/history-time-to-live.js';
 

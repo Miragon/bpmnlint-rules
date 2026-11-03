@@ -1,6 +1,6 @@
 /**
  * The small shape vocabulary shared across the rule-set folders, the resolver and the config
- * builder. Kept in `lib/` (a leaf, types only) so every folder can use it without importing
+ * builder. Kept in `core/` (a leaf, types only) so every folder can use it without importing
  * "upwards" into config/ or presets/.
  */
 

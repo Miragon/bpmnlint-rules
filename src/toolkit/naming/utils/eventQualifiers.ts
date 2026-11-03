@@ -1,4 +1,4 @@
-import type { ModdleElement } from '../../moddle';
+import type { ModdleElement } from '../../../core/moddle';
 
 const EVENT_DEFINITION_SUFFIX = 'EventDefinition';
 

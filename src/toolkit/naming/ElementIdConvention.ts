@@ -1,6 +1,6 @@
 import { is } from 'bpmnlint-utils';
 
-import type { ModdleElement } from '../moddle';
+import type { ModdleElement } from '../../core/moddle';
 import { resolveCase } from './utils/cases';
 import type { CaseSpec } from './utils/cases';
 import { eventQualifiers, qualify } from './utils/eventQualifiers';

@@ -1,4 +1,4 @@
-import { resolveCase } from '../../src/lib/naming';
+import { resolveCase } from '../../src/toolkit/naming';
 
 describe('resolveCase', () => {
   it('returns the spec of every known case name', () => {

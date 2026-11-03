@@ -16,7 +16,7 @@
 import zeebeModdle from 'zeebe-bpmn-moddle/resources/zeebe.json';
 import camundaCompat from 'bpmnlint-plugin-camunda-compat';
 
-import type { ResolverEntries } from '../../lib/bpmnlint-config';
+import type { ResolverEntries } from '../../core/bpmnlint-config';
 
 import rule_ad_hoc_sub_process from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/ad-hoc-sub-process.js';
 import rule_agent_fromai_contract from 'bpmnlint-plugin-camunda-compat/rules/camunda-cloud/agent-fromai-contract.js';

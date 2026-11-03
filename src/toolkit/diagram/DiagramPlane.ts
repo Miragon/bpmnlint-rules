@@ -1,5 +1,5 @@
 import type { Point, Rect } from '../geometry/types';
-import type { ModdleElement } from '../moddle';
+import type { ModdleElement } from '../../core/moddle';
 
 export interface PlaneShape {
   el: ModdleElement;

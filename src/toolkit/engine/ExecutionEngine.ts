@@ -1,7 +1,7 @@
 import { is } from 'bpmnlint-utils';
 
-import type { Engine } from './bpmnlint-config';
-import type { ModdleElement } from './moddle';
+import type { Engine } from '../../core/bpmnlint-config';
+import type { ModdleElement } from '../../core/moddle';
 
 const EXECUTION_PLATFORMS: Record<string, Engine> = {
   'Camunda Platform': 'c7',

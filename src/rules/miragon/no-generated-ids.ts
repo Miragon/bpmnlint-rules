@@ -1,8 +1,8 @@
 import { isAny } from 'bpmnlint-utils';
 
-import type { ModdleElement, Reporter, Rule } from '../../lib/moddle';
-import { isGeneratedId } from '../../lib/naming';
-import { defineRule } from '../../lib/utils/defineRule';
+import type { ModdleElement, Reporter, Rule } from '../../core/moddle';
+import { isGeneratedId } from '../../toolkit/naming';
+import { defineRule } from '../../core/utils/defineRule';
 
 const CHECKED = ['bpmn:FlowNode', 'bpmn:SequenceFlow', 'bpmn:Participant', 'bpmn:Lane'];
 

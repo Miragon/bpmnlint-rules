@@ -59,8 +59,8 @@ export type {
   RuleSet,
   RuleSetting,
   RuleSeverity,
-} from './lib/bpmnlint-config';
-export type { ModdleElement, Reporter, Rule, RuleFactory } from './lib/moddle';
-export * as naming from './lib/naming';
-export * as di from './lib/di';
-export * as geometry from './lib/geometry';
+} from './core/bpmnlint-config';
+export type { ModdleElement, Reporter, Rule, RuleFactory } from './core/moddle';
+export * as naming from './toolkit/naming';
+export * as diagram from './toolkit/diagram';
+export * as geometry from './toolkit/geometry';

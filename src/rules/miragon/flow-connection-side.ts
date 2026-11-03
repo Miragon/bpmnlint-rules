@@ -1,9 +1,9 @@
-import { inst, PlaneRule } from '../../lib/di';
-import type { DiagramPlane } from '../../lib/di';
-import { attachSide, gatewayTipSide, isBackwardFlow, stubLength } from '../../lib/geometry';
-import type { Point, Side } from '../../lib/geometry';
-import type { ModdleElement, Reporter } from '../../lib/moddle';
-import { defineRule } from '../../lib/utils/defineRule';
+import { inst, PlaneRule } from '../../toolkit/diagram';
+import type { DiagramPlane } from '../../toolkit/diagram';
+import { attachSide, gatewayTipSide, isBackwardFlow, stubLength } from '../../toolkit/geometry';
+import type { Point, Side } from '../../toolkit/geometry';
+import type { ModdleElement, Reporter } from '../../core/moddle';
+import { defineRule } from '../../core/utils/defineRule';
 
 export interface FlowConnectionSideConfig {
   allowBackwardsFlow?: boolean;

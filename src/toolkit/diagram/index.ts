@@ -1,5 +1,5 @@
 /**
- * The public `di` namespace: reading the BPMN diagram interchange layer plane by plane, and the
+ * The public `diagram` namespace: reading the BPMN diagram interchange layer plane by plane, and the
  * {@link PlaneRule} base the layout rules are built on.
  */
 export { DiagramPlane } from './DiagramPlane';
