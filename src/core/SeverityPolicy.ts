@@ -13,33 +13,37 @@ export type MiragonRuleKind =
   'layout-hint' | 'misdrawn' | 'convention' | 'scheme' | 'engine-specific';
 
 /** The Miragon opinion layers, keyed by the config name they are exposed under. */
-export type MiragonLayerName = 'recommended-for-modeling' | 'recommended-for-automation' | 'all';
+export type MiragonLayerName = 'recommended-for-modeling' | 'recommended-for-automation' | 'strict';
 
 /**
- * The severity policy: per rule kind, its severity in each layer. Only `all` blocks; the two
+ * The severity policy: per rule kind, its severity in each layer. Only `strict` blocks; the two
  * `recommended-for-*` layers stay non-blocking bar `misdrawn` in the modeling layer.
  */
 const SEVERITY_BY_KIND: Record<MiragonRuleKind, Record<MiragonLayerName, RuleSeverity>> = {
   'layout-hint': {
     'recommended-for-modeling': 'warn',
     'recommended-for-automation': 'warn',
-    all: 'error',
+    strict: 'error',
   },
   misdrawn: {
     'recommended-for-modeling': 'error',
     'recommended-for-automation': 'warn',
-    all: 'error',
+    strict: 'error',
   },
   convention: {
     'recommended-for-modeling': 'off',
     'recommended-for-automation': 'warn',
-    all: 'error',
+    strict: 'error',
   },
-  scheme: { 'recommended-for-modeling': 'off', 'recommended-for-automation': 'off', all: 'error' },
+  scheme: {
+    'recommended-for-modeling': 'off',
+    'recommended-for-automation': 'off',
+    strict: 'error',
+  },
   'engine-specific': {
     'recommended-for-modeling': 'off',
     'recommended-for-automation': 'off',
-    all: 'error',
+    strict: 'error',
   },
 };
 

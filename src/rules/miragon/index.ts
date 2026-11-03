@@ -78,7 +78,7 @@ export const miragonRecommendedForModeling: BpmnlintConfig = {
  *
  * Tuned for executable processes: every engine-agnostic Miragon rule on, but as a non-blocking
  * `warn`, alongside `standard-size` at `warn`. Engine-specific and scheme rules stay `off` — opt-in
- * via `all` or a consumer's own config.
+ * via `strict` or a consumer's own config.
  */
 export const miragonRecommendedForAutomation: BpmnlintConfig = {
   rules: {
@@ -87,13 +87,13 @@ export const miragonRecommendedForAutomation: BpmnlintConfig = {
   },
 };
 
-/** Every Miragon rule at `error` — the opt-in `plugin:@miragon/rules/all`. */
-export const miragonAll: BpmnlintConfig = { rules: severityPolicy.ruleSetFor('all') };
+/** Every Miragon rule at `error` — the opt-in `plugin:@miragon/rules/strict`. */
+export const miragonStrict: BpmnlintConfig = { rules: severityPolicy.ruleSetFor('strict') };
 
 export const miragonLayers: Record<MiragonLayerName, BpmnlintConfig> = {
   'recommended-for-modeling': miragonRecommendedForModeling,
   'recommended-for-automation': miragonRecommendedForAutomation,
-  all: miragonAll,
+  strict: miragonStrict,
 };
 
 /** This folder's fragment of the bundled StaticResolver cache. */

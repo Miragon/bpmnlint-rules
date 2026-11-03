@@ -112,7 +112,7 @@ helpers added to `src/toolkit/` get their own direct unit `verify`/`expect` case
 
 - `test/fixtures/rules/<name>/valid.bpmn` and `invalid.bpmn` — real BPMN with DI. These are held to
   the plugin's strictest bar by `test/rules/fixtures-self-lint.spec.ts` (self-enrolling from the
-  folder — no wiring), which lints each through `bpmnlint:recommended` + `plugin:@miragon/rules/all`:
+  folder — no wiring), which lints each through `bpmnlint:recommended` + `plugin:@miragon/rules/strict`:
   - `valid.bpmn` must be **clean against every rule** — a complete, labeled process (start/end
     events, nothing disconnected, labels on tasks/events/forking gateways and conditional flows),
     with ids on the `<typePrefix>_<camelCase>` convention (`src/toolkit/naming/ElementIdConvention.ts`). Not just clean w.r.t.
@@ -160,6 +160,8 @@ Optionally `npm run docs:examples` first, and `npm run lint:bpmn` after building
 
 ## 7. Commit
 
-Conventional Commits. A new rule added only to `all` is `feat:`; adding it to `recommended` or
-raising a severity is `feat!:` (it can turn a consumer's build red). Keep dependency versions exact
+Conventional Commits. A new rule is `feat:` — it lands at `warn`/`off` in the
+`recommended-for-*` layers and at `error` only in `strict`, which semver does not cover. Only
+putting it at `error` in a `recommended-for-*` layer is `feat!:` (see `CONTRIBUTING.md`,
+"Semantic versioning policy"). Keep dependency versions exact
 (no `^`/`~`).

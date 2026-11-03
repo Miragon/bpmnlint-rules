@@ -9,10 +9,10 @@ import type * as BpmnlintRules from '../../../src';
 import type { Engine } from '../../../src';
 
 const {
-  all,
+  strict,
   createBundledResolver,
   getDefaultLintConfig,
-  miragonAll,
+  miragonStrict,
   miragonRecommendedForAutomation,
   miragonRecommendedForModeling,
   miragonRuleFactories,
@@ -32,7 +32,7 @@ export interface RuleDoc {
   catches: string;
   category: 'naming' | 'layout' | 'automation';
   targetEngine?: Engine;
-  severities: Record<'modeling' | 'automation' | 'all', Severity>;
+  severities: Record<'modeling' | 'automation' | 'strict', Severity>;
   findings: Finding[];
 }
 
@@ -137,7 +137,7 @@ function severitiesOf(qualifiedRuleName: string): RuleDoc['severities'] {
   return {
     modeling: severityOf(miragonRecommendedForModeling, qualifiedRuleName),
     automation: severityOf(miragonRecommendedForAutomation, qualifiedRuleName),
-    all: severityOf(miragonAll, qualifiedRuleName),
+    strict: severityOf(miragonStrict, qualifiedRuleName),
   };
 }
 
@@ -146,7 +146,7 @@ async function lintInvalidFixture(ruleName: string): Promise<Finding[]> {
   const { root } = await createModdle(xml);
   const linter = new Linter({ resolver: createBundledResolver() });
   const ownRule = `${MIRAGON_NAME}/${ruleName}`;
-  return flatten((await linter.lint(root, all)) as LintResults).filter(
+  return flatten((await linter.lint(root, strict)) as LintResults).filter(
     ({ rule }) => rule === ownRule,
   );
 }

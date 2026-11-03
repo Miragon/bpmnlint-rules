@@ -12,7 +12,7 @@ import { createModdle } from 'bpmnlint/lib/testers/helper.js';
 import { createBundledResolver, getDefaultLintConfig } from '@miragon/bpmnlint-plugin-rules';
 import noGeneratedIds from '@miragon/bpmnlint-plugin-rules/rules/no-generated-ids';
 
-const MIRAGON_ALL = { extends: ['bpmnlint:recommended', 'plugin:@miragon/rules/all'] };
+const MIRAGON_STRICT = { extends: ['bpmnlint:recommended', 'plugin:@miragon/rules/strict'] };
 
 /** Lints a fixture next to this file through the bundled resolver alone. */
 async function lint(fixture, config) {
@@ -30,13 +30,13 @@ const errorsOf = (reports) =>
 
 assert.equal(typeof noGeneratedIds, 'function', 'the rules/* subpath must export the rule factory');
 
-const bad = await lint('./bad.bpmn', MIRAGON_ALL);
+const bad = await lint('./bad.bpmn', MIRAGON_STRICT);
 assert.ok(
   Object.keys(bad).some((rule) => rule.endsWith('no-generated-ids')),
   `a bad model should trip no-generated-ids, got: ${JSON.stringify(Object.keys(bad))}`,
 );
 
-const good = await lint('./good.bpmn', MIRAGON_ALL);
+const good = await lint('./good.bpmn', MIRAGON_STRICT);
 assert.deepEqual(errorsOf(good), [], 'a clean model should report no error');
 
 // The engine layer: the moddle descriptor is inlined data, and each layer lints without a rule

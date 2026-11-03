@@ -7,7 +7,7 @@ import { fullConfigReports } from '../support/lint-file';
 /**
  * Beyond the single rule each fixture illustrates (guarded by `examples.spec.ts`), every example
  * model must be *sound* against the plugin's strictest engine-agnostic bar —
- * `bpmnlint:recommended` + `plugin:@miragon/rules/all`, the exact config a strict consumer gets and
+ * `bpmnlint:recommended` + `plugin:@miragon/rules/strict`, the exact config a strict consumer gets and
  * the one `test/fixtures/valid/membership.bpmn` already meets. Otherwise a model shown in the docs
  * as exemplary can still be missing labels, start/end events or a connection and nobody notices.
  *

@@ -1,6 +1,6 @@
 # `@miragon/rules/exclusive-gateway-marker-visible`
 
-> This rule is an `error` in `plugin:@miragon/rules/recommended-for-modeling` (a gateway without its marker is misdrawn, not merely untidy) and in `plugin:@miragon/rules/all`. It is a non-blocking `warn` in `plugin:@miragon/rules/recommended-for-automation`. Override it to `warn`, `error` or `off` yourself.
+> This rule is an `error` in `plugin:@miragon/rules/recommended-for-modeling` (a gateway without its marker is misdrawn, not merely untidy) and in `plugin:@miragon/rules/strict`. It is a non-blocking `warn` in `plugin:@miragon/rules/recommended-for-automation`. Override it to `warn`, `error` or `off` yourself.
 
 Reports an exclusive gateway drawn without its `X` marker.
 

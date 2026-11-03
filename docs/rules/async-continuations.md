@@ -1,6 +1,6 @@
 # `@miragon/rules/async-continuations`
 
-> This rule is **off** in both `plugin:@miragon/rules/recommended-for-modeling` and `plugin:@miragon/rules/recommended-for-automation` (it is a Camunda 7 execution concern, and Camunda names legitimate exceptions). It is an `error` in `plugin:@miragon/rules/all`. Set it to `warn`, `error` or `off` yourself to override.
+> This rule is **off** in both `plugin:@miragon/rules/recommended-for-modeling` and `plugin:@miragon/rules/recommended-for-automation` (it is a Camunda 7 execution concern, and Camunda names legitimate exceptions). It is an `error` in `plugin:@miragon/rules/strict`. Set it to `warn`, `error` or `off` yourself to override.
 
 Reports Camunda 7 save points (`camunda:asyncBefore`, `camunda:asyncAfter`) that are missing where your save-point policy requires them, or set where it forbids them. The default policy follows Camunda's recommendations, and every BPMN element can be configured on its own.
 

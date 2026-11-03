@@ -110,7 +110,7 @@ dependencies in `package.json`.
    otherwise trip it — otherwise the exclusion is untested and the next refactor silently drops it.
    Add the pair to `test/rules/examples.spec.ts` so the docs picture stays honest. The pair is also
    held to a wider bar by `test/rules/fixtures-self-lint.spec.ts` (self-enrolling from the folder):
-   linted through `bpmnlint:recommended` + `plugin:@miragon/rules/all`, `valid.bpmn` must be clean
+   linted through `bpmnlint:recommended` + `plugin:@miragon/rules/strict`, `valid.bpmn` must be clean
    against **every** rule (a complete, labeled process on the `<typePrefix>_<camelCase>` id
    convention), and `invalid.bpmn` may carry only its one intentional defect — nothing flagged on any
    other element. A model that is "valid" only w.r.t. its own rule is a docs example that quietly
@@ -122,14 +122,14 @@ dependencies in `package.json`.
    `resolverEntries` and the `MiragonRuleName` type pick it up automatically, and the bundled
    resolver with it.
 5. **Severity.** Declare the rule's `kind` next to its `ruleName`; `SEVERITY_BY_KIND` in
-   `src/core/SeverityPolicy.ts` turns it into its severity in every layer: `error` in `miragonAll`,
+   `src/core/SeverityPolicy.ts` turns it into its severity in every layer: `error` in `miragonStrict`,
    `warn` in `miragonRecommendedForAutomation`, and in `miragonRecommendedForModeling` `off` unless it
    is a non-blocking `layout-hint` safe on hand-drawn diagrams, which ships at `warn`. The two
-   `recommended-for-*` layers stay non-blocking (only `all` is `error`; the one exception is
+   `recommended-for-*` layers stay non-blocking (only `strict` is `error`; the one exception is
    `exclusive-gateway-marker-visible`, `error` in the modeling layer because a gateway without its
    marker is misdrawn), and the modeling layer must
    never block a modeler on execution-only conventions; consumers opt in via
-   `plugin:@miragon/rules/all`, the automation layer, or per rule.
+   `plugin:@miragon/rules/strict`, the automation layer, or per rule.
 6. **Target time.** Add the rule to `targetTimeMsAt5000Nodes` in `test/bench/targets.ts`. It is
    keyed by `MiragonRuleName`, so `npm run typecheck` fails as soon as a wired-in rule has no
    target. The default is 50 ms; go higher only with a measured reason from the `npm run bench`
@@ -166,13 +166,32 @@ measured and listed, not enforced: they cannot be fixed here.
 - **Conventional Commits.** Commit messages and PR titles follow
   [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `docs:`,
   `refactor:`, `test:`, `chore:`). Releases and the changelog are generated from them via
-  [release-please](https://github.com/googleapis/release-please). For a lint preset "breaking" is
-  not the same as for a library: only a change that can turn a consumer's green build red — one that
-  introduces or raises an `error`-level finding — is breaking (`feat!:`). The `recommended-for-*`
-  layers emit only `warn` (bar that one exception), so adding a rule there is not breaking; raising a rule to `error` (in
-  `all`, or a consumer's config) is. Adding a rule at `warn`, or lowering a severity, is not.
+  [release-please](https://github.com/googleapis/release-please). Whether a change is breaking follows the
+  [semantic versioning policy](#semantic-versioning-policy) below, not library intuition.
 - **Exact dependency versions.** No `^`, no `~`. `.npmrc` sets `save-exact=true` and CI verifies
   it — a floating transitive bump must never be able to change what the rules catch.
+
+## Semantic versioning policy
+
+Only the two `recommended-for-*` layers are covered by semver. `strict` is Miragon's latest
+opinion at `error` and may report more in any minor release.
+
+| Change                                                                                          | Release   |
+| ----------------------------------------------------------------------------------------------- | --------- |
+| Adds an `error` finding under `recommended-for-*` (new rule at `error`, raised severity)        | **major** |
+| Removes or renames a rule, preset or option; changes an option's meaning                        | **major** |
+| Raises the minimum bpmnlint or Node version                                                     | **major** |
+| New rule (`warn`/`off` in `recommended-for-*`, `error` in `strict`)                             | minor     |
+| A rule detects more, or a default gets stricter, reported only at `warn` in `recommended-for-*` | minor     |
+| Anything that only changes what `strict` reports                                                | minor     |
+| Fixes a false positive, lowers a severity, docs, performance                                    | patch     |
+
+Rules enabled at `error` in a consumer's own config follow `strict`: their detection may widen in
+a minor. Rules from bundled upstream layers (`bpmnlint:recommended`, `bpmnlint-plugin-camunda-compat`)
+follow upstream; a bump that changes what `recommended-for-*` reports is reviewed by hand.
+
+Promotions — a rule raised to `error` in a `recommended-for-*` layer — are collected and shipped
+together in a planned major. Each minor's changelog lists the rules queued for the next one.
 
 ## Before opening a PR
 

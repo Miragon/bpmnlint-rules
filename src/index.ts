@@ -24,7 +24,7 @@ export const getRulesForEngine = EngineConfig.rulesForEngine;
 
 // Ready-to-use presets (structural base + Miragon layer).
 export { recommendedForModeling, recommendedForAutomation } from './presets/recommended';
-export { all } from './presets/all';
+export { strict } from './presets/strict';
 
 // The classic bpmnlint-plugin surface — `rules` (path strings) + `configs` — so `require(pkg)` is a
 // valid bpmnlint plugin for `.bpmnlintrc`/CLI use. Programmatic consumers use the resolver + configs
@@ -36,7 +36,7 @@ export {
   MIRAGON_PLUGIN,
   miragonRecommendedForModeling,
   miragonRecommendedForAutomation,
-  miragonAll,
+  miragonStrict,
   miragonRuleFactories,
   elementIdNaming,
   flowConnectionSide,
