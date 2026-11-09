@@ -1,6 +1,18 @@
 # Presets
 
-<!--@include: ../README.md#presets-->
+- `plugin:@miragon/rules/recommended-for-modeling` — for **purely business/technical models**, and for
+  **modeler applications that surface linting** to their users. Layout hints only: bpmnlint's
+  `standard-size` and the layout rules at `warn`, the naming/id rules **off** — a modeler is never
+  blocked on execution-only conventions. The one `error` is a gateway drawn without its marker,
+  because that diagram is misdrawn.
+- `plugin:@miragon/rules/recommended-for-automation` — for **developers automating processes**, locally
+  and in CI, on models wired up to a Camunda engine. The naming and layout rules on but as a non-blocking
+  `warn` (`standard-size` too), so ids and layout get flagged without failing the build. The scheme
+  and engine-specific rules stay off.
+- `plugin:@miragon/rules/strict` — every Miragon rule at `error`, engine-agnostic. The gate to opt into
+  when you want findings to fail the build. Not covered by semver: a minor release may add rules or
+  widen what they report. See the
+  [semantic versioning policy](https://github.com/Miragon/bpmnlint-rules/blob/main/CONTRIBUTING.md#semantic-versioning-policy).
 
 ## Severity per rule
 
