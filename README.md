@@ -1,4 +1,4 @@
-# Miragon bpmnlint-rules
+# bpmnlint-rules
 
 [![npm](https://img.shields.io/npm/v/@miragon/bpmnlint-plugin-rules)](https://www.npmjs.com/package/@miragon/bpmnlint-plugin-rules)
 [![CI](https://github.com/Miragon/bpmnlint-rules/actions/workflows/ci.yml/badge.svg)](https://github.com/Miragon/bpmnlint-rules/actions/workflows/ci.yml)
@@ -6,12 +6,11 @@
 
 ![A terminal runs npx bpmnlint on an invoice process and flags a generated id, two crossing flows and a diagonal flow; after the fix the same command comes back clean](docs/assets/demo.gif)
 
-**Readable, tidy and deployable BPMN models, checked in the modeler, in CI and in your agent's loop.**
-
-`@miragon/bpmnlint-plugin-rules` is a [bpmnlint](https://github.com/bpmn-io/bpmnlint) plugin that
-adds Miragon's naming and layout rules and bundles bpmnlint's structural rules and the Camunda 7 / 8
-rules. It is pre-1.0: a minor release can break your build, so pin an exact version and read the
-[changelog](CHANGELOG.md) first.
+Readable, tidy and deployable BPMN models, checked in the modeler, in CI and in your agent's loop.
+`@miragon/bpmnlint-plugin-rules` adds Miragon's naming and layout rules to
+[bpmnlint](https://github.com/bpmn-io/bpmnlint) and bundles its structural rules and the
+Camunda 7 / 8 rules. It is pre-1.0: a minor release can break your build, so pin an exact version
+and read the [changelog](CHANGELOG.md) first.
 
 ## Why
 
