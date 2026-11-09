@@ -4,7 +4,7 @@
 [![CI](https://github.com/Miragon/bpmnlint-rules/actions/workflows/ci.yml/badge.svg)](https://github.com/Miragon/bpmnlint-rules/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/github/license/Miragon/bpmnlint-rules)](LICENSE)
 
-<!-- Hero banner: product name, claim and the linter at work. Not made yet, see the miragon-brand product shots. -->
+![A terminal runs npx bpmnlint on an invoice process and flags a generated id, two crossing flows and a diagonal flow; after the fix the same command comes back clean](docs/assets/demo.gif)
 
 **Readable, tidy and deployable BPMN models, checked in the modeler, in CI and in your agent's loop.**
 
@@ -92,8 +92,6 @@ Then lint your models and fix what it reports; warnings don't fail the run:
 ```bash
 npx bpmnlint "processes/**/*.bpmn"
 ```
-
-![A terminal runs npx bpmnlint on an invoice process and flags a generated id, two crossing flows and a diagonal flow; after the fix the same command comes back clean](docs/assets/demo.gif)
 
 Linting from code? See the
 [programmatic API](https://miragon.github.io/bpmnlint-rules/integrate/api#programmatic-api).
