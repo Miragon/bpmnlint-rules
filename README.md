@@ -10,31 +10,30 @@
 
 `@miragon/bpmnlint-plugin-rules` is a [bpmnlint](https://github.com/bpmn-io/bpmnlint) plugin that
 adds Miragon's naming and layout rules and bundles bpmnlint's structural rules and the Camunda 7 / 8
-rules, so one `.bpmnlintrc` covers them all. It is pre-1.0: a minor release can break your build, so
-pin an exact version and read the [changelog](CHANGELOG.md) first.
+rules. It is pre-1.0: a minor release can break your build, so pin an exact version and read the
+[changelog](CHANGELOG.md) first.
 
 ## Why
 
 A BPMN model can open fine and still be wrong: the engine rejects it at deploy, its flows cross, or
-forty tasks carry ids like `Activity_0049ryx` that no reviewer can follow. Most teams have
-conventions against this, kept in a wiki or in one reviewer's head. This plugin turns them into lint
+forty tasks carry ids like `Activity_0049ryx` that no reviewer can follow. Most teams keep
+conventions against this in a wiki or in one reviewer's head. This plugin turns them into lint
 findings.
 
 ## What you get
 
-- **Ids people can read.** Rules flag generated ids, and ids, worker topics and message names off
-  the scheme you configure ([naming rules](https://miragon.github.io/bpmnlint-rules/rules/naming)).
-- **Diagrams that read cleanly.** Rules flag crossing, diagonal and misdocked flows and flows through
-  shapes, judged on the drawn coordinates
-  ([layout rules](https://miragon.github.io/bpmnlint-rules/rules/layout)).
-- **Models the engine accepts.** The Camunda deployability rules come bundled, so a Camunda 8
-  service task without a task definition shows up before deploy
-  ([Camunda engines](https://miragon.github.io/bpmnlint-rules/guide/engines)).
+- **Ids people can read.** Rules flag generated ids, and ids, worker topics and message names that
+  break the naming scheme you configure
+  ([naming rules](https://miragon.github.io/bpmnlint-rules/rules/naming)).
+- **Diagrams that read cleanly.** Rules flag crossing, diagonal and wrongly docked flows and flows
+  through shapes ([layout rules](https://miragon.github.io/bpmnlint-rules/rules/layout)).
+- **Models the engine accepts.** The Camunda deployability rules come bundled, so engine errors show
+  up before deploy ([Camunda engines](https://miragon.github.io/bpmnlint-rules/guide/engines)).
 
 ## Presets
 
-Every rule's severity per preset is on the
-[presets page](https://miragon.github.io/bpmnlint-rules/presets).
+Extend one as `plugin:@miragon/rules/<preset>`; the
+[presets page](https://miragon.github.io/bpmnlint-rules/presets) lists every rule's severity.
 
 | Preset                       | For                                                      | Miragon rules                                                        |
 | ---------------------------- | -------------------------------------------------------- | -------------------------------------------------------------------- |
@@ -43,6 +42,8 @@ Every rule's severity per preset is on the
 | `strict`                     | A merge gate that fails on every finding                 | Every rule at `error`, and a minor release can add rules             |
 
 ## Rules
+
+The rules the plugin adds, each linked to its examples:
 
 | Rule                                                                                                                                 | What it catches                                                                |
 | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------ |
@@ -61,15 +62,21 @@ Every rule's severity per preset is on the
 
 ## Install
 
-You need Node.js 22 or later. Install the plugin with bpmnlint 11.14 or later, pinned:
+You need Node.js 22 or later. Install the plugin with bpmnlint, pinned:
 
 ```bash
 npm install --save-dev --save-exact @miragon/bpmnlint-plugin-rules bpmnlint
 ```
 
+Camunda 7 and 8 models need two more entries in `.bpmnlintrc` first:
+[Camunda engines](https://miragon.github.io/bpmnlint-rules/guide/engines). To build from source,
+see [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## Get started
 
-Save this as `.bpmnlintrc` in your project. It extends bpmnlint's structural rules and a preset:
+Save this as `.bpmnlintrc`, with bpmnlint's structural rules and a Miragon preset. The same file
+later drives [CI](https://miragon.github.io/bpmnlint-rules/integrate/ci) and
+[your agent's checks](https://miragon.github.io/bpmnlint-rules/integrate/agents).
 
 ```json
 {
@@ -80,7 +87,7 @@ Save this as `.bpmnlintrc` in your project. It extends bpmnlint's structural rul
 }
 ```
 
-Then lint your models, pointing the glob at where they live, and fix what it reports:
+Then lint your models and fix what it reports; warnings don't fail the run:
 
 ```bash
 npx bpmnlint "processes/**/*.bpmn"
@@ -88,15 +95,13 @@ npx bpmnlint "processes/**/*.bpmn"
 
 ![A terminal runs npx bpmnlint on an invoice process and flags a generated id, two crossing flows and a diagonal flow; after the fix the same command comes back clean](docs/assets/demo.gif)
 
-Without an engine, the naming, layout and structural rules run as they are. For Camunda,
-[add your engine](https://miragon.github.io/bpmnlint-rules/guide/engines); then run the same command
-[in CI](https://miragon.github.io/bpmnlint-rules/integrate/ci) and
-[after every agent edit](https://miragon.github.io/bpmnlint-rules/integrate/agents).
+Linting from code? See the
+[programmatic API](https://miragon.github.io/bpmnlint-rules/integrate/api#programmatic-api).
 
-## With Claude Code
+## With your AI assistant
 
-The `bpmnlint-rules` plugin writes your team's BPMN style guide with the matching `.bpmnlintrc`,
-checks models against it and fixes their layout. Run in Claude Code:
+The `bpmnlint-rules` Claude Code plugin writes your team's BPMN style guide with the matching
+`.bpmnlintrc`, checks models against it and fixes their layout. Run in Claude Code:
 
 ```text
 /plugin marketplace add Miragon/skills
@@ -110,8 +115,8 @@ checks models against it and fixes their layout. Run in Claude Code:
 
 ## Contributing
 
-Pull requests come from the team only; ideas are welcome as issues. Building and testing are in
-[CONTRIBUTING.md](CONTRIBUTING.md).
+We don't accept pull requests from outside the team. How to build,
+test and change the project is in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
