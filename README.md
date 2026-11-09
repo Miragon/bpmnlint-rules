@@ -1,309 +1,118 @@
-# @miragon/bpmnlint-plugin-rules
+# Miragon bpmnlint-rules
 
-[![npm version](https://img.shields.io/npm/v/@miragon/bpmnlint-plugin-rules.svg)](https://www.npmjs.com/package/@miragon/bpmnlint-plugin-rules)
+[![npm](https://img.shields.io/npm/v/@miragon/bpmnlint-plugin-rules)](https://www.npmjs.com/package/@miragon/bpmnlint-plugin-rules)
 [![CI](https://github.com/Miragon/bpmnlint-rules/actions/workflows/ci.yml/badge.svg)](https://github.com/Miragon/bpmnlint-rules/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/github/license/Miragon/bpmnlint-rules)](LICENSE)
 
-A [bpmnlint](https://github.com/bpmn-io/bpmnlint) plugin that keeps BPMN diagrams clean: a few
-Miragon naming and layout conventions, plus the standard structural rules and the Camunda 7 / 8
-deployability rules bundled in — so you don't wire up bpmnlint's plugins yourself.
+<!-- Hero banner: product name, claim and the linter at work. Not made yet, see the miragon-brand product shots. -->
 
-> [!WARNING]
-> This plugin has not reached 1.0.0 yet. Until then, any minor release may contain breaking
-> changes — new or stricter rules, renamed options, changed severities. Pin an exact version and
-> check the [changelog](CHANGELOG.md) before you upgrade.
+**Readable, tidy and deployable BPMN models, checked in the modeler, in CI and in your agent's loop.**
 
-![bpmnlint flags a generated id, two crossing flows and a diagonal flow, then passes on the fixed diagram](docs/assets/demo.gif)
+`@miragon/bpmnlint-plugin-rules` is a [bpmnlint](https://github.com/bpmn-io/bpmnlint) plugin that
+adds Miragon's naming and layout rules and bundles bpmnlint's structural rules and the Camunda 7 / 8
+rules, so one `.bpmnlintrc` covers them all. It is pre-1.0: a minor release can break your build, so
+pin an exact version and read the [changelog](CHANGELOG.md) first.
 
 ## Why
 
-A BPMN diagram can be well-formed and still be wrong — a missing start event, a construct the engine
-rejects at deploy, or forty tasks named `Activity_0049ryx` that no reviewer can read. Linting catches
-that automatically, wherever BPMN is written:
+A BPMN model can open fine and still be wrong: the engine rejects it at deploy, its flows cross, or
+forty tasks carry ids like `Activity_0049ryx` that no reviewer can follow. Most teams have
+conventions against this, kept in a wiki or in one reviewer's head. This plugin turns them into lint
+findings.
 
-- **In the modeler** — live feedback while you draw, so a mistake is flagged the moment you make it.
-- **In CI** — a merge/deploy gate, so a broken model never ships.
-- **For AI** — agents emit valid-but-off models (machine IDs, orphan nodes, engine-invalid
-  constructs); lint their output and block on error, instead of hoping a human catches it.
+## What you get
 
-Most teams already have these conventions — in a wiki, or in one reviewer's head. This plugin makes
-them executable.
+- **Ids people can read.** Rules flag generated ids, and ids, worker topics and message names off
+  the scheme you configure ([naming rules](https://miragon.github.io/bpmnlint-rules/rules/naming)).
+- **Diagrams that read cleanly.** Rules flag crossing, diagonal and misdocked flows and flows through
+  shapes, judged on the drawn coordinates
+  ([layout rules](https://miragon.github.io/bpmnlint-rules/rules/layout)).
+- **Models the engine accepts.** The Camunda deployability rules come bundled, so a Camunda 8
+  service task without a task definition shows up before deploy
+  ([Camunda engines](https://miragon.github.io/bpmnlint-rules/guide/engines)).
 
-<!-- #region setup -->
+## Presets
+
+Every rule's severity per preset is on the
+[presets page](https://miragon.github.io/bpmnlint-rules/presets).
+
+| Preset                       | For                                                      | Miragon rules                                                        |
+| ---------------------------- | -------------------------------------------------------- | -------------------------------------------------------------------- |
+| `recommended-for-modeling`   | Hand-drawn models, and modelers that lint while you draw | Layout at `warn`, naming off, a gateway drawn without marker `error` |
+| `recommended-for-automation` | Developers who automate processes, locally and in CI     | Id and layout rules at `warn`, scheme and Camunda 7 rules off        |
+| `strict`                     | A merge gate that fails on every finding                 | Every rule at `error`, and a minor release can add rules             |
+
+## Rules
+
+| Rule                                                                                                                                 | What it catches                                                                |
+| ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------ |
+| [`@miragon/rules/no-generated-ids`](https://miragon.github.io/bpmnlint-rules/rules/no-generated-ids)                                 | IDs generated rather than chosen (`Activity_0049ryx`, `StartEvent_1`)          |
+| [`@miragon/rules/element-id-naming`](https://miragon.github.io/bpmnlint-rules/rules/element-id-naming)                               | IDs that don't follow the type-prefix + case convention                        |
+| [`@miragon/rules/worker-topic-naming`](https://miragon.github.io/bpmnlint-rules/rules/worker-topic-naming)                           | A worker topic (C7 external task topic, C8 job type) off the configured scheme |
+| [`@miragon/rules/message-name-naming`](https://miragon.github.io/bpmnlint-rules/rules/message-name-naming)                           | A message name off the configured scheme                                       |
+| [`@miragon/rules/flow-through-element`](https://miragon.github.io/bpmnlint-rules/rules/flow-through-element)                         | A sequence flow routed through an unrelated shape's body                       |
+| [`@miragon/rules/flow-connection-side`](https://miragon.github.io/bpmnlint-rules/rules/flow-connection-side)                         | A sequence flow docked onto the wrong side of a shape                          |
+| [`@miragon/rules/flow-target-alignment`](https://miragon.github.io/bpmnlint-rules/rules/flow-target-alignment)                       | A flow's target drawn off the row, sloping the main path                       |
+| [`@miragon/rules/flow-crossing`](https://miragon.github.io/bpmnlint-rules/rules/flow-crossing)                                       | Two sequence flows whose drawn paths cross each other                          |
+| [`@miragon/rules/flow-orthogonal`](https://miragon.github.io/bpmnlint-rules/rules/flow-orthogonal)                                   | A sequence flow that runs diagonally instead of horizontal and vertical        |
+| [`@miragon/rules/boundary-event-marker-overlap`](https://miragon.github.io/bpmnlint-rules/rules/boundary-event-marker-overlap)       | A boundary event drawn over a marker or icon of its host activity              |
+| [`@miragon/rules/exclusive-gateway-marker-visible`](https://miragon.github.io/bpmnlint-rules/rules/exclusive-gateway-marker-visible) | An exclusive gateway drawn without its X marker                                |
+| [`@miragon/rules/async-continuations`](https://miragon.github.io/bpmnlint-rules/rules/async-continuations)                           | Camunda 7 save points missing where Camunda recommends them, or redundant      |
 
 ## Install
 
-Install the plugin together with `bpmnlint` (its peer dependency):
+You need Node.js 22 or later. Install the plugin with bpmnlint 11.14 or later, pinned:
 
 ```bash
-npm install --save-dev @miragon/bpmnlint-plugin-rules bpmnlint
+npm install --save-dev --save-exact @miragon/bpmnlint-plugin-rules bpmnlint
 ```
 
-## Use it (the bpmnlint way)
+## Get started
 
-Add the plugin to your `.bpmnlintrc` and extend one of its configs, like any other plugin.
-`bpmnlint:recommended` brings the standard structural rules, and the second entry adds the Miragon
-layer, here `recommended-for-modeling`:
+Save this as `.bpmnlintrc` in your project. It extends bpmnlint's structural rules and a preset:
 
 ```json
 {
   "extends": [
     "bpmnlint:recommended",
-    "plugin:@miragon/rules/recommended-for-modeling"
+    "plugin:@miragon/rules/recommended-for-automation"
   ]
 }
 ```
 
-It ships three configs — pick one by who's modeling and why:
-
-<!-- #region presets -->
-
-- `plugin:@miragon/rules/recommended-for-modeling` — for **purely business/technical models**, and for
-  **modeler applications that surface linting** to their users. Layout hints only: bpmnlint's
-  `standard-size` and the layout rules at `warn`, the naming/id rules **off** — a modeler is never
-  blocked on execution-only conventions.
-- `plugin:@miragon/rules/recommended-for-automation` — for **developers automating processes**, locally
-  and in CI, on models wired up to a Camunda engine. Every Miragon rule on but as a non-blocking `warn`
-  (`standard-size` too), so ids and layout get flagged without failing the build.
-- `plugin:@miragon/rules/strict` — every Miragon rule at `error`, engine-agnostic. The gate to opt into
-  when you want findings to fail the build. Not covered by semver: a minor release may add rules or
-  widen what they report. See the
-  [semantic versioning policy](https://github.com/Miragon/bpmnlint-rules/blob/main/CONTRIBUTING.md#semantic-versioning-policy).
-
-<!-- #endregion presets -->
-
-Then lint a diagram:
+Then lint your models, pointing the glob at where they live, and fix what it reports:
 
 ```bash
-npx bpmnlint diagram.bpmn
+npx bpmnlint "processes/**/*.bpmn"
 ```
 
-<!-- #endregion setup -->
+![A terminal runs npx bpmnlint on an invoice process and flags a generated id, two crossing flows and a diagonal flow; after the fix the same command comes back clean](docs/assets/demo.gif)
 
-## Rules
+Without an engine, the naming, layout and structural rules run as they are. For Camunda,
+[add your engine](https://miragon.github.io/bpmnlint-rules/guide/engines); then run the same command
+[in CI](https://miragon.github.io/bpmnlint-rules/integrate/ci) and
+[after every agent edit](https://miragon.github.io/bpmnlint-rules/integrate/agents).
 
-The Miragon conventions this plugin adds — each with a docs page and a good/bad example:
+## With Claude Code
 
-| Rule                                                                                                | What it catches                                                                |
-| --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| [`@miragon/rules/no-generated-ids`](docs/rules/no-generated-ids.md)                                 | IDs generated rather than chosen (`Activity_0049ryx`, `StartEvent_1`)          |
-| [`@miragon/rules/element-id-naming`](docs/rules/element-id-naming.md)                               | IDs that don't follow the type-prefix + case convention                        |
-| [`@miragon/rules/worker-topic-naming`](docs/rules/worker-topic-naming.md)                           | A worker topic (C7 external task topic, C8 job type) off the configured scheme |
-| [`@miragon/rules/message-name-naming`](docs/rules/message-name-naming.md)                           | A message name off the configured scheme                                       |
-| [`@miragon/rules/flow-through-element`](docs/rules/flow-through-element.md)                         | A sequence flow routed through an unrelated shape's body                       |
-| [`@miragon/rules/flow-connection-side`](docs/rules/flow-connection-side.md)                         | A sequence flow docked onto the wrong side of a shape                          |
-| [`@miragon/rules/flow-target-alignment`](docs/rules/flow-target-alignment.md)                       | A flow's target drawn off the row, sloping the main path                       |
-| [`@miragon/rules/flow-crossing`](docs/rules/flow-crossing.md)                                       | Two sequence flows whose drawn paths cross each other                          |
-| [`@miragon/rules/flow-orthogonal`](docs/rules/flow-orthogonal.md)                                   | A sequence flow that runs diagonally instead of horizontal and vertical        |
-| [`@miragon/rules/boundary-event-marker-overlap`](docs/rules/boundary-event-marker-overlap.md)       | A boundary event drawn over a marker or icon of its host activity              |
-| [`@miragon/rules/exclusive-gateway-marker-visible`](docs/rules/exclusive-gateway-marker-visible.md) | An exclusive gateway drawn without its X marker                                |
-| [`@miragon/rules/async-continuations`](docs/rules/async-continuations.md)                           | Camunda 7 save points missing where Camunda recommends them, or redundant      |
+The `bpmnlint-rules` plugin writes your team's BPMN style guide with the matching `.bpmnlintrc`,
+checks models against it and fixes their layout. Run in Claude Code:
 
-Turn any of them on individually, the usual way:
-
-```json
-{
-  "extends": [
-    "bpmnlint:recommended",
-    "plugin:@miragon/rules/recommended-for-modeling"
-  ],
-  "rules": {
-    "@miragon/rules/no-generated-ids": "error",
-    "@miragon/rules/element-id-naming": "warn"
-  }
-}
+```text
+/plugin marketplace add Miragon/skills
+/plugin install bpmnlint-rules@miragon-agent-skills
 ```
 
-Structural checks — start/end events, connectivity, element sizing — come from bpmnlint's own
-[`bpmnlint:recommended`](https://github.com/bpmn-io/bpmnlint/blob/main/docs/rules/README.md). The
-Miragon set grows over time; see [CONTRIBUTING.md](CONTRIBUTING.md) to propose a rule.
+## Help and feedback
 
-<!-- #region usage -->
-
-## In CI
-
-<!-- #region ci -->
-
-Lint every model as a merge gate — bpmnlint exits non-zero on a finding, failing the build:
-
-```bash
-npx bpmnlint 'models/**/*.bpmn'
-```
-
-<!-- #endregion ci -->
-
-## Camunda engine rules
-
-<!-- #region engines -->
-
-Deploying to a Camunda engine? Add its deployability layer (bundled — no separate install) to your
-`extends`. These rules read engine-specific properties, so bpmnlint must also parse them with the
-matching moddle extension — pick the config for your engine below.
-
-**The `moddleExtensions` line is not optional.** Without it the parser doesn't recognize the engine
-namespace, so those properties are invisible to the rules — they then report false findings (for
-example a service task flagged as missing its task definition even though it has one). A modeler loads
-the moddle already; it's the bare `npx bpmnlint` CLI that needs this line. Prefer to skip the wiring?
-The programmatic `getDefaultLintConfig({ engine })` below sets up both the layer and its moddle
-extension for you.
-
-### Camunda 7
-
-```json
-{
-  "extends": [
-    "bpmnlint:recommended",
-    "plugin:@miragon/rules/recommended-for-automation",
-    "plugin:camunda-compat/camunda-platform-7-24"
-  ],
-  "moddleExtensions": {
-    "camunda": "camunda-bpmn-moddle/resources/camunda.json"
-  }
-}
-```
-
-### Camunda 8 (Zeebe)
-
-```json
-{
-  "extends": [
-    "bpmnlint:recommended",
-    "plugin:@miragon/rules/recommended-for-automation",
-    "plugin:camunda-compat/camunda-cloud-8-11"
-  ],
-  "moddleExtensions": {
-    "zeebe": "zeebe-bpmn-moddle/resources/zeebe.json"
-  }
-}
-```
-
-### Older engine versions
-
-Both examples name the config for the latest engine version. camunda-compat ships one config per
-version, from `camunda-platform-7-19` and `camunda-cloud-1-0` on: put your engine's version in the
-name, for example `plugin:camunda-compat/camunda-cloud-8-5`. The bpmnlint CLI loads it from the
-installed `bpmnlint-plugin-camunda-compat`.
-
-The bundled resolver, `createBundledResolver()`, carries only the latest config per engine:
-`camunda-platform-7-24` and `camunda-cloud-8-11`. A host that has only the bundle, such as a browser
-modeler, lints against these two. In Node, chain bpmnlint's `NodeResolver` behind the bundle, so the
-configs and rules the bundle does not carry load from the installed packages:
-
-```ts
-import NodeResolver from 'bpmnlint/lib/resolver/node-resolver.js';
-import { createBundledResolver } from '@miragon/bpmnlint-plugin-rules';
-
-const bundled = createBundledResolver();
-// loads packages from the node_modules of the working directory
-const installed = new NodeResolver();
-
-// the bundle first, the installed packages for what it does not carry
-function chained(method: 'resolveRule' | 'resolveConfig') {
-  return (pkg: string, name: string) => {
-    try {
-      return bundled[method](pkg, name);
-    } catch {
-      return installed[method](pkg, name);
-    }
-  };
-}
-
-const resolver = {
-  resolveRule: chained('resolveRule'),
-  resolveConfig: chained('resolveConfig'),
-};
-```
-
-Pass this `resolver` to the `Linter` in place of `createBundledResolver()`, with an `extends` that
-names the older config.
-
-<!-- #endregion engines -->
-
-## Programmatic use
-
-<!-- #region programmatic -->
-
-Building a linter in code — a modeler, a CI script, an agent loop? Skip `.bpmnlintrc` and use the
-bundled resolver. It carries every layer (structural + Camunda + Miragon), so there's nothing else
-to wire up, and it works offline:
-
-```ts
-import { BpmnModdle } from 'bpmn-moddle';
-import { Linter } from 'bpmnlint';
-import {
-  createBundledResolver,
-  getDefaultLintConfig,
-} from '@miragon/bpmnlint-plugin-rules';
-
-// 'c7' | 'c8', omit for structural-only
-const config = getDefaultLintConfig({ engine: 'c8' });
-
-// parse with the config's moddle extensions, or the engine rules
-// cannot see the engine properties
-const moddle = new BpmnModdle(config.moddleExtensions);
-const { rootElement } = await moddle.fromXML(xml);
-
-const linter = new Linter({
-  config,
-  resolver: createBundledResolver(),
-});
-
-const results = await linter.lint(rootElement);
-```
-
-`engine` picks the Camunda deployability layer + typed moddle; `preset` picks the Miragon opinion
-layer independently — `'modeling'` (layout hints only, safe on hand-drawn diagrams) or
-`'automation'` (every Miragon rule at `error`). When `preset` is omitted it defaults to
-`'automation'` for an engine-bound config and `'modeling'` otherwise. Pass both to decouple them —
-e.g. a modeler that wants Camunda 8's typed properties and deployability checks but the relaxed
-modeling opinion layer:
-
-```ts
-getDefaultLintConfig({ engine: 'c8', preset: 'modeling' });
-```
-
-Results are keyed by rule; each finding has a `category` (`error` | `warn`). Block on any error — a
-CI gate, or the reject signal that sends an AI agent back to fix its output:
-
-```ts
-const errors = Object.values(results)
-  .flat()
-  .filter((finding) => finding.category === 'error');
-
-if (errors.length) process.exit(1);
-```
-
-Every rule factory, rule-set and helper is exported from the package root as well.
-
-<!-- #endregion programmatic -->
-
-<!-- #endregion usage -->
-
-## Alternatives
-
-bpmnlint lints one model at a time, so it is the right fit for anything stylistic or about the
-correctness of a single diagram. It checks naming conventions, layout, structural soundness, and
-whether a construct is deployable to a given engine.
-
-However, it cannot answer engine- and automation-specific questions that span a running process, because those
-depend on more than the diagram in front of it. Whether a call activity passes every variable its
-child process needs, or whether the technical wiring is correct, is something a model-in-isolation
-linter simply cannot see. For those cases, and when you want to keep such tests alongside your model
-in the same build (for example a Gradle task), [Miragon/bpmn-to-code](https://github.com/Miragon/bpmn-to-code)
-and its [process testing](https://github.com/Miragon/bpmn-to-code/pull/79) are the better tool.
-
-## Where it is used
-
-- **[Miragon BPMN Modeler](https://github.com/Miragon/bpmn-modeler)** — in-editor linting via the
-  programmatic API, flagging issues live while you model.
-
-- **[Claude Code plugin](plugins/bpmnlint-rules)** — skills that write a team BPMN style guide, generate
-  the matching `.bpmnlintrc`, check models against the guide, and review and fix their layout.
+- **Documentation:** [miragon.github.io/bpmnlint-rules](https://miragon.github.io/bpmnlint-rules/).
+- **Bugs and ideas:** [open an issue](https://github.com/Miragon/bpmnlint-rules/issues).
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md).
+Pull requests come from the team only; ideas are welcome as issues. Building and testing are in
+[CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-[MIT](LICENSE) © Miragon GmbH.
+[MIT](LICENSE) © Miragon GmbH
