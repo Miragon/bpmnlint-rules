@@ -8,8 +8,9 @@ import {
 import { miragonDocs } from './miragon/config';
 import { ruleExamples } from './ruleExamples';
 
-const isLayoutHint = (ruleName: string) =>
-  miragonRecommendedForModeling.rules?.[`${MIRAGON_NAME}/${ruleName}`] !== 'off';
+const isLayoutRule = (ruleName: string) =>
+  miragonRecommendedForModeling.rules?.[`${MIRAGON_NAME}/${ruleName}`] !== 'off' ||
+  miragonRuleFactories[ruleName]?.kind === 'cosmetic';
 const isAutomationRule = (ruleName: string) =>
   miragonRuleFactories[ruleName]?.kind === 'engine-specific';
 const ruleNames = Object.keys(miragonRuleFactories);
@@ -55,12 +56,12 @@ export default miragonDocs({
         {
           text: 'Naming',
           link: '/rules/naming',
-          items: engineAgnosticRuleNames.filter((name) => !isLayoutHint(name)).map(toSidebarItem),
+          items: engineAgnosticRuleNames.filter((name) => !isLayoutRule(name)).map(toSidebarItem),
         },
         {
           text: 'Layout',
           link: '/rules/layout',
-          items: engineAgnosticRuleNames.filter(isLayoutHint).map(toSidebarItem),
+          items: engineAgnosticRuleNames.filter(isLayoutRule).map(toSidebarItem),
         },
         {
           text: 'Automation',

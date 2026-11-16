@@ -69,6 +69,11 @@ export async function fullConfigReports(
   const xml = readFileSync(`${EXAMPLES_DIR}/${ruleName}/${kind}.bpmn`, 'utf8');
   const { root } = await createModdle(xml);
 
+  const strictWithOwnRule = {
+    ...strict,
+    rules: { [`@miragon/rules/${ruleName}`]: 'error' },
+  };
+
   const linter = new Linter({ resolver: BundledResolver.create() });
-  return linter.lint(root, strict) as Promise<Record<string, Finding[]>>;
+  return linter.lint(root, strictWithOwnRule) as Promise<Record<string, Finding[]>>;
 }
