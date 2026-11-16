@@ -32,6 +32,10 @@ and bounds, never on guesswork.
 
 <RulePair rule="exclusive-gateway-marker-visible" />
 
-All seven are non-blocking layout hints at `warn` in both recommended presets, except the gateway
+## A label on a flow or too narrow for its words
+
+<RulePair rule="label-placement" />
+
+All eight are non-blocking layout hints at `warn` in both recommended presets, except the gateway
 marker, which is an `error` in `recommended-for-modeling`. See
 [Presets](../presets.md).

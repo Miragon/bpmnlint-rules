@@ -20,6 +20,7 @@ const OFFENDER_BY_RULE: Record<MiragonRuleName, string> = {
   'boundary-event-marker-overlap': 'event_orderCancelled',
   'exclusive-gateway-marker-visible': 'gateway_approved',
   'async-continuations': 'serviceTask_chargeCard',
+  'label-placement': 'flow_reopen',
 };
 
 describe('example models', () => {
