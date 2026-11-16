@@ -4,7 +4,7 @@
  */
 export type { Bbox, Point, Rect, Side } from './types';
 export { BboxIndex } from './BboxIndex';
-export { bboxDisjoint, bboxOfPoints, bboxOfRect } from './utils/bboxes';
+export { bboxDisjoint, bboxOfPoints, bboxOfRect, insetRect } from './utils/bboxes';
 export { attachSide, gatewayTipSide, isBackwardFlow, sameRow, stubLength } from './utils/docking';
 export {
   circleOverlapsRect,

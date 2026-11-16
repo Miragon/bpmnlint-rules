@@ -19,6 +19,14 @@ export const bboxOfRect = (rect: Rect): Bbox => ({
   maxY: rect.y + rect.height,
 });
 
+/** The rectangle shrunk by `inset` on every side. */
+export const insetRect = (rect: Rect, inset: number): Rect => ({
+  x: rect.x + inset,
+  y: rect.y + inset,
+  width: rect.width - 2 * inset,
+  height: rect.height - 2 * inset,
+});
+
 /** Cheap reject before the exact geometry test. */
 export const bboxDisjoint = (first: Bbox, second: Bbox): boolean =>
   first.maxX < second.minX ||

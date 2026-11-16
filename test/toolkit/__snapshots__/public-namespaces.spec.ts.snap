@@ -18,6 +18,7 @@ exports[`public toolkit namespaces > expose a stable set of names 1`] = `
     "bboxOfRect",
     "circleOverlapsRect",
     "gatewayTipSide",
+    "insetRect",
     "isBackwardFlow",
     "isOrthogonalPath",
     "sameRow",
