@@ -1,4 +1,5 @@
 import { inst, isPassableShape, PlaneRule } from '../../../toolkit/diagram';
+import { longestWord, MIN_CHAR_WIDTH_PX } from '../../../toolkit/diagram/utils/text';
 import type { DiagramPlane, PlaneEdge, PlaneShape } from '../../../toolkit/diagram';
 import {
   BboxIndex,
@@ -12,7 +13,6 @@ import type { Point, Rect } from '../../../toolkit/geometry';
 import type { ModdleElement, Reporter } from '../../../core/moddle';
 import { defineRule } from '../../../core/utils/defineRule';
 
-const MIN_CHAR_WIDTH_PX = 5;
 const GRAZE_TOLERANCE = 2;
 
 interface Label {
@@ -82,15 +82,13 @@ class LabelPlacement extends PlaneRule {
     bounds: Rect,
     reporter: Reporter,
   ): void {
-    const longestWord = name
-      .split(/[\s-]+/)
-      .reduce((longest, word) => (word.length > longest.length ? word : longest), '');
-    const requiredWidth = longestWord.length * MIN_CHAR_WIDTH_PX;
+    const word = longestWord(name);
+    const requiredWidth = word.length * MIN_CHAR_WIDTH_PX;
 
     if (bounds.width < requiredWidth) {
       reporter.report(
         el.id,
-        `Label is narrower than the word "${longestWord}"; widen it to at least ${requiredWidth}px`,
+        `Label is narrower than the word "${word}"; widen it to at least ${requiredWidth}px`,
       );
     }
   }
