@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_TextAnnotationFit" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:process id="orderShipping" isExecutable="true">
+    <bpmn:startEvent id="startEvent_orderPaid" name="Order paid">
+      <bpmn:outgoing>flow_orderPaid</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="serviceTask_shipOrder" name="Ship order">
+      <bpmn:incoming>flow_orderPaid</bpmn:incoming>
+      <bpmn:outgoing>flow_orderShipped</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="endEvent_orderShipped" name="Order shipped">
+      <bpmn:incoming>flow_orderShipped</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="flow_orderPaid" sourceRef="startEvent_orderPaid" targetRef="serviceTask_shipOrder" />
+    <bpmn:sequenceFlow id="flow_orderShipped" sourceRef="serviceTask_shipOrder" targetRef="endEvent_orderShipped" />
+    <bpmn:textAnnotation id="textAnnotation_shippingNote">
+      <bpmn:text>Sent with the parcel service (tracked)</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="association_shippingNote" associationDirection="None" sourceRef="serviceTask_shipOrder" targetRef="textAnnotation_shippingNote" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="orderShipping">
+      <bpmndi:BPMNShape id="startEvent_orderPaid_di" bpmnElement="startEvent_orderPaid">
+        <dc:Bounds x="160" y="182" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="152" y="225" width="53" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="serviceTask_shipOrder_di" bpmnElement="serviceTask_shipOrder">
+        <dc:Bounds x="260" y="160" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endEvent_orderShipped_di" bpmnElement="endEvent_orderShipped">
+        <dc:Bounds x="432" y="182" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="415" y="225" width="70" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="textAnnotation_shippingNote_di" bpmnElement="textAnnotation_shippingNote">
+        <dc:Bounds x="360" y="77" width="140" height="34" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="flow_orderPaid_di" bpmnElement="flow_orderPaid">
+        <di:waypoint x="196" y="200" />
+        <di:waypoint x="260" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_orderShipped_di" bpmnElement="flow_orderShipped">
+        <di:waypoint x="360" y="200" />
+        <di:waypoint x="432" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="association_shippingNote_di" bpmnElement="association_shippingNote">
+        <di:waypoint x="345" y="160" />
+        <di:waypoint x="370" y="111" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
