@@ -6,6 +6,7 @@ import {
   miragonRecommendedForAutomation,
   miragonRecommendedForModeling,
   miragonRuleFactories,
+  miragonStrict,
 } from '../../src';
 import type { DefaultLintConfigOptions, Engine } from '../../src';
 import { model } from '../support/model';
@@ -83,6 +84,18 @@ describe('getDefaultLintConfig preset selection', () => {
       expect(miragonRecommendedForModeling.rules?.[ruleName]).toBe('off');
       expect(miragonRecommendedForAutomation.rules?.[ruleName]).toBe('off');
     }
+  });
+
+  it('keeps text-annotation-fit as the only Miragon rule off in every preset, strict included', () => {
+    const offEverywhere = Object.keys(miragonRuleFactories)
+      .map((name) => `@miragon/rules/${name}`)
+      .filter((ruleName) =>
+        [miragonRecommendedForModeling, miragonRecommendedForAutomation, miragonStrict].every(
+          (layer) => layer.rules?.[ruleName] === 'off',
+        ),
+      );
+
+    expect(offEverywhere).toEqual(['@miragon/rules/text-annotation-fit']);
   });
 
   it('marks exactly the rules with a target engine as engine-specific', () => {

@@ -27,6 +27,7 @@ import flowThroughElement from './flow-through-element';
 import labelPlacement from './label-placement';
 import messageNameNaming from './message-name-naming';
 import noGeneratedIds from './no-generated-ids';
+import textAnnotationFit from './text-annotation-fit';
 import workerTopicNaming from './worker-topic-naming';
 
 /** The expanded plugin package name — the prefix every resolver cache key uses. */
@@ -49,6 +50,7 @@ const ruleFactoriesByName = {
   [boundaryEventMarkerOverlap.ruleName]: boundaryEventMarkerOverlap,
   [exclusiveGatewayMarkerVisible.ruleName]: exclusiveGatewayMarkerVisible,
   [asyncContinuations.ruleName]: asyncContinuations,
+  [textAnnotationFit.ruleName]: textAnnotationFit,
 };
 
 /** The short (unprefixed) name of a rule this plugin ships, as each rule file declares it. */
@@ -127,5 +129,6 @@ export {
   labelPlacement,
   messageNameNaming,
   noGeneratedIds,
+  textAnnotationFit,
   workerTopicNaming,
 };

@@ -21,6 +21,7 @@ const OFFENDER_BY_RULE: Record<MiragonRuleName, string> = {
   'exclusive-gateway-marker-visible': 'gateway_approved',
   'async-continuations': 'serviceTask_chargeCard',
   'label-placement': 'flow_reopen',
+  'text-annotation-fit': 'textAnnotation_shippingNote',
 };
 
 describe('example models', () => {

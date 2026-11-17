@@ -7,10 +7,12 @@ import type { RuleSet, RuleSeverity } from './bpmnlint-config';
  *  - `misdrawn` — a drawing defect, not merely untidy, so it blocks even while modeling;
  *  - `convention` — an execution-only convention a modeler shouldn't be blocked on;
  *  - `scheme` — needs a project-chosen scheme before it can say anything useful;
- *  - `engine-specific` — applies to one engine only (the rule also sets `targetEngine`).
+ *  - `engine-specific` — applies to one engine only (the rule also sets `targetEngine`);
+ *  - `cosmetic` — a presentation check built on a font estimate, so it is off in every layer and
+ *    enabled by name.
  */
 export type MiragonRuleKind =
-  'layout-hint' | 'misdrawn' | 'convention' | 'scheme' | 'engine-specific';
+  'layout-hint' | 'misdrawn' | 'convention' | 'scheme' | 'engine-specific' | 'cosmetic';
 
 /** The Miragon opinion layers, keyed by the config name they are exposed under. */
 export type MiragonLayerName = 'recommended-for-modeling' | 'recommended-for-automation' | 'strict';
@@ -44,6 +46,11 @@ const SEVERITY_BY_KIND: Record<MiragonRuleKind, Record<MiragonLayerName, RuleSev
     'recommended-for-modeling': 'off',
     'recommended-for-automation': 'off',
     strict: 'error',
+  },
+  cosmetic: {
+    'recommended-for-modeling': 'off',
+    'recommended-for-automation': 'off',
+    strict: 'off',
   },
 };
 

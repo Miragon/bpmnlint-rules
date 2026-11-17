@@ -34,11 +34,11 @@ findings.
 Extend one as `plugin:@miragon/rules/<preset>`; the
 [presets page](https://miragon.github.io/bpmnlint-rules/presets) lists every rule's severity.
 
-| Preset                       | For                                                      | Miragon rules                                                        |
-| ---------------------------- | -------------------------------------------------------- | -------------------------------------------------------------------- |
-| `recommended-for-modeling`   | Hand-drawn models, and modelers that lint while you draw | Layout at `warn`, naming off, a gateway drawn without marker `error` |
-| `recommended-for-automation` | Developers who automate processes, locally and in CI     | Id and layout rules at `warn`, scheme and Camunda 7 rules off        |
-| `strict`                     | A merge gate that fails on every finding                 | Every rule at `error`, and a minor release can add rules             |
+| Preset                       | For                                                      | Miragon rules                                                                                 |
+| ---------------------------- | -------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `recommended-for-modeling`   | Hand-drawn models, and modelers that lint while you draw | Layout at `warn`, naming off, a gateway drawn without marker `error`                          |
+| `recommended-for-automation` | Developers who automate processes, locally and in CI     | Id and layout rules at `warn`, scheme and Camunda 7 rules off                                 |
+| `strict`                     | A merge gate that fails on every finding                 | Every rule at `error` but the opt-in `text-annotation-fit`, and a minor release can add rules |
 
 ## Rules
 
@@ -58,6 +58,7 @@ The rules the plugin adds, each linked to its examples:
 | [`@miragon/rules/boundary-event-marker-overlap`](https://miragon.github.io/bpmnlint-rules/rules/boundary-event-marker-overlap)       | A boundary event drawn over a marker or icon of its host activity              |
 | [`@miragon/rules/exclusive-gateway-marker-visible`](https://miragon.github.io/bpmnlint-rules/rules/exclusive-gateway-marker-visible) | An exclusive gateway drawn without its X marker                                |
 | [`@miragon/rules/label-placement`](https://miragon.github.io/bpmnlint-rules/rules/label-placement)                                   | A label drawn over a flow or shape, or narrower than its longest word          |
+| [`@miragon/rules/text-annotation-fit`](https://miragon.github.io/bpmnlint-rules/rules/text-annotation-fit)                           | A text annotation too small for its text (opt-in, off in every preset)         |
 | [`@miragon/rules/async-continuations`](https://miragon.github.io/bpmnlint-rules/rules/async-continuations)                           | Camunda 7 save points missing where Camunda recommends them, or redundant      |
 
 ## Install
