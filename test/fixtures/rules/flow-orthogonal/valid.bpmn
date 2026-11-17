@@ -43,7 +43,7 @@
       <bpmndi:BPMNShape id="gateway_approved_di" bpmnElement="gateway_approved" isMarkerVisible="true">
         <dc:Bounds x="410" y="175" width="50" height="50" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="470" y="193" width="54" height="14" />
+          <dc:Bounds x="408" y="155" width="54" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="endEvent_orderHandled_di" bpmnElement="endEvent_orderHandled">
