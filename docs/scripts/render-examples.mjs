@@ -1,5 +1,5 @@
 // Renders the rule fixtures to `docs/rules/assets/<rule>-<kind>.svg`. Camunda 7 models get their
-// transaction boundaries as red bars (HTML overlays that `saveSVG()` would leave out).
+// transaction boundaries as bars in Miragon blue (HTML overlays that `saveSVG()` would leave out).
 // First run on a machine: npx playwright install chromium
 
 import { globSync, readFileSync, writeFileSync } from 'node:fs';
@@ -11,6 +11,10 @@ import { chromium } from 'playwright';
 
 const FIXTURES = new URL('../../test/fixtures/rules/', import.meta.url);
 const ASSETS = new URL('../rules/assets/', import.meta.url);
+const MIRAGON_TOKENS = new URL(
+  '../.vitepress/miragon/theme/cd-tokens.generated.css',
+  import.meta.url,
+);
 const STANDARDS_MODE_PAGE = '<!doctype html>';
 
 const transactionBoundariesBundle = await build({
@@ -22,7 +26,7 @@ const transactionBoundariesBundle = await build({
 });
 
 async function renderInPage({ xml, camundaModdle }) {
-  const { BpmnJS, TransactionBoundaries, document } = globalThis;
+  const { BpmnJS, TransactionBoundaries, document, getComputedStyle } = globalThis;
   document.body.replaceChildren();
   const viewer = new BpmnJS({
     container: document.body,
@@ -43,12 +47,17 @@ async function renderInPage({ xml, camundaModdle }) {
     .get('overlays')
     .get({ type: 'transaction-boundaries' })
     .filter(({ element }) => canvas.findRoot(element) === canvas.getRootElement())
-    .map(({ htmlContainer }) => htmlContainer.firstElementChild.getBoundingClientRect())
-    .map((bar) => ({
-      x: Math.round(x + (bar.left - origin.left) / scale),
-      y: Math.round(y + (bar.top - origin.top) / scale),
-      width: Math.round(bar.width / scale),
-      height: Math.round(bar.height / scale),
+    .map(({ htmlContainer }) => htmlContainer.firstElementChild)
+    .map((marker) => ({
+      bounds: marker.getBoundingClientRect(),
+      fill: getComputedStyle(marker).backgroundColor,
+    }))
+    .map(({ bounds, fill }) => ({
+      x: Math.round(x + (bounds.left - origin.left) / scale),
+      y: Math.round(y + (bounds.top - origin.top) / scale),
+      width: Math.round(bounds.width / scale),
+      height: Math.round(bounds.height / scale),
+      fill,
     }));
 
   const [svgX, svgY, svgWidth, svgHeight] = /viewBox="([^"]+)"/.exec(svg)[1].split(' ').map(Number);
@@ -58,7 +67,7 @@ async function renderInPage({ xml, camundaModdle }) {
   const height = Math.max(svgY + svgHeight, ...bars.map((bar) => bar.y + bar.height)) - top;
   const rects = bars.map(
     (bar) =>
-      `<rect class="transaction-boundary" x="${bar.x}" y="${bar.y}" width="${bar.width}" height="${bar.height}" fill="#ee0000"/>`,
+      `<rect class="transaction-boundary" x="${bar.x}" y="${bar.y}" width="${bar.width}" height="${bar.height}" fill="${bar.fill}"/>`,
   );
   return svg
     .replace(
@@ -75,6 +84,16 @@ await page.addScriptTag({
   path: fileURLToPath(import.meta.resolve('bpmn-js/dist/bpmn-viewer.production.min.js')),
 });
 await page.addScriptTag({ content: transactionBoundariesBundle.outputFiles[0].text });
+await page.addStyleTag({
+  path: fileURLToPath(
+    import.meta.resolve('camunda-transaction-boundaries/assets/transaction-boundaries.css'),
+  ),
+});
+await page.addStyleTag({ path: fileURLToPath(MIRAGON_TOKENS) });
+await page.addStyleTag({
+  content:
+    '.transaction-boundary { --transaction-boundary-background-color: var(--cd-ui-interaktion); }',
+});
 
 for (const fixture of globSync('*/{valid,invalid}.bpmn', { cwd: FIXTURES })) {
   const xml = readFileSync(new URL(fixture, FIXTURES), 'utf8');

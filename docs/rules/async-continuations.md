@@ -136,7 +136,7 @@ With `minimal`, a task with `asyncAfter` directly in front of a multi-instance b
 ## Examples
 
 An order payment process in Camunda 7: a user approves the order, then the card is charged. Each
-red bar is a transaction boundary, drawn by
+blue bar is a transaction boundary, drawn by
 [camunda-transaction-boundaries](https://github.com/bpmn-io/camunda-transaction-boundaries): Camunda 7
 commits there and a new transaction starts.
 
