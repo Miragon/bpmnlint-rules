@@ -1,7 +1,7 @@
 import type { Theme } from 'vitepress';
 import { h } from 'vue';
 
-import MiragonTheme from '../miragon/theme';
+import MiragonTheme from '@miragon/docs-starter/theme';
 import AgentLoop from './components/AgentLoop.vue';
 import DeployTerminals from './components/DeployTerminals.vue';
 import HomeLanding from './components/HomeLanding.vue';

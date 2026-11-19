@@ -12,7 +12,6 @@ export default tseslint.config(
       '.context/**',
       'docs/.vitepress/dist/**',
       'docs/.vitepress/cache/**',
-      'docs/.vitepress/miragon/**',
     ],
   },
   js.configs.recommended,
