@@ -39,9 +39,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Check the Miragon docs kit
-        run: node docs/.vitepress/miragon/check.mjs
-
       - name: Build docs
         run: npm run docs:build
         env:

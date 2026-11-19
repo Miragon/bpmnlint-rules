@@ -5,7 +5,7 @@ import {
   miragonRuleFactories,
   MIRAGON_NAME,
 } from '../../src/rules/miragon';
-import { miragonDocs } from './miragon/config';
+import { miragonDocs } from '@miragon/docs-starter';
 import { ruleExamples } from './ruleExamples';
 
 const isLayoutHint = (ruleName: string) =>

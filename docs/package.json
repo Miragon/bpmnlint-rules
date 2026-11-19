@@ -6,13 +6,11 @@
     "dev": "vitepress dev",
     "build": "vitepress build",
     "preview": "vitepress preview",
-    "examples": "node scripts/render-examples.mjs",
-    "check:kit": "node .vitepress/miragon/check.mjs"
+    "examples": "node scripts/render-examples.mjs"
   },
   "devDependencies": {
     "@braintree/sanitize-url": "7.1.2",
-    "@fontsource-variable/geist": "5.3.0",
-    "@fontsource-variable/geist-mono": "5.3.0",
+    "@miragon/docs-starter": "1.0.0",
     "bpmn-js": "18.31.1",
     "camunda-transaction-boundaries": "1.1.2",
     "cytoscape": "3.34.4",

@@ -108,5 +108,13 @@
   "homepage": "https://miragon.github.io/bpmnlint-rules/",
   "workspaces": [
     "docs"
-  ]
+  ],
+  "overrides": {
+    "vitepress": {
+      "vite": "6.4.5"
+    },
+    "vitepress-plugin-mermaid": {
+      "mermaid": "12.3.0"
+    }
+  }
 }
