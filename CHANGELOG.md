@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.22.1](https://github.com/Miragon/bpmnlint-rules/compare/v0.22.0...v0.22.1) (2026-11-19)
+
+
+### Bug Fixes
+
+* **fixtures:** move the flow-orthogonal gateway label off its outgoing flow ([#159](https://github.com/Miragon/bpmnlint-rules/issues/159)) ([f399138](https://github.com/Miragon/bpmnlint-rules/commit/f3991382c4cdd1883110e020899794a901f6896b))
+
 ## [0.22.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.21.0...v0.22.0) (2026-11-03)
 
 
