@@ -3,6 +3,7 @@ import {
   bboxDisjoint,
   circleOverlapsRect,
   gatewayTipSide,
+  insetRect,
   isOrthogonalPath,
 } from '../../src/toolkit/geometry';
 import { BboxIndex } from '../../src/toolkit/geometry';
@@ -50,6 +51,12 @@ describe('circleOverlapsRect', () => {
   it('measures the distance to a corner diagonally', () => {
     expect(circleOverlapsRect({ x: 214, y: 194 }, 18, BOX)).toBe(false);
     expect(circleOverlapsRect({ x: 212, y: 192 }, 18, BOX)).toBe(true);
+  });
+});
+
+describe('insetRect', () => {
+  it('shrinks the rectangle by the same amount on every side', () => {
+    expect(insetRect(BOX, 2)).toEqual({ x: 102, y: 102, width: 96, height: 76 });
   });
 });
 
