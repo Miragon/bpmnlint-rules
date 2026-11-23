@@ -24,10 +24,10 @@ export interface PlaneEdge {
  * separately for that reason.
  */
 export class DiagramPlane {
-  readonly shapes: PlaneShape[];
-  readonly edges: PlaneEdge[];
+  readonly shapes: readonly PlaneShape[];
+  readonly edges: readonly PlaneEdge[];
   /** The edges drawing a `bpmn:SequenceFlow`. */
-  readonly sequenceFlows: PlaneEdge[];
+  readonly sequenceFlows: readonly PlaneEdge[];
   private readonly shapeById: Map<string, PlaneShape>;
 
   private constructor(shapes: PlaneShape[], edges: PlaneEdge[]) {

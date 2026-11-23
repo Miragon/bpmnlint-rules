@@ -37,7 +37,7 @@ export interface ElementIdNamingConfig {
  * them would be noise. Message, signal, error and escalation definitions are left to the engine,
  * as in `no-generated-ids`.
  */
-export const DEFAULT_PREFIXES: PrefixMap = {
+export const DEFAULT_PREFIXES: Readonly<PrefixMap> = Object.freeze({
   'bpmn:StartEvent': 'startEvent_',
   'bpmn:EndEvent': 'endEvent_',
   'bpmn:BoundaryEvent': 'event_',
@@ -66,7 +66,7 @@ export const DEFAULT_PREFIXES: PrefixMap = {
   'bpmn:Association': 'association_',
   'bpmn:DataInputAssociation': 'association_',
   'bpmn:DataOutputAssociation': 'association_',
-};
+});
 
 /**
  * Base types tried — most specific first — when an element's exact `$type` is not configured.

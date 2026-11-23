@@ -16,8 +16,10 @@ import type { BpmnlintConfig } from './core/bpmnlint-config';
 
 import { miragonLayers, miragonRuleFactories } from './rules/miragon';
 
-export const rules: Record<string, string> = Object.fromEntries(
-  Object.keys(miragonRuleFactories).map((name) => [name, `./rules/miragon/${name}.cjs`]),
+export const rules: Readonly<Record<string, string>> = Object.freeze(
+  Object.fromEntries(
+    Object.keys(miragonRuleFactories).map((name) => [name, `./rules/miragon/${name}.cjs`]),
+  ),
 );
 
-export const configs: Record<string, BpmnlintConfig> = miragonLayers;
+export const configs: Readonly<Record<string, Readonly<BpmnlintConfig>>> = miragonLayers;

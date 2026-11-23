@@ -14,6 +14,7 @@ import type { BpmnlintConfig, ResolverEntries } from '../../core/bpmnlint-config
 import { SeverityPolicy } from '../../core/SeverityPolicy';
 import type { MiragonLayerName } from '../../core/SeverityPolicy';
 import type { DeclaredRuleFactory } from '../../core/utils/defineRule';
+import { frozenConfig } from '../../core/utils/frozenConfig';
 
 import boundaryEventMarkerOverlap from './boundary-event-marker-overlap';
 import asyncContinuations from './async-continuations';
@@ -57,7 +58,8 @@ const ruleFactoriesByName = {
 export type MiragonRuleName = keyof typeof ruleFactoriesByName;
 
 /** The rule factories this plugin ships, keyed by their short (unprefixed) name. */
-export const miragonRuleFactories: Record<string, DeclaredRuleFactory> = ruleFactoriesByName;
+export const miragonRuleFactories: Readonly<Record<string, DeclaredRuleFactory>> =
+  Object.freeze(ruleFactoriesByName);
 
 const severityPolicy = new SeverityPolicy(MIRAGON_NAME, miragonRuleFactories);
 
@@ -69,12 +71,12 @@ const severityPolicy = new SeverityPolicy(MIRAGON_NAME, miragonRuleFactories);
  * of what a custom sizing rule would do, kept in sync with bpmn-js upstream), layout hints at `warn`,
  * misdrawn elements at `error`, and everything execution-only `off`.
  */
-export const miragonRecommendedForModeling: BpmnlintConfig = {
+export const miragonRecommendedForModeling = frozenConfig({
   rules: {
     'bpmnlint/standard-size': 'warn',
     ...severityPolicy.ruleSetFor('recommended-for-modeling'),
   },
-};
+});
 
 /**
  * The Miragon opinion layer for **automation**, exposed as
@@ -84,21 +86,22 @@ export const miragonRecommendedForModeling: BpmnlintConfig = {
  * `warn`, alongside `standard-size` at `warn`. Engine-specific and scheme rules stay `off` — opt-in
  * via `strict` or a consumer's own config.
  */
-export const miragonRecommendedForAutomation: BpmnlintConfig = {
+export const miragonRecommendedForAutomation = frozenConfig({
   rules: {
     'bpmnlint/standard-size': 'warn',
     ...severityPolicy.ruleSetFor('recommended-for-automation'),
   },
-};
+});
 
 /** Every Miragon rule at `error` — the opt-in `plugin:@miragon/rules/strict`. */
-export const miragonStrict: BpmnlintConfig = { rules: severityPolicy.ruleSetFor('strict') };
+export const miragonStrict = frozenConfig({ rules: severityPolicy.ruleSetFor('strict') });
 
-export const miragonLayers: Record<MiragonLayerName, BpmnlintConfig> = {
-  'recommended-for-modeling': miragonRecommendedForModeling,
-  'recommended-for-automation': miragonRecommendedForAutomation,
-  strict: miragonStrict,
-};
+export const miragonLayers: Readonly<Record<MiragonLayerName, Readonly<BpmnlintConfig>>> =
+  Object.freeze({
+    'recommended-for-modeling': miragonRecommendedForModeling,
+    'recommended-for-automation': miragonRecommendedForAutomation,
+    strict: miragonStrict,
+  });
 
 /** This folder's fragment of the bundled StaticResolver cache. */
 export const resolverEntries: ResolverEntries = {
