@@ -53,6 +53,19 @@ modeling opinion layer:
 getDefaultLintConfig({ engine: 'c8', preset: 'modeling' });
 ```
 
+`engineVersion` picks the Camunda config of the version the diagram targets. Pass its
+`modeler:executionPlatformVersion`, e.g. `'8.7.0'` for `camunda-cloud-8-7`. Without it, or without a
+bundled config for that version, the latest config applies. See
+[Older engine versions](../guide/engines.md#older-engine-versions).
+
+```ts
+getDefaultLintConfig({
+  engine: 'c8',
+  engineVersion: '8.7.0',
+  preset: 'modeling',
+});
+```
+
 Results are keyed by rule; each finding has a `category` (`error` | `warn`). Block on any error — a
 CI gate, or the reject signal that sends an AI agent back to fix its output:
 

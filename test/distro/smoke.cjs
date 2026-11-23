@@ -127,6 +127,19 @@ function main() {
       Array.isArray(c8.extends) && c8.extends.includes('plugin:camunda-compat/camunda-cloud-8-11'),
       'c8 config must extend the Camunda 8 layer',
     );
+    const c87 = dist.getDefaultLintConfig({ engine: 'c8', engineVersion: '8.7.0' });
+    assert.ok(
+      c87.extends.includes('plugin:camunda-compat/camunda-cloud-8-7'),
+      'an 8.7 config must extend the 8.7 layer',
+    );
+    const config87 = resolver.resolveConfig('bpmnlint-plugin-camunda-compat', 'camunda-cloud-8-7');
+    for (const rule of Object.keys(config87.rules).filter((name) => !name.includes('/'))) {
+      assert.equal(
+        typeof resolver.resolveRule('bpmnlint-plugin-camunda-compat', rule),
+        'function',
+        `resolveRule(bpmnlint-plugin-camunda-compat/${rule}) for camunda-cloud-8-7`,
+      );
+    }
     step('programmatic path: bundled resolver + c8 config OK');
 
     // (3) ESM path: the same checks through `import`, run from inside the consumer project.

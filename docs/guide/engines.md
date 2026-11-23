@@ -59,38 +59,20 @@ extension for you.
 
 Both examples name the config for the latest engine version. camunda-compat ships one config per
 version, from `camunda-platform-7-19` and `camunda-cloud-1-0` on: put your engine's version in the
-name, for example `plugin:camunda-compat/camunda-cloud-8-5`. The bpmnlint CLI loads it from the
-installed `bpmnlint-plugin-camunda-compat`.
+name, for example `plugin:camunda-compat/camunda-cloud-8-7`. The rules then check against that
+version. A `{{secrets.X}}` reference, for example, is only reported as legacy from 8.10 on.
 
-The bundled resolver, `createBundledResolver()`, carries only the latest config per engine:
-`camunda-platform-7-24` and `camunda-cloud-8-11`. A host that has only the bundle, such as a browser
-modeler, lints against these two. In Node, chain bpmnlint's `NodeResolver` behind the bundle, so the
-configs and rules the bundle does not carry load from the installed packages:
+The bundled resolver, `createBundledResolver()`, carries every one of these configs and the rules
+they reference. A host that has only the bundle, such as a browser modeler, needs nothing installed
+to lint against an older version.
+
+In code, pass the version the diagram targets, its `modeler:executionPlatformVersion`, to
+`getDefaultLintConfig`:
 
 ```ts
-import NodeResolver from 'bpmnlint/lib/resolver/node-resolver.js';
-import { createBundledResolver } from '@miragon/bpmnlint-plugin-rules';
-
-const bundled = createBundledResolver();
-// loads packages from the node_modules of the working directory
-const installed = new NodeResolver();
-
-// the bundle first, the installed packages for what it does not carry
-function chained(method: 'resolveRule' | 'resolveConfig') {
-  return (pkg: string, name: string) => {
-    try {
-      return bundled[method](pkg, name);
-    } catch {
-      return installed[method](pkg, name);
-    }
-  };
-}
-
-const resolver = {
-  resolveRule: chained('resolveRule'),
-  resolveConfig: chained('resolveConfig'),
-};
+getDefaultLintConfig({ engine: 'c8', engineVersion: '8.7.0' });
+// extends […, 'plugin:camunda-compat/camunda-cloud-8-7']
 ```
 
-Pass this `resolver` to the `Linter` in place of `createBundledResolver()`, with an `extends` that
-names the older config.
+Without a version, with one that is not `<major>.<minor>…`, or with one camunda-compat has no
+config for, the latest config applies.

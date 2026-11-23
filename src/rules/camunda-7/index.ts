@@ -1,8 +1,9 @@
 /**
- * The Camunda 7 engine layer — `bpmnlint-plugin-camunda-compat`'s `camunda-platform-7-24` config,
- * which references exactly one rule module (`history-time-to-live`).
+ * The Camunda 7 engine layer — every versioned `camunda-platform-*` config of
+ * `bpmnlint-plugin-camunda-compat` (`camunda-platform-7-19` to `camunda-platform-7-24`). They all
+ * reference exactly one rule module (`history-time-to-live`).
  *
- * Like the C8 folder, this only enumerates the config's referenced module and maps it to the
+ * Like the C8 folder, this only enumerates the configs' referenced module and maps it to the
  * resolver cache key; the rule body is camunda-compat's. Kept honest by the camunda-sync spec.
  */
 import camundaModdle from 'camunda-bpmn-moddle/resources/camunda.json';
@@ -13,6 +14,7 @@ import type { ResolverEntries } from '../../core/bpmnlint-config';
 import rule_history_time_to_live from 'bpmnlint-plugin-camunda-compat/rules/camunda-platform/history-time-to-live.js';
 
 const PLUGIN = 'bpmnlint-plugin-camunda-compat';
+const FAMILY = 'camunda-platform';
 const CONFIG = 'camunda-platform-7-24';
 
 /**
@@ -22,8 +24,13 @@ const CONFIG = 'camunda-platform-7-24';
  */
 export const configName = CONFIG;
 
-/** The `extends` entry a C7 config uses. */
-export const extendsLayer = `plugin:camunda-compat/${CONFIG}`;
+/** The prefix of every C7 config name, followed by `-<major>-<minor>`. */
+export const configFamily = FAMILY;
+
+/** Every versioned C7 config this layer bundles, from `camunda-platform-7-19` on. */
+export const configNames = Object.keys(camundaCompat.configs).filter((name) =>
+  name.startsWith(`${FAMILY}-`),
+);
 
 /** The moddle extension the C7 rules read (`camunda:` typed properties). */
 export const moddleExtension = { prefix: 'camunda', descriptor: camundaModdle };
@@ -32,6 +39,8 @@ export const moddleExtension = { prefix: 'camunda', descriptor: camundaModdle };
 export const camunda7Rules = camundaCompat.configs[CONFIG];
 
 export const resolverEntries: ResolverEntries = {
-  [`config:${PLUGIN}/${CONFIG}`]: camundaCompat.configs[CONFIG],
+  ...Object.fromEntries(
+    configNames.map((name) => [`config:${PLUGIN}/${name}`, camundaCompat.configs[name]]),
+  ),
   [`rule:${PLUGIN}/history-time-to-live`]: rule_history_time_to_live,
 };
