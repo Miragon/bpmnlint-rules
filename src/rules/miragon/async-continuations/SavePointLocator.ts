@@ -1,6 +1,7 @@
 import { is } from 'bpmnlint-utils';
 
 import type { ModdleElement } from '../../../core/moddle';
+import { ExternalTask } from '../../../toolkit/engine/ExternalTask';
 import type { SavePointKey } from './SavePointDefaults';
 
 /**
@@ -92,7 +93,7 @@ export class SavePointLocator {
   }
 
   private externalTaskKeyOf(node: ModdleElement): SavePointKey | undefined {
-    const isExternal = node.get('camunda:type') === 'external';
+    const isExternal = ExternalTask.namespaceOf(node) === 'camunda';
     return isExternal ? EXTERNAL_TASK_KEYS[node.$type] : undefined;
   }
 
@@ -104,7 +105,7 @@ export class SavePointLocator {
     if (!keys || !message) {
       return undefined;
     }
-    return message.get('camunda:type') === 'external' ? keys.external : keys.internal;
+    return ExternalTask.namespaceOf(message) === 'camunda' ? keys.external : keys.internal;
   }
 
   private joinKeyOf(node: ModdleElement): SavePointKey | undefined {
