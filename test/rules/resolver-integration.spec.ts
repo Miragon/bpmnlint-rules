@@ -1,4 +1,7 @@
 import Linter from 'bpmnlint/lib/linter';
+import { createModdle } from 'bpmnlint/lib/testers/helper';
+import camundaCompat from 'bpmnlint-plugin-camunda-compat';
+import zeebeModdle from 'zeebe-bpmn-moddle/resources/zeebe.json';
 
 import {
   createBundledResolver,
@@ -7,7 +10,7 @@ import {
   miragonRecommendedForModeling,
   miragonRuleFactories,
 } from '../../src';
-import type { DefaultLintConfigOptions, Engine } from '../../src';
+import type { BpmnlintConfig, DefaultLintConfigOptions, Engine } from '../../src';
 import { model } from '../support/model';
 
 /**
@@ -98,5 +101,96 @@ describe('getDefaultLintConfig preset selection', () => {
     expect(
       getDefaultLintConfig({ engine: 'c7', preset: 'modeling' }).moddleExtensions,
     ).toHaveProperty('camunda');
+  });
+});
+
+describe('getDefaultLintConfig engine version', () => {
+  const engineLayerOf = (options: DefaultLintConfigOptions): string | undefined =>
+    extendsOf(options).find((layer) => layer.startsWith('plugin:camunda-compat/'));
+
+  it('picks the camunda-compat config of the version the diagram targets', () => {
+    expect(engineLayerOf({ engine: 'c8', engineVersion: '8.7.0' })).toBe(
+      'plugin:camunda-compat/camunda-cloud-8-7',
+    );
+    expect(engineLayerOf({ engine: 'c8', engineVersion: '1.3.0' })).toBe(
+      'plugin:camunda-compat/camunda-cloud-1-3',
+    );
+    expect(engineLayerOf({ engine: 'c7', engineVersion: '7.21.0' })).toBe(
+      'plugin:camunda-compat/camunda-platform-7-21',
+    );
+  });
+
+  it('falls back to the latest config when no bundled config matches the version', () => {
+    expect(engineLayerOf({ engine: 'c8' })).toBe('plugin:camunda-compat/camunda-cloud-8-11');
+    for (const engineVersion of ['', 'latest', '8', '9.0.0', '8.99.0', '0.26.0']) {
+      expect(engineLayerOf({ engine: 'c8', engineVersion }), `version ${engineVersion}`).toBe(
+        'plugin:camunda-compat/camunda-cloud-8-11',
+      );
+    }
+    expect(engineLayerOf({ engine: 'c7', engineVersion: '7.15.0' })).toBe(
+      'plugin:camunda-compat/camunda-platform-7-24',
+    );
+    expect(engineLayerOf({ engine: 'c7', engineVersion: '8.7.0' })).toBe(
+      'plugin:camunda-compat/camunda-platform-7-24',
+    );
+  });
+
+  it('resolves every versioned camunda-compat config from the bundle alone', () => {
+    const resolver = createBundledResolver();
+    const configNames = Object.keys(camundaCompat.configs).filter((name) => name !== 'all');
+
+    for (const configName of configNames) {
+      expect(
+        resolver.resolveConfig('bpmnlint-plugin-camunda-compat', configName),
+        configName,
+      ).toBeDefined();
+    }
+  });
+});
+
+describe('linting an 8.7 diagram with the bundle alone', () => {
+  const SECRET_IN_INPUT = `<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:zeebe="http://camunda.org/schema/zeebe/1.0"
+    xmlns:modeler="http://camunda.org/schema/modeler/1.0"
+    id="definitions_secret" targetNamespace="http://bpmn.io/schema/bpmn"
+    modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.7.0">
+  <bpmn:process id="process_secret" isExecutable="true">
+    <bpmn:serviceTask id="serviceTask_callApi">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="call-api" />
+        <zeebe:ioMapping>
+          <zeebe:input source="{{secrets.MY_SECRET}}" target="token" />
+        </zeebe:ioMapping>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+  </bpmn:process>
+</bpmn:definitions>`;
+
+  async function lintResults(config: BpmnlintConfig): Promise<Record<string, unknown[]>> {
+    const { root } = await createModdle(SECRET_IN_INPUT, config.moddleExtensions);
+    const linter = new Linter({ config, resolver: createBundledResolver() });
+    return (await linter.lint(root)) as Record<string, unknown[]>;
+  }
+
+  it('reports the legacy secret format against the latest config', async () => {
+    const results = await lintResults(getDefaultLintConfig({ engine: 'c8' }));
+    expect(results['camunda-compat/secrets']).not.toHaveLength(0);
+  });
+
+  it('keeps the 8.7 secret format clean when the default targets 8.7', async () => {
+    const results = await lintResults(
+      getDefaultLintConfig({ engine: 'c8', engineVersion: '8.7.0' }),
+    );
+    expect(results).not.toHaveProperty(['camunda-compat/secrets']);
+  });
+
+  it('keeps the 8.7 secret format clean when a config names camunda-cloud-8-7', async () => {
+    const results = await lintResults({
+      extends: 'plugin:camunda-compat/camunda-cloud-8-7',
+      moddleExtensions: { zeebe: zeebeModdle },
+    });
+    expect(results).toHaveProperty(['start-event-required']);
+    expect(results).not.toHaveProperty(['camunda-compat/secrets']);
   });
 });

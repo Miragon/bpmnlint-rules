@@ -1,7 +1,6 @@
 /**
  * One bpmnlint resolver over every rule and config this package bundles: the structural base
- * (`common`), the latest Camunda 7 and 8 engine layers (`camunda-7`, `camunda-8`) and the Miragon
- * rules.
+ * (`common`), the Camunda 7 and 8 engine layers (`camunda-7`, `camunda-8`) and the Miragon rules.
  *
  * This is the single import that replaces the modeler's three hand-maintained resolver files. A
  * host wires it into a `bpmnlint` `Linter` — on its own for a zero-config default, or behind the
@@ -22,10 +21,10 @@ import { resolverEntries as miragonEntries } from '../rules/miragon';
 /**
  * The bpmnlint resolver over {@link BundledResolver.entries}.
  *
- * Of camunda-compat's configs it carries only the latest per engine: `camunda-platform-7-24` and
- * `camunda-cloud-8-11`. To lint against an older engine version in Node, chain bpmnlint's
- * `NodeResolver` behind it, so `plugin:camunda-compat/camunda-cloud-8-5` and the like resolve from
- * the installed `bpmnlint-plugin-camunda-compat`. The docs page `docs/guide/engines.md` shows how.
+ * It carries every versioned camunda-compat config, `camunda-platform-7-19` to
+ * `camunda-platform-7-24` and `camunda-cloud-1-0` to `camunda-cloud-8-11`, with every rule they
+ * reference — so a host without a file system, such as a browser modeler, can lint against the
+ * engine version a diagram targets.
  */
 export class BundledResolver {
   /** The merged StaticResolver cache — exported so a consumer can compose or inspect it. */

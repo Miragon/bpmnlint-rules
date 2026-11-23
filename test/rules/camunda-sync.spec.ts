@@ -1,25 +1,32 @@
 import camundaCompat from 'bpmnlint-plugin-camunda-compat';
 
 import { BundledResolver } from '../../src/resolver/BundledResolver';
-import { configName as camunda7Config } from '../../src/rules/camunda-7';
-import { configName as camunda8Config } from '../../src/rules/camunda-8';
+import {
+  configName as camunda7Config,
+  configNames as camunda7Configs,
+} from '../../src/rules/camunda-7';
+import {
+  configName as camunda8Config,
+  configNames as camunda8Configs,
+} from '../../src/rules/camunda-8';
 
 /**
  * Guards the hand-maintained `camunda-7` / `camunda-8` folders against upstream drift, on two axes:
  *
- *  1. **Rule list** — each folder enumerates the rule modules its pinned camunda-compat config
- *     references (a list a bundler can't derive, since bpmnlint names rules by require-path string).
- *     This walks both pinned configs' referenced rules and asserts every one resolves, so a
+ *  1. **Rule list** — each folder enumerates the rule modules its camunda-compat configs reference
+ *     (a list a bundler can't derive, since bpmnlint names rules by require-path string). This
+ *     walks every bundled config's referenced rules and asserts every one resolves, so a
  *     camunda-compat bump that adds or renames a referenced rule fails the build until the folder is
  *     updated — rather than silently dropping a rule at lint time.
  *
- *  2. **Config version** — the folders deliberately pin an explicit engine config (e.g.
+ *  2. **Config version** — the folders deliberately pin an explicit default engine config (e.g.
  *     `camunda-cloud-8-11`) rather than auto-selecting the latest, so a dependency bump never
  *     silently moves the engine target. The tripwire below fails when camunda-compat ships a *newer*
  *     config in the same family, turning "time to bump the engine target" into a red CI instead of
  *     silent staleness.
  */
 const PINNED_CONFIGS = [camunda7Config, camunda8Config];
+const BUNDLED_CONFIGS = [...camunda7Configs, ...camunda8Configs];
 
 /** The resolver cache key for a rule name as it appears in a camunda-compat config. */
 function ruleKey(ruleName: string): string {
@@ -45,7 +52,7 @@ function isNewer(first: [number, number], second: [number, number]): boolean {
 }
 
 describe('bundled resolver stays in sync with camunda-compat', () => {
-  for (const configName of PINNED_CONFIGS) {
+  for (const configName of BUNDLED_CONFIGS) {
     it(`resolves every rule referenced by ${configName}`, () => {
       const config = camundaCompat.configs[configName];
       expect(config, `camunda-compat no longer ships ${configName}`).toBeDefined();
@@ -67,7 +74,9 @@ describe('bundled resolver stays in sync with camunda-compat', () => {
         `config:bpmnlint-plugin-camunda-compat/${configName}`,
       ]);
     });
+  }
 
+  for (const configName of PINNED_CONFIGS) {
     it(`pins the latest ${configName} camunda-compat ships (bump the engine folder if this fails)`, () => {
       const pinned = parseConfig(configName);
       expect(pinned, `unexpected config name shape: ${configName}`).not.toBeNull();

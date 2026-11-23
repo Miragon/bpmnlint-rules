@@ -12,6 +12,8 @@
  *  - `plugin:camunda-compat/<platform-version>` — the engine deployability matrix, added **only**
  *    when an engine is given, *independently* of the preset. This lets a modeler ask for the
  *    engine's typed moddle + deployability rules while keeping the relaxed modeling opinion layer.
+ *    `engineVersion` picks the config of the version a diagram targets; without a bundled config
+ *    for it, the latest one applies.
  *
  * The engine layer's moddle descriptor is embedded directly (not referenced by module path) so a
  * config-less host can still parse the typed `zeebe:`/`camunda:` properties those rules inspect.
@@ -41,16 +43,22 @@ const MIRAGON_LAYER: Record<Preset, string> = {
 
 const ENGINE_LAYER = {
   c7: {
-    extendsLayer: camunda7.extendsLayer,
+    configFamily: camunda7.configFamily,
+    configNames: camunda7.configNames,
+    latestConfigName: camunda7.configName,
     moddleExtension: camunda7.moddleExtension,
     rules: camunda7.camunda7Rules,
   },
   c8: {
-    extendsLayer: camunda8.extendsLayer,
+    configFamily: camunda8.configFamily,
+    configNames: camunda8.configNames,
+    latestConfigName: camunda8.configName,
     moddleExtension: camunda8.moddleExtension,
     rules: camunda8.camunda8Rules,
   },
 } satisfies Record<Engine, unknown>;
+
+const MAJOR_MINOR = /^(\d+)\.(\d+)/;
 
 export interface DefaultLintConfigOptions {
   /**
@@ -58,6 +66,12 @@ export interface DefaultLintConfigOptions {
    * structural + Miragon base alone.
    */
   engine?: Engine;
+  /**
+   * The engine version the diagram targets, as in its `modeler:executionPlatformVersion` (e.g.
+   * `8.7.0`). Picks the matching camunda-compat config (`camunda-cloud-8-7`). Falls back to the
+   * latest bundled config when omitted, malformed, or when no config exists for that version.
+   */
+  engineVersion?: string;
   /**
    * The Miragon opinion layer. Defaults to `automation` when an `engine` is given and `modeling`
    * otherwise — pass it explicitly to decouple the two, e.g. a modeler wanting the engine's typed
@@ -73,7 +87,7 @@ export class EngineConfig {
    * opinion, plus the matching Camunda engine layer and moddle extension when `engine` is given.
    */
   static defaultLintConfig(this: void, options: DefaultLintConfigOptions = {}): BpmnlintConfig {
-    const { engine } = options;
+    const { engine, engineVersion } = options;
     const preset: Preset = options.preset ?? (engine ? 'automation' : 'modeling');
 
     const base = [structuralLayer, MIRAGON_LAYER[preset]];
@@ -82,9 +96,10 @@ export class EngineConfig {
       return { extends: base };
     }
 
-    const { extendsLayer, moddleExtension } = ENGINE_LAYER[engine];
+    const { moddleExtension } = ENGINE_LAYER[engine];
+    const configName = EngineConfig.configNameFor(engine, engineVersion);
     return {
-      extends: [...base, extendsLayer],
+      extends: [...base, `plugin:camunda-compat/${configName}`],
       moddleExtensions: { [moddleExtension.prefix]: moddleExtension.descriptor },
     };
   }
@@ -95,5 +110,15 @@ export class EngineConfig {
    */
   static rulesForEngine(this: void, engine?: Engine): unknown {
     return engine ? ENGINE_LAYER[engine].rules : commonRules;
+  }
+
+  private static configNameFor(engine: Engine, engineVersion?: string): string {
+    const { configFamily, configNames, latestConfigName } = ENGINE_LAYER[engine];
+    const majorMinor = MAJOR_MINOR.exec(engineVersion ?? '');
+    if (!majorMinor) {
+      return latestConfigName;
+    }
+    const versionConfigName = `${configFamily}-${Number(majorMinor[1])}-${Number(majorMinor[2])}`;
+    return configNames.includes(versionConfigName) ? versionConfigName : latestConfigName;
   }
 }
