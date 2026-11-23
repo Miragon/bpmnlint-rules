@@ -49,6 +49,8 @@ export interface ShapeSpec {
   parent?: string;
   /** Bounds of the external label (`<bpmndi:BPMNLabel>`), for rules that check label placement. */
   label?: LabelBounds;
+  /** Content of the `<bpmn:text>` child, e.g. of a `textAnnotation`. */
+  text?: string;
 }
 
 interface LabelBounds {
@@ -138,6 +140,9 @@ function semanticShape(
       ? []
       : [`      <bpmn:extensionElements>${shape.extensionElements}</bpmn:extensionElements>`];
 
+  const text =
+    shape.text === undefined ? [] : [`      <bpmn:text>${escapeXml(shape.text)}</bpmn:text>`];
+
   const loopCharacteristics = [
     ...(shape.hasLoop ? ['      <bpmn:standardLoopCharacteristics />'] : []),
     ...(shape.isMultiInstance
@@ -148,6 +153,7 @@ function semanticShape(
   ];
 
   if (
+    !text.length &&
     !extensionElements.length &&
     !connections.length &&
     !children.length &&
@@ -159,6 +165,7 @@ function semanticShape(
 
   return [
     `${open}>`,
+    ...text,
     ...extensionElements,
     ...connections.map((connection) => `      <bpmn:${connection}>`),
     ...eventDefinitions,

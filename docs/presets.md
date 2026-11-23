@@ -10,7 +10,9 @@
   `warn` (`standard-size` too), so ids and layout get flagged without failing the build. The scheme
   and engine-specific rules stay off.
 - `plugin:@miragon/rules/strict` — every Miragon rule at `error`, engine-agnostic. The gate to opt into
-  when you want findings to fail the build. Not covered by semver: a minor release may add rules or
+  when you want findings to fail the build. The one exception is the cosmetic
+  [`text-annotation-fit`](./rules/text-annotation-fit.md), off here too, because it rests on a font
+  estimate; enable it by name. Not covered by semver: a minor release may add rules or
   widen what they report. See the
   [semantic versioning policy](https://github.com/Miragon/bpmnlint-rules/blob/main/CONTRIBUTING.md#semantic-versioning-policy).
 

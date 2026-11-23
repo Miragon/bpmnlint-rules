@@ -146,7 +146,8 @@ async function lintInvalidFixture(ruleName: string): Promise<Finding[]> {
   const { root } = await createModdle(xml);
   const linter = new Linter({ resolver: createBundledResolver() });
   const ownRule = `${MIRAGON_NAME}/${ruleName}`;
-  return flatten((await linter.lint(root, strict)) as LintResults).filter(
+  const strictWithOwnRule = { ...strict, rules: { [ownRule]: 'error' } };
+  return flatten((await linter.lint(root, strictWithOwnRule)) as LintResults).filter(
     ({ rule }) => rule === ownRule,
   );
 }
