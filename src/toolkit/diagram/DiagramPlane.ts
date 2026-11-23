@@ -5,11 +5,13 @@ export interface PlaneShape {
   el: ModdleElement;
   bounds: Rect;
   isExpanded: boolean;
+  label?: Rect;
 }
 
 export interface PlaneEdge {
   el: ModdleElement;
   waypoints: Point[];
+  label?: Rect;
 }
 
 /**
@@ -60,11 +62,12 @@ export class DiagramPlane {
       }
 
       const { $type: type, bounds, waypoint } = planeElement;
+      const label = planeElement.label?.bounds;
 
       if (type === 'bpmndi:BPMNShape' && bounds) {
-        shapes.push({ el, bounds, isExpanded: planeElement.isExpanded === true });
+        shapes.push({ el, bounds, isExpanded: planeElement.isExpanded === true, label });
       } else if (type === 'bpmndi:BPMNEdge' && waypoint && waypoint.length > 1) {
-        edges.push({ el, waypoints: waypoint });
+        edges.push({ el, waypoints: waypoint, label });
       }
     }
 

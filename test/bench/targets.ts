@@ -18,6 +18,7 @@ export const targetTimeMsAt5000Nodes: Record<MiragonRuleName, number> = {
   'boundary-event-marker-overlap': 50,
   'exclusive-gateway-marker-visible': 50,
   'async-continuations': 50,
+  'label-placement': 50,
 };
 
 /** 2.5× the nodes: a linear rule lands near 2.5, a quadratic one near 6.25. */

@@ -47,6 +47,15 @@ export interface ShapeSpec {
    * bpmn.io renders an expanded sub-process.
    */
   parent?: string;
+  /** Bounds of the external label (`<bpmndi:BPMNLabel>`), for rules that check label placement. */
+  label?: LabelBounds;
+}
+
+interface LabelBounds {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 }
 
 export interface EdgeSpec {
@@ -57,6 +66,7 @@ export interface EdgeSpec {
   waypoints?: { x: number; y: number }[];
   name?: string;
   condition?: string;
+  label?: LabelBounds;
 }
 
 interface MessageSpec {
@@ -174,6 +184,15 @@ function semanticEdge(edge: EdgeSpec): string {
   ].join('\n');
 }
 
+const diLabel = (label: LabelBounds | undefined): string[] =>
+  label
+    ? [
+        '        <bpmndi:BPMNLabel>',
+        `          <dc:Bounds x="${label.x}" y="${label.y}" width="${label.width}" height="${label.height}" />`,
+        '        </bpmndi:BPMNLabel>',
+      ]
+    : [];
+
 function diShape(shape: ShapeSpec, index: number): string {
   const { width, height } = { ...DEFAULT_SIZE, ...shape };
   const expanded = shape.isExpanded === undefined ? '' : ` isExpanded="${shape.isExpanded}"`;
@@ -185,6 +204,7 @@ function diShape(shape: ShapeSpec, index: number): string {
   return [
     `      <bpmndi:BPMNShape id="di_${shape.id}" bpmnElement="${shape.id}"${expanded}${markerVisible}>`,
     `        <dc:Bounds x="${posX}" y="${posY}" width="${width}" height="${height}" />`,
+    ...diLabel(shape.label),
     '      </bpmndi:BPMNShape>',
   ].join('\n');
 }
@@ -204,6 +224,7 @@ function diEdge(edge: EdgeSpec, index: number): string {
   return [
     `      <bpmndi:BPMNEdge id="di_${edge.id}" bpmnElement="${edge.id}">`,
     waypoints,
+    ...diLabel(edge.label),
     '      </bpmndi:BPMNEdge>',
   ].join('\n');
 }

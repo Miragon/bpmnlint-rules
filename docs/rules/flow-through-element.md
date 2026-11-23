@@ -43,7 +43,7 @@ Container membership uses moddle **inheritance**, so `bpmn:Transaction` and
 
 ## Known limitations
 
-Left to visual review: a flow drawn over a text _label_, and message-flow / association routing.
+A flow drawn over a text _label_ is reported by [`label-placement`](./label-placement.md). Message-flow and association routing are left to visual review.
 
 ## Examples
 
