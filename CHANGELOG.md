@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.24.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.23.0...v0.24.0) (2026-11-23)
+
+
+### Features
+
+* add label-placement rule for labels on flows or narrower than a word ([#156](https://github.com/Miragon/bpmnlint-rules/issues/156)) ([cedd931](https://github.com/Miragon/bpmnlint-rules/commit/cedd9316d57dbf370d681a0da12210aba4d79046))
+* add opt-in text-annotation-fit rule for annotations too small for their text ([#158](https://github.com/Miragon/bpmnlint-rules/issues/158)) ([86ee78e](https://github.com/Miragon/bpmnlint-rules/commit/86ee78e4fb3d28329758afb83ce9e09fe8bde8a8))
+* export every rule factory from the package root and decide external tasks in toolkit/engine ([#169](https://github.com/Miragon/bpmnlint-rules/issues/169)) ([26f231b](https://github.com/Miragon/bpmnlint-rules/commit/26f231bf2545d14e2a7892bfef7590c95baf7c2c))
+
+
+### Bug Fixes
+
+* freeze the published configs and resolver entries ([#167](https://github.com/Miragon/bpmnlint-rules/issues/167)) ([f91ea11](https://github.com/Miragon/bpmnlint-rules/commit/f91ea110bb4ae63a1160e56794385b508cf89dca))
+
 ## [0.23.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.22.0...v0.23.0) (2026-11-23)
 
 
