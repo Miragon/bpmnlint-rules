@@ -3,9 +3,9 @@
  * `error` (`plugin:@miragon/rules/strict`). Engine layers are deliberately not included — a config
  * targets one engine at a time via `getDefaultLintConfig({ engine })`.
  */
-import type { BpmnlintConfig } from '../core/bpmnlint-config';
+import { frozenConfig } from '../core/utils/frozenConfig';
 import { MIRAGON_NAME } from '../rules/miragon';
 
-export const strict: BpmnlintConfig = {
+export const strict = frozenConfig({
   extends: ['bpmnlint:recommended', `plugin:${MIRAGON_NAME}/strict`],
-};
+});

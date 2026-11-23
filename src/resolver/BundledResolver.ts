@@ -28,12 +28,12 @@ import { resolverEntries as miragonEntries } from '../rules/miragon';
  */
 export class BundledResolver {
   /** The merged StaticResolver cache — exported so a consumer can compose or inspect it. */
-  static readonly entries: ResolverEntries = {
+  static readonly entries: Readonly<ResolverEntries> = Object.freeze({
     ...commonEntries,
     ...camunda7Entries,
     ...camunda8Entries,
     ...miragonEntries,
-  };
+  });
 
   /** A fresh bpmnlint resolver backed by {@link BundledResolver.entries}. */
   static create(this: void): Resolver {

@@ -10,13 +10,13 @@
  * `warn`, id conventions off); {@link recommendedForAutomation} for executable processes (every
  * engine-agnostic Miragon rule at a non-blocking `warn`).
  */
-import type { BpmnlintConfig } from '../core/bpmnlint-config';
+import { frozenConfig } from '../core/utils/frozenConfig';
 import { MIRAGON_NAME } from '../rules/miragon';
 
-export const recommendedForModeling: BpmnlintConfig = {
+export const recommendedForModeling = frozenConfig({
   extends: ['bpmnlint:recommended', `plugin:${MIRAGON_NAME}/recommended-for-modeling`],
-};
+});
 
-export const recommendedForAutomation: BpmnlintConfig = {
+export const recommendedForAutomation = frozenConfig({
   extends: ['bpmnlint:recommended', `plugin:${MIRAGON_NAME}/recommended-for-automation`],
-};
+});

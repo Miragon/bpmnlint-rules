@@ -3,18 +3,18 @@
  * rules.
  */
 export interface CaseSpec {
-  pattern: RegExp;
-  label: string;
+  readonly pattern: RegExp;
+  readonly label: string;
 }
 
 /** Accepted shapes for a name: the part of an ID after its prefix, or a segment of a value. */
-const CASES: Record<string, CaseSpec> = {
-  PascalCase: { pattern: /^[A-Z][A-Za-z0-9]*$/, label: 'PascalCase' },
-  camelCase: { pattern: /^[a-z][A-Za-z0-9]*$/, label: 'camelCase' },
-  snake_case: { pattern: /^[a-z0-9]+(_[a-z0-9]+)*$/, label: 'snake_case' },
-  'kebab-case': { pattern: /^[a-z0-9]+(-[a-z0-9]+)*$/, label: 'kebab-case' },
-  any: { pattern: /^.+$/, label: 'any' },
-};
+const CASES: Readonly<Record<string, CaseSpec>> = Object.freeze({
+  PascalCase: Object.freeze({ pattern: /^[A-Z][A-Za-z0-9]*$/, label: 'PascalCase' }),
+  camelCase: Object.freeze({ pattern: /^[a-z][A-Za-z0-9]*$/, label: 'camelCase' }),
+  snake_case: Object.freeze({ pattern: /^[a-z0-9]+(_[a-z0-9]+)*$/, label: 'snake_case' }),
+  'kebab-case': Object.freeze({ pattern: /^[a-z0-9]+(-[a-z0-9]+)*$/, label: 'kebab-case' }),
+  any: Object.freeze({ pattern: /^.+$/, label: 'any' }),
+});
 
 const PASCAL_CASE: CaseSpec = CASES.PascalCase!;
 
