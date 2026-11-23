@@ -4,10 +4,9 @@ import type { ModdleElement, Reporter, Rule } from '../../../core/moddle';
 import { isExpression, ValueNamingScheme } from '../../../toolkit/naming';
 import type { ValueNamingConfig } from '../../../toolkit/naming';
 import { defineRule } from '../../../core/utils/defineRule';
+import { ExternalTask } from '../../../toolkit/engine/ExternalTask';
 
 const EXTERNAL_TASK_TYPES = ['bpmn:ServiceTask', 'bpmn:BusinessRuleTask', 'bpmn:SendTask'];
-
-const EXTERNAL_TASK_NAMESPACES = ['camunda', 'operaton'];
 
 /**
  * Reports a worker topic that does not follow the project's naming scheme: the topic of a
@@ -73,9 +72,7 @@ class WorkerTopicNaming implements Rule {
 
   /** The topic of a Camunda 7 / Operaton external task implementation, if this is one. */
   private externalTaskTopicOf(implementation: ModdleElement): string | undefined {
-    const namespace = EXTERNAL_TASK_NAMESPACES.find(
-      (candidate) => implementation.get(`${candidate}:type`) === 'external',
-    );
+    const namespace = ExternalTask.namespaceOf(implementation);
 
     return namespace && implementation.get(`${namespace}:topic`);
   }
