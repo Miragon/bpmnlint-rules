@@ -47,8 +47,10 @@ export {
   flowOrthogonal,
   flowTargetAlignment,
   flowThroughElement,
+  labelPlacement,
   messageNameNaming,
   noGeneratedIds,
+  textAnnotationFit,
   workerTopicNaming,
 } from './rules/miragon';
 
