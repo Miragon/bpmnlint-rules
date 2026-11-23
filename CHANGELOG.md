@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.23.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.22.0...v0.23.0) (2026-11-23)
+
+
+### Features
+
+* **resolver:** lint a diagram against the Camunda version it targets ([#166](https://github.com/Miragon/bpmnlint-rules/issues/166)) ([5da8a0f](https://github.com/Miragon/bpmnlint-rules/commit/5da8a0fb77241cdac2ed5135acbd68490849afa1))
+
+
+### Bug Fixes
+
+* **fixtures:** move the flow-orthogonal gateway label off its outgoing flow ([#159](https://github.com/Miragon/bpmnlint-rules/issues/159)) ([f399138](https://github.com/Miragon/bpmnlint-rules/commit/f3991382c4cdd1883110e020899794a901f6896b))
+
 ## [0.22.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.21.0...v0.22.0) (2026-11-03)
 
 
