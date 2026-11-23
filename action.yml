@@ -1,0 +1,178 @@
+# The GitHub adapter of the headless `miragon-bpmnlint` CLI (src/cli/). Everything that decides
+# what a finding is, which files match and how a report looks lives in the CLI; this file only picks
+# the pull request's files, wires the outputs to GitHub and fails the job on errors.
+#
+# Docs: https://miragon.github.io/bpmnlint-rules/integrate/ci
+name: 'Miragon BPMN lint'
+description: 'Lints the BPMN models of a pull request with bpmnlint and the Miragon rules, comments the findings and fails on errors.'
+author: 'Miragon GmbH'
+
+branding:
+  icon: 'check-square'
+  color: 'blue'
+
+inputs:
+  files:
+    description: 'Newline-separated globs of the models to lint, relative to working-directory.'
+    required: false
+    default: '**/*.bpmn'
+  config:
+    description: 'bpmnlint config file, relative to working-directory. Default: its .bpmnlintrc, else the recommended-for-automation preset.'
+    required: false
+    default: ''
+  preset:
+    description: 'Lint with a preset instead of a config file: recommended-for-modeling, recommended-for-automation or strict.'
+    required: false
+    default: ''
+  changed-only:
+    description: 'On a pull request, lint only the models it adds or changes.'
+    required: false
+    default: 'true'
+  comment:
+    description: 'Post the findings as one pull request comment that later runs update.'
+    required: false
+    default: 'true'
+  working-directory:
+    description: 'Directory to run in: where the .bpmnlintrc and, if installed, your bpmnlint plugins are.'
+    required: false
+    default: '.'
+  github-token:
+    description: 'Token to read the pull request files and write the comment.'
+    required: false
+    default: ${{ github.token }}
+
+outputs:
+  error-count:
+    description: 'Number of error findings.'
+    value: ${{ steps.lint.outputs.error-count }}
+  warning-count:
+    description: 'Number of warning findings.'
+    value: ${{ steps.lint.outputs.warning-count }}
+
+runs:
+  using: composite
+  steps:
+    - name: Check Node.js
+      id: node
+      shell: bash
+      run: |
+        major=$(node -p 'process.versions.node.split(".")[0]' 2>/dev/null || echo 0)
+        if [ "$major" -ge 22 ]; then echo "setup=false"; else echo "setup=true"; fi >> "$GITHUB_OUTPUT"
+
+    - name: Set up Node.js
+      if: steps.node.outputs.setup == 'true'
+      uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      with:
+        node-version: 22
+
+    # Built from the action's own checkout with its lockfile: the linter is exactly the version the
+    # action ref points at, with every transitive dependency locked, and no install scripts run.
+    - name: Build the linter
+      shell: bash
+      run: |
+        cd "$GITHUB_ACTION_PATH"
+        npm ci --ignore-scripts --workspaces=false --no-audit --no-fund --loglevel=error
+        npm run build --silent > /dev/null
+
+    # Paths in the pull request's file list and in the annotations are relative to the repository
+    # root, which is not the workspace when the checkout used `path:`.
+    - name: Find the repository root
+      id: repo
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: echo "root=$(git rev-parse --show-toplevel 2> /dev/null || echo "$GITHUB_WORKSPACE")" >> "$GITHUB_OUTPUT"
+
+    # GitHub lists at most 3,000 files of a pull request. When the list is cut off or cannot be
+    # read, every matching model is linted instead, so no changed model is ever skipped.
+    - name: List the pull request's files
+      id: changed
+      if: inputs.changed-only == 'true' && github.event.pull_request.number != ''
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        PR: ${{ github.event.pull_request.number }}
+        REPO: ${{ github.repository }}
+        REPO_ROOT: ${{ steps.repo.outputs.root }}
+      run: |
+        files=$(mktemp "$RUNNER_TEMP/miragon-bpmnlint-files.XXXXXX")
+        if ! gh api --paginate "repos/$REPO/pulls/$PR/files?per_page=100" \
+          --jq '.[] | select(.status != "removed") | .filename' > "$files"; then
+          echo "::warning title=Miragon BPMN lint::Could not list the pull request's files (no pull-requests: read permission?), so every matching model is linted."
+          exit 0
+        fi
+        if [ "$(gh api "repos/$REPO/pulls/$PR" --jq '.changed_files')" -ge 3000 ]; then
+          echo "::notice title=Miragon BPMN lint::The pull request changes 3,000 files or more, more than GitHub lists, so every matching model is linted."
+          exit 0
+        fi
+        list=$(mktemp "$RUNNER_TEMP/miragon-bpmnlint-changed.XXXXXX")
+        while IFS= read -r file; do printf '%s/%s\n' "$REPO_ROOT" "$file"; done < "$files" > "$list"
+        echo "list=$list" >> "$GITHUB_OUTPUT"
+
+    - name: Lint
+      id: lint
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        FILES: ${{ inputs.files }}
+        CONFIG: ${{ inputs.config }}
+        PRESET: ${{ inputs.preset }}
+        CHANGED_LIST: ${{ steps.changed.outputs.list }}
+        REPO_ROOT: ${{ steps.repo.outputs.root }}
+      run: |
+        out=$(mktemp -d "$RUNNER_TEMP/miragon-bpmnlint.XXXXXX")
+        args=(--path-base "$REPO_ROOT" --format github
+          --format "markdown=$out/report.md" --format "json=$out/report.json" --max-length 60000)
+        if [ -n "$CONFIG" ]; then args+=(--config "$CONFIG"); fi
+        if [ -n "$PRESET" ]; then args+=(--preset "$PRESET"); fi
+        if [ -n "$CHANGED_LIST" ]; then args+=(--files-from "$CHANGED_LIST"); fi
+        patterns=()
+        while IFS= read -r pattern; do
+          patterns+=("$pattern")
+        done < <(printf '%s\n' "$FILES" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' -e '/^$/d')
+
+        set +e
+        node "$GITHUB_ACTION_PATH/dist/cli.js" "${args[@]}" -- "${patterns[@]}"
+        code=$?
+        set -e
+
+        echo "exit-code=$code" >> "$GITHUB_OUTPUT"
+        if [ -f "$out/report.json" ]; then
+          {
+            echo "markdown=$out/report.md"
+            echo "error-count=$(jq '.errorCount' "$out/report.json")"
+            echo "warning-count=$(jq '.warningCount' "$out/report.json")"
+            echo "finding-count=$(jq '[.files[].findings | length] | add // 0' "$out/report.json")"
+          } >> "$GITHUB_OUTPUT"
+        else
+          # A usage or config error: no report. Say so, so an earlier comment does not stay green.
+          printf '### ⚠️ BPMN lint could not run\n\nThe config or the call is wrong; the job log has the error.\n' > "$out/report.md"
+          { echo "markdown=$out/report.md"; echo "finding-count=0"; } >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Write the job summary
+      if: always() && steps.lint.outputs.markdown != ''
+      shell: bash
+      env:
+        MARKDOWN: ${{ steps.lint.outputs.markdown }}
+      run: cat "$MARKDOWN" >> "$GITHUB_STEP_SUMMARY"
+
+    - name: Comment on the pull request
+      if: always() && inputs.comment == 'true' && github.event.pull_request.number != '' && steps.lint.outputs.markdown != ''
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        PR: ${{ github.event.pull_request.number }}
+        REPO: ${{ github.repository }}
+        MARKDOWN: ${{ steps.lint.outputs.markdown }}
+        FINDING_COUNT: ${{ steps.lint.outputs.finding-count }}
+        COMMENT_KEY: ${{ inputs.working-directory }}
+      run: |
+        bash "$GITHUB_ACTION_PATH/action/sticky-comment.sh" \
+          || echo "::warning title=Miragon BPMN lint::Could not write the pull request comment (a fork pull request, or no pull-requests: write permission?). The findings are in the job summary."
+
+    - name: Fail on error findings
+      if: always()
+      shell: bash
+      env:
+        EXIT_CODE: ${{ steps.lint.outputs.exit-code }}
+      run: exit "${EXIT_CODE:-2}"

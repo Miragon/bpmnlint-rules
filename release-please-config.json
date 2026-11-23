@@ -16,7 +16,9 @@
           "type": "json",
           "path": "plugins/bpmnlint-rules/.claude-plugin/plugin.json",
           "jsonpath": "$.version"
-        }
+        },
+        "README.md",
+        "docs/integrate/ci.md"
       ]
     }
   }

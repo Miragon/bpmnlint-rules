@@ -97,6 +97,30 @@ npx bpmnlint "processes/**/*.bpmn"
 Linting from code? See the
 [programmatic API](https://miragon.github.io/bpmnlint-rules/integrate/api#programmatic-api).
 
+## In pull requests
+
+The GitHub Action lints the models a pull request changes, posts the findings as one comment that
+later pushes update, and fails the check on errors. Warnings don't fail it:
+
+```yaml
+on: pull_request
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  bpmnlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: Miragon/bpmnlint-rules@v0.25.0 # x-release-please-version
+```
+
+It uses your `.bpmnlintrc`, or the `recommended-for-automation` preset without one. Nothing needs to
+be installed. Other CI systems run the same linter as the `miragon-bpmnlint` CLI. Inputs and
+examples: [CI integration](https://miragon.github.io/bpmnlint-rules/integrate/ci).
+
 ## With your AI assistant
 
 The `bpmnlint-rules` Claude Code plugin writes your team's BPMN style guide with the matching

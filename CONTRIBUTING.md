@@ -53,6 +53,10 @@ src/toolkit/            BPMN knowledge rules reuse: diagram/, geometry/, naming/
 src/resolver/           BundledResolver: merges every folder's resolver entries
 src/config/             EngineConfig: getDefaultLintConfig / getRulesForEngine
 src/presets/            ready-to-use recommended-for-modeling / -for-automation / all configs
+src/cli/                the headless `miragon-bpmnlint` bin: file selection, linting, report formats
+                        (text, json, markdown, github); nothing in the library imports it
+action.yml, action/     the GitHub Action: a thin composite adapter over the CLI (changed files,
+                        job summary, sticky PR comment); its own CI job runs it with `uses: ./`
 test/                   RuleTester specs, the resolver integration + sync specs, and fixtures
 test/fixtures/rules/    valid.bpmn / invalid.bpmn pairs per rule (rendered to the docs SVGs)
 test/bench/             the per-rule benchmark: synthetic model, target times, the benchmark itself
@@ -176,15 +180,16 @@ measured and listed, not enforced: they cannot be fixed here.
 Only the two `recommended-for-*` layers are covered by semver. `strict` is Miragon's latest
 opinion at `error` and may report more in any minor release.
 
-| Change                                                                                          | Release   |
-| ----------------------------------------------------------------------------------------------- | --------- |
-| Adds an `error` finding under `recommended-for-*` (new rule at `error`, raised severity)        | **major** |
-| Removes or renames a rule, preset or option; changes an option's meaning                        | **major** |
-| Raises the minimum bpmnlint or Node version                                                     | **major** |
-| New rule (`warn`/`off` in `recommended-for-*`, `error` in `strict`)                             | minor     |
-| A rule detects more, or a default gets stricter, reported only at `warn` in `recommended-for-*` | minor     |
-| Anything that only changes what `strict` reports                                                | minor     |
-| Fixes a false positive, lowers a severity, docs, performance                                    | patch     |
+| Change                                                                                                  | Release   |
+| ------------------------------------------------------------------------------------------------------- | --------- |
+| Adds an `error` finding under `recommended-for-*` (new rule at `error`, raised severity)                | **major** |
+| Removes or renames a rule, preset or option; changes an option's meaning                                | **major** |
+| Raises the minimum bpmnlint or Node version                                                             | **major** |
+| Removes or renames a CLI flag, format, exit code or Action input/output; bumps the JSON `schemaVersion` | **major** |
+| New rule (`warn`/`off` in `recommended-for-*`, `error` in `strict`)                                     | minor     |
+| A rule detects more, or a default gets stricter, reported only at `warn` in `recommended-for-*`         | minor     |
+| Anything that only changes what `strict` reports                                                        | minor     |
+| Fixes a false positive, lowers a severity, docs, performance                                            | patch     |
 
 Rules enabled at `error` in a consumer's own config follow `strict`: their detection may widen in
 a minor. Rules from bundled upstream layers (`bpmnlint:recommended`, `bpmnlint-plugin-camunda-compat`)

@@ -2,6 +2,7 @@
  * Architecture guardrail for the package's module graph.
  *
  * Layering (imports only ever point "down"):
+ *   cli/                  -> presets, resolver, rules, core            (the bin; nothing imports it)
  *   index / plugin        -> presets, config, resolver, rules, core, toolkit (public surface)
  *   presets / config      -> the rule-set folders' data + core       (compose layers)
  *   resolver              -> the rule-set folders' resolverEntries
@@ -75,6 +76,14 @@ module.exports = {
       severity: 'error',
       from: { path: '^src/rules/' },
       to: { path: '^src/(config|presets|resolver)/' },
+    },
+    {
+      name: 'nothing-imports-cli',
+      comment:
+        'cli/ is the outermost adapter (the miragon-bpmnlint bin); the library never depends on it.',
+      severity: 'error',
+      from: { pathNot: '^src/cli/' },
+      to: { path: '^src/cli/' },
     },
     {
       name: 'no-dead-helpers',

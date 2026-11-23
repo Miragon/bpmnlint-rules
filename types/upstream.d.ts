@@ -5,7 +5,9 @@
  */
 
 declare module 'bpmnlint-plugin-camunda-compat' {
-  /** The plugin index — `configs` is plain data keyed by `<platform>-<version>`. */
+  /**
+   * The plugin index — `configs` is plain data keyed by `<platform>-<version>`.
+   */
   const plugin: {
     configs: Record<string, { rules?: Record<string, unknown>; extends?: string | string[] }>;
     rules: Record<string, unknown>;
@@ -13,13 +15,17 @@ declare module 'bpmnlint-plugin-camunda-compat' {
   export default plugin;
 }
 
-/** Every camunda-compat rule module (camunda-cloud/* and camunda-platform/*). */
+/**
+ * Every camunda-compat rule module (camunda-cloud/* and camunda-platform/*).
+ */
 declare module 'bpmnlint-plugin-camunda-compat/rules/*' {
   const rule: unknown;
   export default rule;
 }
 
-/** Moddle descriptors embedded into the zero-config default so `zeebe:`/`camunda:` props parse. */
+/**
+ * Moddle descriptors embedded into the zero-config default so `zeebe:`/`camunda:` props parse.
+ */
 declare module 'camunda-bpmn-moddle/resources/camunda.json' {
   const descriptor: unknown;
   export default descriptor;
@@ -28,4 +34,17 @@ declare module 'camunda-bpmn-moddle/resources/camunda.json' {
 declare module 'zeebe-bpmn-moddle/resources/zeebe.json' {
   const descriptor: unknown;
   export default descriptor;
+}
+
+/**
+ * The BPMN moddle the CLI parses models with. Its own types describe only the BPMN element
+ * classes, not the `BpmnModdle` entry point.
+ */
+declare module 'bpmn-moddle' {
+  export type ImportWarning = { message: string; element?: { id?: string } };
+
+  export class BpmnModdle {
+    constructor(extensions?: Record<string, unknown>);
+    fromXML(xml: string): Promise<{ rootElement: unknown; warnings: ImportWarning[] }>;
+  }
 }

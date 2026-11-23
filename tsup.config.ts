@@ -10,7 +10,8 @@ import { defineConfig } from 'tsup';
  * (`src/rules/miragon/<name>/index.ts`) is ALSO a build entry so it lands at
  * `dist/rules/miragon/<name>.{js,cjs}` — that lets the plugin's classic `rules` map point at real,
  * individually `require`-able files (bpmnlint's node-resolver `require()`s a rule by path), and lets
- * consumers import a single rule.
+ * consumers import a single rule. `src/cli/main.ts` is the `miragon-bpmnlint` bin (`dist/cli.js`); tsup
+ * keeps its shebang and makes the file executable.
  *
  * The bundled upstream packages (bpmnlint, camunda-compat) are external: they are declared
  * dependencies and resolved from the consumer's `node_modules`, so a rule instance we import and a
@@ -30,7 +31,7 @@ const ruleEntries = Object.fromEntries(
 );
 
 export default defineConfig({
-  entry: { index: 'src/index.ts', ...ruleEntries },
+  entry: { index: 'src/index.ts', cli: 'src/cli/main.ts', ...ruleEntries },
   format: ['esm', 'cjs'],
   dts: true,
   clean: true,
