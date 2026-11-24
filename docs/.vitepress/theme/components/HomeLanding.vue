@@ -16,7 +16,7 @@ const places = [
   {
     title: 'In the pull request',
     effect: 'An error fails the check.',
-    link: '/integrate/ci',
+    link: '/integrate/github-action',
   },
   {
     title: 'In the agent loop',

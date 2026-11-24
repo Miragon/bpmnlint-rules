@@ -60,7 +60,7 @@ extension for you.
 Both examples name the config for the latest engine version. camunda-compat ships one config per
 version, from `camunda-platform-7-19` and `camunda-cloud-1-0` on: put your engine's version in the
 name, for example `plugin:camunda-compat/camunda-cloud-8-7`. The rules then check against that
-version. A `{{secrets.X}}` reference, for example, is only reported as legacy from 8.10 on.
+version. A <code v-pre>{{secrets.X}}</code> reference, for example, is only reported as legacy from 8.10 on.
 
 The bundled resolver, `createBundledResolver()`, carries every one of these configs and the rules
 they reference. A host that has only the bundle, such as a browser modeler, needs nothing installed

@@ -18,7 +18,8 @@
           "jsonpath": "$.version"
         },
         "README.md",
-        "docs/integrate/ci.md"
+        "docs/integrate/github-action.md",
+        "docs/integrate/cli.md"
       ]
     }
   }
