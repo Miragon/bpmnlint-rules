@@ -26,27 +26,32 @@ export default miragonDocs({
   srcExclude: ['assets/rule-doc-template.md'],
   vite: { plugins: [ruleExamples(), llmstxt()] },
   nav: [
-    { text: 'Guide', link: '/guide' },
-    { text: 'Integrate', link: '/integrate/api', activeMatch: '/integrate/' },
+    { text: 'Get started', link: '/guide' },
+    { text: 'Use it', link: '/integrate/github-action', activeMatch: '/integrate/' },
     { text: 'Rules', link: '/rules/', activeMatch: '/rules/' },
     { text: 'Presets', link: '/presets' },
     { text: 'npm', link: 'https://www.npmjs.com/package/@miragon/bpmnlint-plugin-rules' },
   ],
   sidebar: [
     {
-      text: 'Guide',
+      text: 'Start',
+      items: [{ text: 'Getting started', link: '/guide' }],
+    },
+    {
+      text: 'Use it',
       items: [
-        { text: 'Getting started', link: '/guide' },
-        { text: 'Presets', link: '/presets' },
-        { text: 'Camunda 7 / 8 engines', link: '/guide/engines' },
+        { text: 'In pull requests: GitHub Action', link: '/integrate/github-action' },
+        { text: 'In any CI or terminal: CLI', link: '/integrate/cli' },
+        { text: 'With coding agents', link: '/integrate/agents' },
+        { text: 'In your own code: API', link: '/integrate/api' },
+        { text: 'AI visual review in CI', link: '/integrate/ci' },
       ],
     },
     {
-      text: 'Integrate',
+      text: 'Configure',
       items: [
-        { text: 'CI & programmatic API', link: '/integrate/api' },
-        { text: 'Coding agents', link: '/integrate/agents' },
-        { text: 'CI quality gates', link: '/integrate/ci' },
+        { text: 'Presets', link: '/presets' },
+        { text: 'Camunda 7 / 8 engines', link: '/guide/engines' },
       ],
     },
     {

@@ -5,7 +5,7 @@
 Install the plugin together with `bpmnlint` (its peer dependency):
 
 ```bash
-npm install --save-dev @miragon/bpmnlint-plugin-rules bpmnlint
+npm install --save-dev --save-exact @miragon/bpmnlint-plugin-rules bpmnlint
 ```
 
 ## Use it (the bpmnlint way)
@@ -47,11 +47,21 @@ Then lint a diagram:
 npx bpmnlint diagram.bpmn
 ```
 
+## Where it runs
+
+The same `.bpmnlintrc` drives every place you lint:
+
+| Where                                                          | Use                                           |
+| -------------------------------------------------------------- | --------------------------------------------- |
+| In pull requests, with a comment and a failing check on errors | [GitHub Action](./integrate/github-action.md) |
+| In GitLab, Jenkins or any other CI, or in your terminal        | [CLI](./integrate/cli.md)                     |
+| In your coding agent's loop                                    | [Coding agents](./integrate/agents.md)        |
+| In a modeler or tool you build                                 | [Lint from code](./integrate/api.md)          |
+
 ## Next steps
 
 - [Presets](./presets.md): which of the three configs fits who is modeling.
 - [Camunda 7 / 8 engines](./guide/engines.md): add the deployability rules for your engine.
-- [CI & programmatic API](./integrate/api.md): run it as a merge gate or from code.
 - [Rules](./rules/index.md): every rule with a reported and a clean example.
 
 ## What one model cannot tell

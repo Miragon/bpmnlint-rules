@@ -1,16 +1,6 @@
-# CI & programmatic API
+# Lint from code
 
-## In CI
-
-Lint every model as a merge gate — bpmnlint exits non-zero on a finding, failing the build:
-
-```bash
-npx bpmnlint 'models/**/*.bpmn'
-```
-
-Only findings at `error` fail the run. The two recommended presets report Miragon findings at `warn`,
-so extend `plugin:@miragon/rules/strict` when the gate should block on them. See
-[Presets](../presets.md).
+Build the linter into a modeler, a script or an agent loop, with every rule bundled and nothing else to install.
 
 ## Programmatic API
 
@@ -78,3 +68,7 @@ if (errors.length) process.exit(1);
 ```
 
 Every rule factory, rule-set and helper is exported from the package root as well.
+
+## In CI
+
+Lint as a merge gate with the [GitHub Action](./github-action.md), or with the [CLI](./cli.md) in any other CI system. Both exit non-zero only on `error` findings. The two recommended presets report Miragon findings at `warn`, so extend `plugin:@miragon/rules/strict` when the gate should block on them. See [Presets](../presets.md).

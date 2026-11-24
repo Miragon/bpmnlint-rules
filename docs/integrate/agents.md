@@ -65,7 +65,7 @@ changed file, return the findings on failure.
 
 ## Keep CI as the backstop
 
-Whatever happens in the session, the [merge gate](./api.md#in-ci) lints every model again. An agent
+Whatever happens in the session, the [GitHub Action](./github-action.md) or the [CLI](./cli.md) in your CI lints every model again. An agent
 that skipped the instruction still cannot ship a broken model.
 
 ## Which findings block
