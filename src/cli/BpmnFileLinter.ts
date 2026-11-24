@@ -3,8 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { BpmnModdle } from 'bpmn-moddle';
 import Linter from 'bpmnlint/lib/linter.js';
 
-import type { BpmnlintConfig } from '../core/bpmnlint-config';
-import type { Resolver } from '../resolver/Resolver';
+import type { BpmnlintConfig, Resolver } from '../index';
 import { FINDING_SEVERITIES, type Finding, type FindingSeverity } from './report/LintReport';
 
 /**

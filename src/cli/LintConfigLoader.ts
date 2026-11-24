@@ -2,11 +2,15 @@ import { existsSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 
-import type { BpmnlintConfig } from '../core/bpmnlint-config';
-import { recommendedForAutomation, recommendedForModeling } from '../presets/recommended';
-import { strict } from '../presets/strict';
-import { moddleExtension as camunda7Moddle } from '../rules/camunda-7';
-import { moddleExtension as camunda8Moddle } from '../rules/camunda-8';
+import camundaDescriptor from 'camunda-bpmn-moddle/resources/camunda.json';
+import zeebeDescriptor from 'zeebe-bpmn-moddle/resources/zeebe.json';
+
+import {
+  type BpmnlintConfig,
+  recommendedForAutomation,
+  recommendedForModeling,
+  strict,
+} from '../index';
 import type { PresetName } from './CliArguments';
 import { UsageError } from './UsageError';
 
@@ -24,8 +28,8 @@ const PRESETS: Record<PresetName, Readonly<BpmnlintConfig>> = {
  * so a config from the docs works without `camunda-bpmn-moddle`/`zeebe-bpmn-moddle` installed.
  */
 const BUNDLED_MODDLE_DESCRIPTORS: Record<string, unknown> = {
-  'camunda-bpmn-moddle/resources/camunda.json': camunda7Moddle.descriptor,
-  'zeebe-bpmn-moddle/resources/zeebe.json': camunda8Moddle.descriptor,
+  'camunda-bpmn-moddle/resources/camunda.json': camundaDescriptor,
+  'zeebe-bpmn-moddle/resources/zeebe.json': zeebeDescriptor,
 };
 
 /**

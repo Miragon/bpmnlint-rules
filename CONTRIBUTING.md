@@ -54,7 +54,8 @@ src/resolver/           BundledResolver: merges every folder's resolver entries
 src/config/             EngineConfig: getDefaultLintConfig / getRulesForEngine
 src/presets/            ready-to-use recommended-for-modeling / -for-automation / all configs
 src/cli/                the headless `miragon-bpmnlint` bin: file selection, linting, report formats
-                        (text, json, markdown, github); nothing in the library imports it
+                        (text, json, markdown, github); an app on the library that imports only
+                        src/index.ts, and nothing in the library imports it
 action.yml, action/     the GitHub Action: a thin composite adapter over the CLI (changed files,
                         job summary, sticky PR comment); its own CI job runs it with `uses: ./`
 test/                   RuleTester specs, the resolver integration + sync specs, and fixtures

@@ -3,8 +3,7 @@ import path from 'node:path';
 
 import NodeResolver from 'bpmnlint/lib/resolver/node-resolver.js';
 
-import { BundledResolver } from '../resolver/BundledResolver';
-import type { Resolver } from '../resolver/Resolver';
+import { createBundledResolver, type Resolver } from '../index';
 
 /**
  * Resolves each rule package from the working directory's `node_modules` when it is installed
@@ -24,13 +23,13 @@ export class FallbackResolver implements Resolver {
 
   /**
    * The resolver for a working directory: bpmnlint's `NodeResolver` scoped to it, falling back to
-   * {@link BundledResolver} per package.
+   * the package's bundled resolver per package.
    */
   static forDirectory(cwd: string): FallbackResolver {
     const requireFromCwd = createRequire(path.join(cwd, 'noop.js'));
     return new FallbackResolver(
       new NodeResolver({ require: requireFromCwd }),
-      BundledResolver.create(),
+      createBundledResolver(),
       (pkg) => FallbackResolver.canResolve(requireFromCwd, pkg),
     );
   }
