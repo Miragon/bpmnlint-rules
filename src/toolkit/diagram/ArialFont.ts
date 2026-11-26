@@ -157,8 +157,9 @@ const KERNING: Readonly<Record<string, number>> = {
  *
  * The metrics are the ones Chrome reports through `CanvasRenderingContext2D.measureText`, the call
  * diagram-js measures label text with: the advance width of every character in Basic Latin,
- * Latin-1 and common punctuation, and the kerning pairs Chrome applies between them. A text with
- * any other character has no known width, so callers can skip it instead of guessing.
+ * Latin-1 and common punctuation, and the kerning pairs Chrome applies between them. Chrome
+ * measures a tab and a carriage return as a space. A text with any other character has no known
+ * width, so callers can skip it instead of guessing.
  */
 export class ArialFont {
   private readonly sizePx: number;
@@ -189,6 +190,10 @@ export class ArialFont {
 
   private advanceUnits(char: string): number | undefined {
     const code = char.charCodeAt(0);
+
+    if (code === 0x09 || code === 0x0d) {
+      return BASIC_LATIN_ADVANCES[0];
+    }
 
     if (code >= 0x20 && code <= 0x7e) {
       return BASIC_LATIN_ADVANCES[code - 0x20];

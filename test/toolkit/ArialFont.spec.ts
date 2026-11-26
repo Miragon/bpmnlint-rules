@@ -11,6 +11,10 @@ describe('ArialFont', () => {
     expect(new ArialFont(11).width('Tea')).toBeCloseTo(17.735, 3);
   });
 
+  it('measures a tab and a carriage return as a space', () => {
+    expect(new ArialFont(11).width('a\tb\rc')).toBe(new ArialFont(11).width('a b c'));
+  });
+
   it('is undefined for a character without known metrics', () => {
     expect(new ArialFont(11).width('Auftrag 受注')).toBeUndefined();
   });

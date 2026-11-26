@@ -1,5 +1,6 @@
 import { inst, isPassableShape, PlaneRule } from '../../../toolkit/diagram';
 import { ExternalLabelLayout } from '../../../toolkit/diagram/ExternalLabelLayout';
+import { isLabelExternal } from '../../../toolkit/diagram/utils/elements';
 import type { DiagramPlane, PlaneEdge, PlaneShape } from '../../../toolkit/diagram';
 import {
   BboxIndex,
@@ -64,7 +65,9 @@ class LabelPlacement extends PlaneRule {
 
   private namedLabels(plane: DiagramPlane): Label[] {
     return [...plane.shapes, ...plane.sequenceFlows].flatMap(({ el, label }) =>
-      label && el.name?.trim() ? [{ el, name: el.name as string, bounds: label }] : [],
+      label && isLabelExternal(el) && el.name?.trim()
+        ? [{ el, name: el.name as string, bounds: label }]
+        : [],
     );
   }
 

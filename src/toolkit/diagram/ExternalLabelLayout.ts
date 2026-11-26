@@ -16,7 +16,7 @@ export interface BrokenWord {
    */
   word: string;
   /**
-   * The smallest whole-pixel label width from which on no word breaks.
+   * The smallest whole-pixel width above the label's at which bpmn-js keeps every word whole.
    */
   requiredWidth: number;
 }
@@ -58,16 +58,14 @@ export class ExternalLabelLayout {
       return undefined;
     }
 
-    // Every line fits whole from the widest one on, so search below it for the last width that
-    // still breaks a word.
+    // Search upwards for the first width without a break. A wider label has never broken a word
+    // that a narrower one kept whole (checked against bpmn-js and thousands of random names), and
+    // every line fits whole from the widest one on, so the search ends there at the latest.
     const widestLine = Math.ceil(Math.max(...lineWidths));
     let requiredWidth = Math.floor(labelWidth) + 1;
 
-    for (let width = widestLine - 1; width > labelWidth; width--) {
-      if (this.firstBrokenWord(width) !== undefined) {
-        requiredWidth = width + 1;
-        break;
-      }
+    while (requiredWidth < widestLine && this.firstBrokenWord(requiredWidth) !== undefined) {
+      requiredWidth += 1;
     }
 
     return { word, requiredWidth };

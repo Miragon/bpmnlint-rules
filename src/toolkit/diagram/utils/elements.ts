@@ -43,6 +43,26 @@ export function isPassableShape(el: ModdleElement, isExpanded: boolean): boolean
   );
 }
 
+/**
+ * The elements bpmn-js draws an external label for, at their DI label bounds (`isLabelExternal`
+ * in `bpmn-js/lib/util/LabelUtil.js`). Every other element draws its name inside its shape and
+ * ignores label bounds.
+ */
+const EXTERNAL_LABEL_TYPES = [
+  'bpmn:Event',
+  'bpmn:Gateway',
+  'bpmn:DataStoreReference',
+  'bpmn:DataObjectReference',
+  'bpmn:DataInput',
+  'bpmn:DataOutput',
+  'bpmn:SequenceFlow',
+  'bpmn:MessageFlow',
+  'bpmn:Group',
+];
+
+export const isLabelExternal = (el: ModdleElement): boolean =>
+  EXTERNAL_LABEL_TYPES.some((type) => inst(el, type));
+
 /** The node ids a sequence flow connects (its source and target). */
 export const flowEndpointIds = (flow: ModdleElement): string[] =>
   [flow.sourceRef && flow.sourceRef.id, flow.targetRef && flow.targetRef.id].filter(

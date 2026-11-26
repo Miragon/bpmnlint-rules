@@ -27,21 +27,22 @@ draws every word of it on one line.
 
 ## Scope
 
-The rule looks at the label bounds (`<bpmndi:BPMNLabel>`) of shapes and sequence flows that have a
-name. It reports:
+The rule looks at the label bounds (`<bpmndi:BPMNLabel>`) of the named shapes and sequence flows
+bpmn-js draws an external label for: events, gateways, data object and data store references,
+data inputs and outputs, and sequence flows. It reports:
 
 - a label that a sequence flow runs through, its own flow included;
 - a label that overlaps a shape other than its own element;
 - a label so narrow that bpmn-js breaks a word inside it.
 
-The rule lays the name out the way bpmn-js 18 draws an external label (`layoutText` in
-`diagram-js/lib/util/Text.js`), in the label's own width, and reports the first word that ends up
-split across two lines. Text is measured in the bpmn-js label font, Arial at 11px, with the advance
+The rule lays the name out the way bpmn-js 18 (with diagram-js 15.12 or later) draws an external
+label (`layoutText` in `diagram-js/lib/util/Text.js`), in the label's own width, and reports the
+first word that ends up split across two lines. Text is measured in the bpmn-js label font, Arial at 11px, with the advance
 widths and kerning pairs Chrome applies. A word can break even though it fits on its own: when a
 line is too wide, bpmn-js estimates how many characters fit from their share of the whole line's
 width, so "Subscription" (60.5px) breaks in a 61px label of "Subscription requested". bpmn-js
 breaks a line at whitespace, hyphens and soft hyphens, and at every line break in the name. The
-message names the width from which on no word breaks.
+message names the smallest wider width at which bpmn-js keeps every word whole.
 
 It deliberately leaves alone:
 
@@ -52,11 +53,12 @@ It deliberately leaves alone:
   annotations, data objects and data stores, which labels may be drawn over;
 - the host activity of a boundary event, because bpmn-js places a label below its event, which
   puts the label of a boundary event on the top border inside its host;
-- elements without a name or without label bounds, such as tasks, whose label is drawn inside the
-  shape;
-- the width of a name with a character outside Basic Latin, Latin-1 and common punctuation
-  (dashes, quotes, the ellipsis and the euro sign), because its width cannot be predicted without
-  the font;
+- elements without a name or without label bounds, and elements bpmn-js draws the name inside
+  of, such as tasks and sub-processes, even when the DI gives them label bounds;
+- the width of a name with a character Chrome's Arial metrics are not known for, because its
+  width cannot be predicted without the font. Known are U+0020 to U+007E, U+00A0 to U+00FF, the
+  dashes `–` and `—`, the quotes `‘ ’ ‚ “ ” „`, `…`, `•` and `€`; a tab and a carriage return
+  count as a space;
 - other fonts: the layout assumes the bpmn-js default label font;
 - labels overlapping other labels, and labels of message flows and associations.
 

@@ -166,6 +166,19 @@ verify('label-placement', rule, {
       }),
     },
     {
+      name: 'label bounds on a task, which bpmn-js ignores because it draws the name inside',
+      moddleElement: model({
+        shapes: [
+          {
+            ...NEXT,
+            name: 'Check subscription',
+            label: { x: 230, y: 111, width: 40, height: 27 },
+          },
+        ],
+        edges: [],
+      }),
+    },
+    {
       name: 'a label whose name is only whitespace',
       moddleElement: model({
         shapes: [{ ...labelOn(START, { x: 110, y: 143, width: 10, height: 14 }), name: '   ' }],
