@@ -7,17 +7,24 @@
  * pinning down precisely.
  */
 
-/** A node in the bpmn-moddle tree — untyped by nature (see the module comment). */
+/**
+ * A node in the bpmn-moddle tree — untyped by nature (see the module comment).
+ */
 export type ModdleElement = any;
 
-/** What a rule calls to record a violation on an element. */
+/**
+ * What a rule calls to record a violation on an element.
+ */
 export interface Reporter {
   report(id: string, message: string): void;
 }
 
-/** The visitor a bpmnlint rule returns: `check` runs on every element. */
+/**
+ * The visitor a bpmnlint rule returns: `check` runs on every element, parents first. Returning
+ * `false` tells bpmnlint not to descend into that element's children.
+ */
 export interface Rule {
-  check: (node: ModdleElement, reporter: Reporter) => void;
+  check: (node: ModdleElement, reporter: Reporter) => false | void;
 }
 
 /**

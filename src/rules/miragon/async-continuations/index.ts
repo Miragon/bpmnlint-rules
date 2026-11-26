@@ -3,6 +3,7 @@ import { is } from 'bpmnlint-utils';
 import { ExecutionEngine } from '../../../toolkit/engine/ExecutionEngine';
 import type { ModdleElement, Reporter, Rule } from '../../../core/moddle';
 import { defineRule } from '../../../core/utils/defineRule';
+import { isDiagramInterchangeRoot } from '../../../toolkit/diagram/utils/elements';
 
 import type { Slot } from './SavePointDefaults';
 import { SavePointFlag } from '../../../toolkit/engine/SavePointFlag';
@@ -28,7 +29,11 @@ class AsyncContinuations implements Rule {
     this.policy = new SavePointPolicy(config);
   }
 
-  check(node: ModdleElement, reporter: Reporter): void {
+  check(node: ModdleElement, reporter: Reporter): false | void {
+    if (isDiagramInterchangeRoot(node)) {
+      return false;
+    }
+
     if (!node.id || !is(node, 'bpmn:FlowNode') || !ExecutionEngine.is(node, 'c7')) {
       return;
     }

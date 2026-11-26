@@ -2,6 +2,7 @@ import type { ModdleElement, Reporter, Rule } from '../../../core/moddle';
 import { ElementIdConvention } from '../../../toolkit/naming';
 import type { ElementIdNamingConfig } from '../../../toolkit/naming';
 import { defineRule } from '../../../core/utils/defineRule';
+import { isDiagramInterchangeRoot } from '../../../toolkit/diagram/utils/elements';
 
 /**
  * Reports an element whose ID does not follow the project's naming convention.
@@ -34,12 +35,18 @@ import { defineRule } from '../../../core/utils/defineRule';
  */
 class ElementIdNaming implements Rule {
   private readonly convention: ElementIdConvention;
+  private readonly checksDiagramInterchange: boolean;
 
   constructor(config?: ElementIdNamingConfig) {
     this.convention = new ElementIdConvention(config);
+    this.checksDiagramInterchange = this.convention.coversNonBpmnTypes;
   }
 
-  check(node: ModdleElement, reporter: Reporter): void {
+  check(node: ModdleElement, reporter: Reporter): false | void {
+    if (!this.checksDiagramInterchange && isDiagramInterchangeRoot(node)) {
+      return false;
+    }
+
     const violation = this.convention.violationOf(node);
 
     if (violation) {

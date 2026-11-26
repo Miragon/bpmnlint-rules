@@ -5,6 +5,13 @@
 import type { ModdleElement } from '../../../core/moddle';
 
 /**
+ * The root of a diagram's interchange layer (shapes, edges, bounds, waypoints, labels). A rule
+ * that reads only the semantic model skips this subtree.
+ */
+export const isDiagramInterchangeRoot = (node: ModdleElement): boolean =>
+  node.$type === 'bpmndi:BPMNDiagram';
+
+/**
  * Inheritance-safe moddle type test — handles `bpmn:Transaction` extending `bpmn:SubProcess`,
  * `bpmn:AdHocSubProcess`, and so on. Defensive against malformed DI where `bpmnElement` may not
  * be a moddle object at all.
@@ -63,7 +70,9 @@ const EXTERNAL_LABEL_TYPES = [
 export const isLabelExternal = (el: ModdleElement): boolean =>
   EXTERNAL_LABEL_TYPES.some((type) => inst(el, type));
 
-/** The node ids a sequence flow connects (its source and target). */
+/**
+ * The node ids a sequence flow connects (its source and target).
+ */
 export const flowEndpointIds = (flow: ModdleElement): string[] =>
   [flow.sourceRef && flow.sourceRef.id, flow.targetRef && flow.targetRef.id].filter(
     Boolean,

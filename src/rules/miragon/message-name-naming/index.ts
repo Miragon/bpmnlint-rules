@@ -4,6 +4,7 @@ import type { ModdleElement, Reporter, Rule } from '../../../core/moddle';
 import { isExpression, ValueNamingScheme } from '../../../toolkit/naming';
 import type { ValueNamingConfig } from '../../../toolkit/naming';
 import { defineRule } from '../../../core/utils/defineRule';
+import { isDiagramInterchangeRoot } from '../../../toolkit/diagram/utils/elements';
 
 /**
  * Reports a message whose name does not follow the project's naming scheme.
@@ -32,7 +33,11 @@ class MessageNameNaming implements Rule {
     this.scheme = new ValueNamingScheme(config);
   }
 
-  check(node: ModdleElement, reporter: Reporter): void {
+  check(node: ModdleElement, reporter: Reporter): false | void {
+    if (isDiagramInterchangeRoot(node)) {
+      return false;
+    }
+
     if (!is(node, 'bpmn:Message') || !node.name || isExpression(node.name)) {
       return;
     }
