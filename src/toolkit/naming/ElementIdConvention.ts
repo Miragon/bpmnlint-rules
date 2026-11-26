@@ -130,6 +130,13 @@ export class ElementIdConvention {
   private readonly namingCase: CaseSpec;
   private readonly qualifierMode: QualifierMode;
 
+  /**
+   * The prefix depends only on the element's type, so it is resolved once per type. Keyed by the
+   * moddle descriptor, which carries the type's whole inheritance chain; weakly, so a long-lived
+   * linter does not keep the descriptors of models it linted long ago.
+   */
+  private readonly prefixByDescriptor = new WeakMap<object, string | null>();
+
   constructor(config?: ElementIdNamingConfig) {
     const { prefixes: overrides = {}, case: caseName = 'camelCase' } = config ?? {};
     const mode = config?.eventDefinitionQualifier;
@@ -139,14 +146,29 @@ export class ElementIdConvention {
     this.qualifierMode = mode !== undefined && QUALIFIER_MODES.has(mode) ? mode : 'optional';
   }
 
-  /** The case the name after the prefix must follow, resolved from the configured case name. */
+  /**
+   * The case the name after the prefix must follow, resolved from the configured case name.
+   */
   get case(): CaseSpec {
     return this.namingCase;
   }
 
-  /** How the element's event definition qualifies its prefix; `'optional'` unless configured. */
+  /**
+   * How the element's event definition qualifies its prefix; `'optional'` unless configured.
+   */
   get qualifier(): QualifierMode {
     return this.qualifierMode;
+  }
+
+  /**
+   * Whether a prefix is set for a type outside the `bpmn:` namespace, such as a diagram
+   * interchange type (`bpmndi:BPMNShape`). Only then can an element of the diagram layer break the
+   * convention.
+   */
+  get coversNonBpmnTypes(): boolean {
+    return Object.entries(this.prefixes).some(
+      ([type, prefix]) => !!prefix && !type.startsWith('bpmn:'),
+    );
   }
 
   /**
@@ -194,6 +216,24 @@ export class ElementIdConvention {
    * producing a spurious report.
    */
   prefixOf(node: ModdleElement): string | null {
+    const descriptor: object | undefined = node.$descriptor;
+
+    if (!descriptor) {
+      return this.lookUpPrefix(node);
+    }
+
+    const cached = this.prefixByDescriptor.get(descriptor);
+
+    if (cached !== undefined) {
+      return cached;
+    }
+
+    const prefix = this.lookUpPrefix(node);
+    this.prefixByDescriptor.set(descriptor, prefix);
+    return prefix;
+  }
+
+  private lookUpPrefix(node: ModdleElement): string | null {
     const configured = (type: string): boolean =>
       Object.prototype.hasOwnProperty.call(this.prefixes, type);
     const type = configured(node.$type)

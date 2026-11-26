@@ -3,6 +3,7 @@ import { isAny } from 'bpmnlint-utils';
 import type { ModdleElement, Reporter, Rule } from '../../../core/moddle';
 import { isGeneratedId } from '../../../toolkit/naming';
 import { defineRule } from '../../../core/utils/defineRule';
+import { isDiagramInterchangeRoot } from '../../../toolkit/diagram/utils/elements';
 
 const CHECKED = ['bpmn:FlowNode', 'bpmn:SequenceFlow', 'bpmn:Participant', 'bpmn:Lane'];
 
@@ -20,7 +21,11 @@ const CHECKED = ['bpmn:FlowNode', 'bpmn:SequenceFlow', 'bpmn:Participant', 'bpmn
  * Message, error and signal names are technical correlation keys and belong to the engine.
  */
 class NoGeneratedIds implements Rule {
-  check(node: ModdleElement, reporter: Reporter): void {
+  check(node: ModdleElement, reporter: Reporter): false | void {
+    if (isDiagramInterchangeRoot(node)) {
+      return false;
+    }
+
     if (!node.id || !isAny(node, CHECKED)) {
       return;
     }

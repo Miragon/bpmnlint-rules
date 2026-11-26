@@ -10,7 +10,7 @@ import { defineRule } from '../../../core/utils/defineRule';
  * an empty diamond that a reader cannot tell apart from any other gateway type at a glance.
  */
 class ExclusiveGatewayMarkerVisible implements Rule {
-  check(node: ModdleElement, reporter: Reporter): void {
+  check(node: ModdleElement, reporter: Reporter): false | void {
     if (node.$type !== 'bpmn:Definitions') {
       return;
     }
@@ -31,6 +31,8 @@ class ExclusiveGatewayMarkerVisible implements Rule {
         }
       }
     }
+
+    return false;
   }
 }
 

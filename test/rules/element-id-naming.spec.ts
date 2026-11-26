@@ -281,6 +281,14 @@ verify('element-id-naming', rule, {
 
   invalid: [
     {
+      name: 'a prefix configured for a diagram interchange type checks the DI ids too',
+      config: { prefixes: { 'bpmndi:BPMNShape': 'shape_' } },
+      moddleElement: model({
+        shapes: [{ id: 'serviceTask_claimMembership', tag: 'serviceTask' }],
+      }),
+      report: [conventionViolation('di_serviceTask_claimMembership', 'shape_')],
+    },
+    {
       name: 'collaboration, pool, lane, data, artifact and message flow ids are held to the convention',
       moddleElement: collaboration(GENERATED_IDS),
       report: [

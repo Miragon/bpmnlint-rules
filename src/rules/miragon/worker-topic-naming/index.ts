@@ -4,6 +4,7 @@ import type { ModdleElement, Reporter, Rule } from '../../../core/moddle';
 import { isExpression, ValueNamingScheme } from '../../../toolkit/naming';
 import type { ValueNamingConfig } from '../../../toolkit/naming';
 import { defineRule } from '../../../core/utils/defineRule';
+import { isDiagramInterchangeRoot } from '../../../toolkit/diagram/utils/elements';
 import { ExternalTask } from '../../../toolkit/engine/ExternalTask';
 
 const EXTERNAL_TASK_TYPES = ['bpmn:ServiceTask', 'bpmn:BusinessRuleTask', 'bpmn:SendTask'];
@@ -37,7 +38,11 @@ class WorkerTopicNaming implements Rule {
     this.scheme = new ValueNamingScheme(config);
   }
 
-  check(node: ModdleElement, reporter: Reporter): void {
+  check(node: ModdleElement, reporter: Reporter): false | void {
+    if (isDiagramInterchangeRoot(node)) {
+      return false;
+    }
+
     for (const topic of this.workerTopicsOf(node)) {
       if (!this.scheme.matches(topic)) {
         reporter.report(node.id, `Worker topic <${topic}> must match ${this.scheme.describe()}`);
@@ -56,7 +61,9 @@ class WorkerTopicNaming implements Rule {
     return topics.filter((topic): topic is string => Boolean(topic) && !isExpression(topic!));
   }
 
-  /** A task implements itself; an event is implemented by its message event definitions. */
+  /**
+   * A task implements itself; an event is implemented by its message event definitions.
+   */
   private externalTaskImplementationsOf(node: ModdleElement): ModdleElement[] {
     if (isAny(node, EXTERNAL_TASK_TYPES)) {
       return [node];
@@ -70,7 +77,9 @@ class WorkerTopicNaming implements Rule {
     return definitions.filter((definition) => is(definition, 'bpmn:MessageEventDefinition'));
   }
 
-  /** The topic of a Camunda 7 / Operaton external task implementation, if this is one. */
+  /**
+   * The topic of a Camunda 7 / Operaton external task implementation, if this is one.
+   */
   private externalTaskTopicOf(implementation: ModdleElement): string | undefined {
     const namespace = ExternalTask.namespaceOf(implementation);
 
