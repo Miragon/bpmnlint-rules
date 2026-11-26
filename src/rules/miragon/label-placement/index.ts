@@ -1,5 +1,5 @@
 import { inst, isPassableShape, PlaneRule } from '../../../toolkit/diagram';
-import { longestWord, MIN_CHAR_WIDTH_PX } from '../../../toolkit/diagram/utils/text';
+import { brokenLabelWord } from '../../../toolkit/diagram/utils/externalLabelLayout';
 import type { DiagramPlane, PlaneEdge, PlaneShape } from '../../../toolkit/diagram';
 import {
   BboxIndex,
@@ -23,7 +23,7 @@ interface Label {
 
 /**
  * Reports a label that is hard to read: its bounds overlap a sequence flow or a shape, or they are
- * narrower than the longest word of the name, which forces a break inside that word.
+ * so narrow that bpmn-js breaks a word of the name across two lines.
  *
  * Comparison is scoped per BPMNPlane.
  */
@@ -82,13 +82,12 @@ class LabelPlacement extends PlaneRule {
     bounds: Rect,
     reporter: Reporter,
   ): void {
-    const word = longestWord(name);
-    const requiredWidth = word.length * MIN_CHAR_WIDTH_PX;
+    const brokenWord = brokenLabelWord(name, bounds.width);
 
-    if (bounds.width < requiredWidth) {
+    if (brokenWord) {
       reporter.report(
         el.id,
-        `Label is narrower than the word "${word}"; widen it to at least ${requiredWidth}px`,
+        `Label is too narrow, so bpmn-js breaks the word "${brokenWord.word}"; widen it to at least ${brokenWord.requiredWidth}px`,
       );
     }
   }

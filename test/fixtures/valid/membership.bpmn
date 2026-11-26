@@ -207,7 +207,7 @@
       <bpmndi:BPMNShape id="Event_activated_di" bpmnElement="endEvent_membershipActivated">
         <dc:Bounds x="1262" y="312" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1251" y="355" width="59" height="27" />
+          <dc:Bounds x="1250" y="355" width="61" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_rejection_di" bpmnElement="serviceTask_sendRejectionMail">
@@ -237,7 +237,7 @@
       <bpmndi:BPMNShape id="Event_declined_di" bpmnElement="endEvent_membershipDeclined">
         <dc:Bounds x="1262" y="102" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1251" y="145" width="59" height="27" />
+          <dc:Bounds x="1250" y="145" width="61" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_revokeClaim_di" bpmnElement="serviceTask_revokeClaim">
@@ -252,7 +252,7 @@
       <bpmndi:BPMNShape id="Event_abort_di" bpmnElement="event_confirmationDeadlinePassed">
         <dc:Bounds x="972" y="212" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1009" y="186" width="42" height="27" />
+          <dc:Bounds x="1009" y="186" width="44" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_confirmationRejected_di" bpmnElement="event_confirmationRejected">

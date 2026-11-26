@@ -96,7 +96,7 @@
         <di:waypoint x="275" y="250" />
         <di:waypoint x="275" y="145" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="545" y="232" width="38" height="14" />
+          <dc:Bounds x="545" y="232" width="39" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
