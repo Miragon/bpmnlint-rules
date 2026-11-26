@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.24.1](https://github.com/Miragon/bpmnlint-rules/compare/v0.24.0...v0.24.1) (2026-11-26)
+
+
+### Bug Fixes
+
+* report every label bpmn-js breaks inside a word ([#174](https://github.com/Miragon/bpmnlint-rules/issues/174)) ([104d9ed](https://github.com/Miragon/bpmnlint-rules/commit/104d9ed0b5cc2ffeb94f29dedc3796d006d7b874))
+
 ## [0.24.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.23.0...v0.24.0) (2026-11-23)
 
 
