@@ -13,25 +13,33 @@ declare module 'bpmnlint' {
 }
 
 declare module 'bpmnlint-utils' {
-  /** Inheritance-aware moddle type test. An unqualified type is read as `bpmn:<type>`. */
+  /**
+   * Inheritance-aware moddle type test. An unqualified type is read as `bpmn:<type>`.
+   */
   export function is(node: unknown, type: string): boolean;
   export function isAny(node: unknown, types: string[]): boolean;
 }
 
-/** A bpmnlint rule module — a factory returning a `{ check }` visitor. */
+/**
+ * A bpmnlint rule module — a factory returning a `{ check }` visitor.
+ */
 declare module 'bpmnlint/rules/*' {
   const rule: unknown;
   export default rule;
 }
 
-/** A bpmnlint shareable config module (`recommended`, `all`, `correctness`). */
+/**
+ * A bpmnlint shareable config module (`recommended`, `all`, `correctness`).
+ */
 declare module 'bpmnlint/config/*' {
   const config: { rules?: Record<string, unknown>; extends?: string | string[] };
   export default config;
 }
 
 declare module 'bpmnlint/lib/resolver/static-resolver.js' {
-  /** Resolves rules/configs from a plain `{ 'rule:pkg/name': module }` cache. */
+  /**
+   * Resolves rules/configs from a plain `{ 'rule:pkg/name': module }` cache.
+   */
   export default class StaticResolver {
     constructor(cache: Record<string, unknown>);
     resolveRule(pkg: string, ruleName: string): unknown;
@@ -42,7 +50,9 @@ declare module 'bpmnlint/lib/resolver/static-resolver.js' {
 declare module 'bpmnlint/lib/linter' {
   export type LintReport = { id: string; message: string; category?: string };
 
-  /** The linter core, driven directly by the integration tests. */
+  /**
+   * The linter core, driven directly by the integration tests.
+   */
   export default class Linter {
     constructor(options?: { resolver?: unknown; config?: unknown });
     lint(moddleRoot: unknown, config?: unknown): Promise<Record<string, LintReport[]>>;
@@ -73,7 +83,9 @@ declare module 'bpmnlint/lib/testers/rule-tester' {
     moddleElement: Promise<unknown> | unknown;
     name?: string;
     config?: unknown;
-    /** A custom `it` — pass `it.skip`/`it.only` to focus a case during development. */
+    /**
+     * A custom `it` — pass `it.skip`/`it.only` to focus a case during development.
+     */
     it?: unknown;
     report?: ExpectedReport | ExpectedReport[];
   };
@@ -83,4 +95,25 @@ declare module 'bpmnlint/lib/testers/rule-tester' {
     rule: unknown,
     testCases: { valid: TestCase[]; invalid: TestCase[] },
   ): void;
+}
+
+declare module 'bpmnlint/lib/resolver/node-resolver.js' {
+  /**
+   * Resolves rules and configs with Node's module resolution, from the `require` it is given
+   * (default: one scoped to `process.cwd()`). Throws when a rule or config cannot be found.
+   */
+  export default class NodeResolver {
+    constructor(options?: { require?: NodeJS.Require });
+    resolveRule(pkg: string, ruleName: string): unknown;
+    resolveConfig(pkg: string, configName: string): unknown;
+  }
+}
+
+/**
+ * The same linter by its file name, which resolves in every supported bpmnlint version (before
+ * 12.x the package has no `exports` map, so Node's ESM loader needs the `.js`).
+ */
+declare module 'bpmnlint/lib/linter.js' {
+  import Linter from 'bpmnlint/lib/linter';
+  export default Linter;
 }

@@ -40,6 +40,9 @@
     },
     "./package.json": "./package.json"
   },
+  "bin": {
+    "miragon-bpmnlint": "./dist/cli.js"
+  },
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -78,6 +81,7 @@
     "bpmnlint": ">=11.14.0"
   },
   "dependencies": {
+    "bpmn-moddle": "10.3.1",
     "bpmnlint-plugin-camunda-compat": "2.63.0",
     "bpmnlint-utils": "1.1.1",
     "camunda-bpmn-moddle": "8.0.2",

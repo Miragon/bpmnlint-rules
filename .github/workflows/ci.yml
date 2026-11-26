@@ -67,3 +67,46 @@ jobs:
       # gaps the src-based unit tests can't see.
       - name: Distro smoke test
         run: npm run test:distro
+
+  # Runs the GitHub Action exactly as a consumer does (`uses:` builds it from its own checkout):
+  # a clean model passes, a model with errors fails the step, and a path with a space and brackets
+  # survives the quoting. Commenting needs a pull request token and is covered by
+  # test/action/sticky-comment.spec.ts instead.
+  action:
+    name: Action self-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Put a model with errors at an awkward path
+        run: |
+          mkdir -p "action-test/sub dir"
+          cp test/fixtures/rules/no-generated-ids/invalid.bpmn "action-test/sub dir/order [1].bpmn"
+
+      - name: Lint a clean model
+        id: clean
+        uses: ./
+        with:
+          files: test/fixtures/valid/*.bpmn
+          changed-only: 'false'
+          comment: 'false'
+
+      - name: Lint a model with errors
+        id: errors
+        continue-on-error: true
+        uses: ./
+        with:
+          files: action-test/sub dir/order [1].bpmn
+          preset: strict
+          changed-only: 'false'
+          comment: 'false'
+
+      - name: Check the outcomes
+        env:
+          CLEAN_ERRORS: ${{ steps.clean.outputs.error-count }}
+          ERRORS_OUTCOME: ${{ steps.errors.outcome }}
+          ERRORS_COUNT: ${{ steps.errors.outputs.error-count }}
+        run: |
+          test "$CLEAN_ERRORS" = 0
+          test "$ERRORS_OUTCOME" = failure
+          test "$ERRORS_COUNT" -gt 0

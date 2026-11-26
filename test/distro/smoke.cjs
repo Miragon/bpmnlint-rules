@@ -9,6 +9,8 @@
  *   1. Classic `.bpmnlintrc` + `bpmnlint` CLI — `plugin:@miragon/rules/strict` resolves, a known-bad
  *      model trips a Miragon rule, a clean model stays silent. This is the path that a missing
  *      `files` entry, a non-bare rule export, or a wrong config name would silently break.
+ *   1b. The `miragon-bpmnlint` bin — installed under `node_modules/.bin`, lints through the
+ *      consumer's `.bpmnlintrc` and writes the JSON report contract.
  *   2. Programmatic, `require` — the bundled resolver resolves rules from every layer and the
  *      per-engine config is shaped right.
  *   3. Programmatic, `import` — `esm-consumer.mjs` loads the ESM build through Node's own loader
@@ -33,14 +35,18 @@ const npm = (args, cwd) =>
 
 const step = (message) => console.log(`  -> ${message}`);
 
-/** `npm pack --json` is an array (npm <= 11) or an object keyed by package name (npm >= 12). */
+/**
+ * `npm pack --json` is an array (npm <= 11) or an object keyed by package name (npm >= 12).
+ */
 function packedFilename(packOutput) {
   const parsed = JSON.parse(packOutput);
   const [entry] = Array.isArray(parsed) ? parsed : Object.values(parsed);
   return entry.filename;
 }
 
-/** Runs the installed bpmnlint CLI over a fixture and returns its combined output + status. */
+/**
+ * Runs the installed bpmnlint CLI over a fixture and returns its combined output + status.
+ */
 function lint(project, fixture) {
   try {
     const output = execFileSync(path.join(project, 'node_modules', '.bin', 'bpmnlint'), [fixture], {
@@ -107,6 +113,34 @@ function main() {
     const good = lint(project, goodFixture);
     assert.equal(good.status, 0, `a clean model should pass, got:\n${good.output}`);
     step('classic path: clean model reported nothing');
+
+    // (1b) The miragon-bpmnlint bin: installed as a bin, uses the consumer's installed plugin via
+    // its .bpmnlintrc, exits 1 on errors and writes the JSON contract.
+    const bin = path.join(project, 'node_modules', '.bin', 'miragon-bpmnlint');
+    assert.ok(fs.existsSync(bin), 'the miragon-bpmnlint bin must be installed');
+    const reportFile = path.join(project, 'report.json');
+    const binRun = (() => {
+      try {
+        execFileSync(bin, ['--format', `json=${reportFile}`, 'bad.bpmn', 'good.bpmn'], {
+          cwd: project,
+          stdio: 'pipe',
+        });
+        return 0;
+      } catch (error) {
+        return error.status;
+      }
+    })();
+    const binReport = JSON.parse(fs.readFileSync(reportFile, 'utf8'));
+    assert.equal(binRun, 1, 'the bin must exit 1 on error findings');
+    assert.equal(binReport.schemaVersion, 1);
+    assert.deepEqual(
+      binReport.files.map((file) => [file.path, file.findings.length > 0]),
+      [
+        ['bad.bpmn', true],
+        ['good.bpmn', false],
+      ],
+    );
+    step('bin: miragon-bpmnlint linted both models and exited 1');
 
     // (2) Programmatic path: the bundled resolver + per-engine config, from the installed package.
     const dist = require(path.join(project, 'node_modules', name));
