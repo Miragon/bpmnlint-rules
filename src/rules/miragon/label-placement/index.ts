@@ -1,5 +1,5 @@
 import { inst, isPassableShape, PlaneRule } from '../../../toolkit/diagram';
-import { brokenLabelWord } from '../../../toolkit/diagram/utils/externalLabelLayout';
+import { ExternalLabelLayout } from '../../../toolkit/diagram/ExternalLabelLayout';
 import type { DiagramPlane, PlaneEdge, PlaneShape } from '../../../toolkit/diagram';
 import {
   BboxIndex,
@@ -82,7 +82,7 @@ class LabelPlacement extends PlaneRule {
     bounds: Rect,
     reporter: Reporter,
   ): void {
-    const brokenWord = brokenLabelWord(name, bounds.width);
+    const brokenWord = new ExternalLabelLayout(name).brokenWord(bounds.width);
 
     if (brokenWord) {
       reporter.report(

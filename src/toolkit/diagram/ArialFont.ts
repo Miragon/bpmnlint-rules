@@ -1,7 +1,5 @@
 /**
- * Font metrics of Arial Regular, the font bpmn-js draws labels in, as Chrome reports them through
- * `CanvasRenderingContext2D.measureText` (the call diagram-js measures text with). Every number is in
- * font units, 2048 to the em.
+ * Font units per em of Arial; every metric below is in these units.
  */
 const UNITS_PER_EM = 2048;
 
@@ -153,36 +151,53 @@ const KERNING: Readonly<Record<string, number>> = {
   '\u2019\u2019': -37,
 };
 
-const advance = (char: string): number | undefined => {
-  const code = char.charCodeAt(0);
-
-  if (code >= 0x20 && code <= 0x7e) {
-    return BASIC_LATIN_ADVANCES[code - 0x20];
-  }
-
-  if (code >= 0xa0 && code <= 0xff) {
-    return LATIN_1_ADVANCES[code - 0xa0];
-  }
-
-  return PUNCTUATION_ADVANCES[char];
-};
-
 /**
- * The width of `text` in Arial at `fontSizePx`, kerning included, or `undefined` when the text holds
- * a character without known metrics.
+ * Arial Regular, the font bpmn-js draws labels in. It works out how wide a text is in this font,
+ * so a rule can predict from the BPMN file alone where bpmn-js breaks a label, without a browser.
+ *
+ * The metrics are the ones Chrome reports through `CanvasRenderingContext2D.measureText`, the call
+ * diagram-js measures label text with: the advance width of every character in Basic Latin,
+ * Latin-1 and common punctuation, and the kerning pairs Chrome applies between them. A text with
+ * any other character has no known width, so callers can skip it instead of guessing.
  */
-export const arialTextWidth = (text: string, fontSizePx: number): number | undefined => {
-  let units = 0;
+export class ArialFont {
+  private readonly sizePx: number;
 
-  for (let index = 0; index < text.length; index++) {
-    const charUnits = advance(text[index]!);
+  constructor(sizePx: number) {
+    this.sizePx = sizePx;
+  }
 
-    if (charUnits === undefined) {
-      return undefined;
+  /**
+   * The width of `text` in pixels, kerning included, or `undefined` when the text holds a
+   * character without known metrics.
+   */
+  width(text: string): number | undefined {
+    let units = 0;
+
+    for (let index = 0; index < text.length; index++) {
+      const charUnits = this.advanceUnits(text[index]!);
+
+      if (charUnits === undefined) {
+        return undefined;
+      }
+
+      units += charUnits + (KERNING[text.slice(index, index + 2)] ?? 0);
     }
 
-    units += charUnits + (KERNING[text.slice(index, index + 2)] ?? 0);
+    return (units * this.sizePx) / UNITS_PER_EM;
   }
 
-  return (units * fontSizePx) / UNITS_PER_EM;
-};
+  private advanceUnits(char: string): number | undefined {
+    const code = char.charCodeAt(0);
+
+    if (code >= 0x20 && code <= 0x7e) {
+      return BASIC_LATIN_ADVANCES[code - 0x20];
+    }
+
+    if (code >= 0xa0 && code <= 0xff) {
+      return LATIN_1_ADVANCES[code - 0xa0];
+    }
+
+    return PUNCTUATION_ADVANCES[char];
+  }
+}
