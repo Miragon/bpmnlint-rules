@@ -94,9 +94,9 @@ verify('label-placement', rule, {
       }),
     },
     {
-      name: 'a label exactly as wide as its longest word',
+      name: 'a label just wide enough for its longest word',
       moddleElement: model({
-        shapes: [labelOn(START, { x: 98, y: 143, width: 40, height: 27 }), NEXT],
+        shapes: [labelOn(START, { x: 97, y: 143, width: 42, height: 27 }), NEXT],
       }),
     },
     {
@@ -154,9 +154,28 @@ verify('label-placement', rule, {
       }),
     },
     {
-      name: 'a hyphenated name splits at the hyphen',
+      name: 'a hyphenated name breaks at the hyphen',
       moddleElement: model({
-        shapes: [{ ...labelOn(START, { x: 98, y: 143, width: 25, height: 27 }), name: 'Re-check' }],
+        shapes: [{ ...labelOn(START, { x: 98, y: 143, width: 29, height: 27 }), name: 'Re-check' }],
+      }),
+    },
+    {
+      name: 'a name with characters outside the known font metrics',
+      moddleElement: model({
+        shapes: [{ ...labelOn(START, { x: 113, y: 143, width: 10, height: 27 }), name: '受注' }],
+      }),
+    },
+    {
+      name: 'label bounds on a task, which bpmn-js ignores because it draws the name inside',
+      moddleElement: model({
+        shapes: [
+          {
+            ...NEXT,
+            name: 'Check subscription',
+            label: { x: 230, y: 111, width: 40, height: 27 },
+          },
+        ],
+        edges: [],
       }),
     },
     {
@@ -194,7 +213,35 @@ verify('label-placement', rule, {
       }),
       report: {
         id: 'event_Start',
-        message: 'Label is narrower than the word "Customer"; widen it to at least 40px',
+        message:
+          'Label is too narrow, so bpmn-js breaks the word "Customer"; widen it to at least 48px',
+      },
+    },
+    {
+      name: 'a word that fits on its own, but bpmn-js shortens the whole line by character count',
+      moddleElement: model({
+        shapes: [
+          {
+            ...labelOn(START, { x: 88, y: 143, width: 61, height: 27 }),
+            name: 'Subscription requested',
+          },
+        ],
+      }),
+      report: {
+        id: 'event_Start',
+        message:
+          'Label is too narrow, so bpmn-js breaks the word "Subscription"; widen it to at least 62px',
+      },
+    },
+    {
+      name: 'a flow label a fraction of a pixel narrower than its word',
+      moddleElement: model({
+        shapes: [START, NEXT],
+        edges: [{ ...FLOW, name: 'yes', label: { x: 180, y: 100, width: 17, height: 14 } }],
+      }),
+      report: {
+        id: 'flow_Start',
+        message: 'Label is too narrow, so bpmn-js breaks the word "yes"; widen it to at least 18px',
       },
     },
     {

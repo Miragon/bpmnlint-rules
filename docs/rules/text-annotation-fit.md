@@ -53,9 +53,8 @@ space its text needs the way bpmn-js 18 renders it:
   (`DEFAULT_FONT_SIZE` and `LINE_HEIGHT_RATIO` in `lib/draw/TextRenderer.js`).
 - **First line shift:** diagram-js draws the text a quarter of the line height above the top
   padding (`layoutText` in `diagram-js/lib/util/Text.js`), so the text needs 3.6px less.
-- **Characters:** 5px each, the same estimate as
-  [`label-placement`](./label-placement.md). Lines wrap after whitespace, hyphens and soft hyphens, and every
-  line break in the text starts a new line.
+- **Characters:** 5px each, the low end of the font. Lines wrap after whitespace, hyphens and soft
+  hyphens, and every line break in the text starts a new line.
 
 An annotation is reported when its height is below `lines × 14.4 + 2 × 7 − 3.6` (39.2px for two
 lines), or its width is below `longest word × 5 + 2 × 7`. The character width is the low end of the

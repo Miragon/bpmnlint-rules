@@ -57,7 +57,7 @@ The rules the plugin adds, each linked to its examples:
 | [`@miragon/rules/flow-orthogonal`](https://miragon.github.io/bpmnlint-rules/rules/flow-orthogonal)                                   | A sequence flow that runs diagonally instead of horizontal and vertical        |
 | [`@miragon/rules/boundary-event-marker-overlap`](https://miragon.github.io/bpmnlint-rules/rules/boundary-event-marker-overlap)       | A boundary event drawn over a marker or icon of its host activity              |
 | [`@miragon/rules/exclusive-gateway-marker-visible`](https://miragon.github.io/bpmnlint-rules/rules/exclusive-gateway-marker-visible) | An exclusive gateway drawn without its X marker                                |
-| [`@miragon/rules/label-placement`](https://miragon.github.io/bpmnlint-rules/rules/label-placement)                                   | A label drawn over a flow or shape, or narrower than its longest word          |
+| [`@miragon/rules/label-placement`](https://miragon.github.io/bpmnlint-rules/rules/label-placement)                                   | A label drawn over a flow or shape, or so narrow that bpmn-js breaks a word    |
 | [`@miragon/rules/text-annotation-fit`](https://miragon.github.io/bpmnlint-rules/rules/text-annotation-fit)                           | A text annotation too small for its text (opt-in, off in every preset)         |
 | [`@miragon/rules/async-continuations`](https://miragon.github.io/bpmnlint-rules/rules/async-continuations)                           | Camunda 7 save points missing where Camunda recommends them, or redundant      |
 
