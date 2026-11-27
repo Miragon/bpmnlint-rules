@@ -147,7 +147,7 @@ entry exists. Then run `npm run bench` and read the rule's row:
 
 - **`5,000` over the target:** make the rule faster. Raise the target only with a measured reason
   (e.g. the rule reports on every element of the benchmark model).
-- **`5k / 2k` at 4 or above:** the rule is not linear (linear is about 2.5, quadratic about 6.25).
+- **`5k / 500` at 30 or above:** the rule is not linear (linear is about 10, quadratic about 100).
   Replace the pairwise loop with an index, see `BboxIndex` in `src/toolkit/geometry/`.
 
 ## 6. Verify gate (must be green)

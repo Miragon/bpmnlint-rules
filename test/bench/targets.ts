@@ -23,5 +23,9 @@ export const targetTimeMsAt5000Nodes: Record<MiragonRuleName, number> = {
   'text-annotation-fit': 50,
 };
 
-/** 2.5× the nodes: a linear rule lands near 2.5, a quadratic one near 6.25. */
-export const MAX_TIME_RATIO_5000_TO_2000_NODES = 4;
+/**
+ * 10× the nodes: a linear rule lands near 10, a quadratic one near 100. The wide spread keeps the
+ * check apart from runner effects: on some CI machines every rule, even one that does nearly
+ * nothing, costs up to 1.8× more per element on the largest model.
+ */
+export const MAX_TIME_RATIO_5000_TO_500_NODES = 30;
