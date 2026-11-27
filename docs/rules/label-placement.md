@@ -3,7 +3,8 @@
 > This rule is a non-blocking `warn` in both `plugin:@miragon/rules/recommended-for-modeling` and `plugin:@miragon/rules/recommended-for-automation`. In `plugin:@miragon/rules/strict` it is an `error`. Override it to `warn`, `error` or `off` yourself.
 
 Reports a label drawn over a sequence flow or a shape, and a label so narrow that bpmn-js breaks
-a word of its name across two lines.
+a word of its name across two lines although a label at most `maxWidth` (90px by default) wide
+would keep it whole.
 
 ## Why
 
@@ -23,7 +24,7 @@ narrow for the text, until the diagram is rendered.
 the line runs straight through the text.
 
 **What this rule guarantees:** every label is drawn clear of sequence flows and shapes, and bpmn-js
-draws every word of it on one line.
+draws every word of it on one line, unless only a label wider than `maxWidth` would.
 
 ## Scope
 
@@ -33,7 +34,8 @@ data inputs and outputs, and sequence flows. It reports:
 
 - a label that a sequence flow runs through, its own flow included;
 - a label that overlaps a shape other than its own element;
-- a label so narrow that bpmn-js breaks a word inside it.
+- a label so narrow that bpmn-js breaks a word inside it, when a label at most `maxWidth` wide
+  keeps every word whole.
 
 The rule lays the name out the way bpmn-js 18 (with diagram-js 15.12 or later) draws an external
 label (`layoutText` in `diagram-js/lib/util/Text.js`), in the label's own width, and reports the
@@ -43,6 +45,13 @@ line is too wide, bpmn-js estimates how many characters fit from their share of 
 width, so "Subscription" (60.5px) breaks in a 61px label of "Subscription requested". bpmn-js
 breaks a line at whitespace, hyphens and soft hyphens, and at every line break in the name. The
 message names the smallest wider width at which bpmn-js keeps every word whole.
+
+That width is reported only up to `maxWidth`. bpmn-js lays a new label out 90px wide and breaks a
+longer word itself, so a compound such as "Versicherungsbedingungen" (133px) breaks in every
+label the modeler draws. Keeping it whole would take a much wider label, or a hyphen or soft hyphen
+in the name, which ends up in the element name and everything built from it. So a break that only
+a label wider than `maxWidth` avoids is accepted. A label already wider than `maxWidth` is
+therefore never reported for a broken word, however little wider it would have to be.
 
 It deliberately leaves alone:
 
@@ -59,8 +68,23 @@ It deliberately leaves alone:
   width cannot be predicted without the font. Known are U+0020 to U+007E, U+00A0 to U+00FF, the
   dashes `–` and `—`, the quotes `‘ ’ ‚ “ ” „`, `…`, `•` and `€`; a tab and a carriage return
   count as a space;
+- a word break that only a label wider than `maxWidth` avoids;
 - other fonts: the layout assumes the bpmn-js default label font;
 - labels overlapping other labels, and labels of message flows and associations.
+
+## Configuration
+
+```json
+{
+  "rules": {
+    "@miragon/rules/label-placement": ["error", { "maxWidth": 120 }]
+  }
+}
+```
+
+- `maxWidth`: the widest label, in whole pixels, the rule asks for to keep every word whole (default `90`,
+  the width bpmn-js lays a new label out in). Raise it to ask for wider labels instead of accepted
+  breaks in long words.
 
 ## Examples
 
