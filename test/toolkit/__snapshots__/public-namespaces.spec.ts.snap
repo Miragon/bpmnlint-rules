@@ -29,6 +29,7 @@ exports[`public toolkit namespaces > expose a stable set of names 1`] = `
     "stubLength",
   ],
   "naming": [
+    "CASE_NAMES",
     "DEFAULT_PREFIXES",
     "ElementIdConvention",
     "ValueNamingScheme",

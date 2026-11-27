@@ -54,6 +54,7 @@ describe('published configs', () => {
 
   it('freezes the shared naming defaults', () => {
     expect(Object.isFrozen(naming.DEFAULT_PREFIXES)).toBe(true);
+    expect(Object.isFrozen(naming.CASE_NAMES)).toBe(true);
     expect(Object.isFrozen(naming.resolveCase('camelCase'))).toBe(true);
   });
 });
