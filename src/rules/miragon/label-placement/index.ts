@@ -16,6 +16,20 @@ import { defineRule } from '../../../core/utils/defineRule';
 
 const GRAZE_TOLERANCE = 2;
 
+/**
+ * The width bpmn-js lays a new external label out in (`DEFAULT_LABEL_SIZE` in
+ * `bpmn-js/lib/util/LabelUtil.js`), so it breaks a longer word itself.
+ */
+const DEFAULT_MAX_WIDTH = 90;
+
+export interface LabelPlacementConfig {
+  /**
+   * The widest label, in px, the rule asks for to keep every word whole. A word that only a wider
+   * label keeps whole may break. Defaults to {@link DEFAULT_MAX_WIDTH}.
+   */
+  maxWidth?: number;
+}
+
 interface Label {
   el: ModdleElement;
   name: string;
@@ -24,11 +38,19 @@ interface Label {
 
 /**
  * Reports a label that is hard to read: its bounds overlap a sequence flow or a shape, or they are
- * so narrow that bpmn-js breaks a word of the name across two lines.
+ * so narrow that bpmn-js breaks a word of the name across two lines although a label at most
+ * `maxWidth` wide would keep it whole.
  *
  * Comparison is scoped per BPMNPlane.
  */
 class LabelPlacement extends PlaneRule {
+  private readonly maxWidth: number;
+
+  constructor(config?: LabelPlacementConfig) {
+    super();
+    this.maxWidth = config?.maxWidth ?? DEFAULT_MAX_WIDTH;
+  }
+
   protected checkPlane(plane: DiagramPlane, reporter: Reporter): void {
     const obstacles = plane.shapes.filter((shape) => !isPassableShape(shape.el, shape.isExpanded));
     const obstacleIndex = new BboxIndex(obstacles.map((shape) => bboxOfRect(shape.bounds)));
@@ -87,7 +109,7 @@ class LabelPlacement extends PlaneRule {
   ): void {
     const brokenWord = new ExternalLabelLayout(name).brokenWord(bounds.width);
 
-    if (brokenWord) {
+    if (brokenWord && brokenWord.requiredWidth <= this.maxWidth) {
       reporter.report(
         el.id,
         `Label is too narrow, so bpmn-js breaks the word "${brokenWord.word}"; widen it to at least ${brokenWord.requiredWidth}px`,

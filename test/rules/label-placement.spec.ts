@@ -184,6 +184,40 @@ verify('label-placement', rule, {
         shapes: [{ ...labelOn(START, { x: 110, y: 143, width: 10, height: 14 }), name: '   ' }],
       }),
     },
+    {
+      name: 'a long compound that bpmn-js breaks even in a maxWidth-wide label',
+      moddleElement: model({
+        shapes: [
+          {
+            ...labelOn(START, { x: 74, y: 143, width: 89, height: 27 }),
+            name: 'Versicherungsbedingungen geprüft',
+          },
+        ],
+      }),
+    },
+    {
+      name: 'a word only a label wider than the default maxWidth of 90px keeps whole',
+      moddleElement: model({
+        shapes: [
+          {
+            ...labelOn(START, { x: 88, y: 143, width: 60, height: 27 }),
+            name: 'Recommendations received',
+          },
+        ],
+      }),
+    },
+    {
+      name: 'a word only a label one pixel wider than maxWidth keeps whole',
+      config: { maxWidth: 61 },
+      moddleElement: model({
+        shapes: [
+          {
+            ...labelOn(START, { x: 88, y: 143, width: 61, height: 27 }),
+            name: 'Subscription requested',
+          },
+        ],
+      }),
+    },
   ],
   invalid: [
     {
@@ -231,6 +265,56 @@ verify('label-placement', rule, {
         id: 'event_Start',
         message:
           'Label is too narrow, so bpmn-js breaks the word "Subscription"; widen it to at least 62px',
+      },
+    },
+    {
+      name: 'a word a label exactly as wide as the default maxWidth of 90px keeps whole',
+      moddleElement: model({
+        shapes: [
+          {
+            ...labelOn(START, { x: 88, y: 143, width: 60, height: 27 }),
+            name: 'Acknowledgement received',
+          },
+        ],
+      }),
+      report: {
+        id: 'event_Start',
+        message:
+          'Label is too narrow, so bpmn-js breaks the word "Acknowledgement"; widen it to at least 90px',
+      },
+    },
+    {
+      name: 'a word a label exactly maxWidth wide keeps whole',
+      config: { maxWidth: 62 },
+      moddleElement: model({
+        shapes: [
+          {
+            ...labelOn(START, { x: 88, y: 143, width: 61, height: 27 }),
+            name: 'Subscription requested',
+          },
+        ],
+      }),
+      report: {
+        id: 'event_Start',
+        message:
+          'Label is too narrow, so bpmn-js breaks the word "Subscription"; widen it to at least 62px',
+      },
+    },
+    {
+      name: 'a long compound a raised maxWidth asks to keep whole',
+      config: { maxWidth: 140 },
+      moddleElement: model({
+        shapes: [
+          {
+            ...labelOn(START, { x: 74, y: 143, width: 89, height: 27 }),
+            name: 'Versicherungsbedingungen geprüft',
+          },
+        ],
+      }),
+      report: {
+        id: 'event_Start',
+        message:
+          'Label is too narrow, so bpmn-js breaks the word "Versicherungsbedingungen"; widen it to at least 134px',
       },
     },
     {

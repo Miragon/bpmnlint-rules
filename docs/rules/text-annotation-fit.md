@@ -85,4 +85,4 @@ It deliberately leaves alone:
 
 ## Related
 
-- [`@miragon/rules/label-placement`](./label-placement.md): the same word width check for the labels of events, gateways and flows.
+- [`@miragon/rules/label-placement`](./label-placement.md): a word width check for the labels of events, gateways and flows.
