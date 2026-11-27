@@ -141,7 +141,7 @@ async function copyInstall() {
           </div>
         </div>
         <p class="meta">
-          <span>Needs bpmnlint 11.14+ · Node 22+</span>
+          <span>Needs bpmnlint 12.2+ · Node 22+</span>
           <span class="pre-release">
             <span class="marker" aria-hidden="true" />
             <span><strong>0.16:</strong> pre-1.0, pin the version</span>

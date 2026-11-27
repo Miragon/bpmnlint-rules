@@ -28,8 +28,13 @@ const os = require('node:os');
 const path = require('node:path');
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
-const { name, devDependencies } = require(path.join(REPO_ROOT, 'package.json'));
-const BPMNLINT_VERSION = devDependencies.bpmnlint;
+const { name, peerDependencies } = require(path.join(REPO_ROOT, 'package.json'));
+
+/**
+ * The oldest bpmnlint the peer range admits: a consumer may still run it, so it has to load every
+ * rule we bundle. The unit tests already cover the newer one from `devDependencies`.
+ */
+const BPMNLINT_VERSION = /^>=\s*(\d+\.\d+\.\d+)$/.exec(peerDependencies.bpmnlint)[1];
 
 const npm = (args, cwd) =>
   execFileSync('npm', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'] });

@@ -75,7 +75,7 @@
     "docs:build": "npm run build && npm run build --workspace docs"
   },
   "peerDependencies": {
-    "bpmnlint": ">=11.14.0"
+    "bpmnlint": ">=12.2.0"
   },
   "dependencies": {
     "bpmnlint-plugin-camunda-compat": "2.63.1",
