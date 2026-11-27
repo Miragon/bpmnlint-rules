@@ -5,6 +5,7 @@ import {
   gatewayTipSide,
   insetRect,
   isOrthogonalPath,
+  sideOutside,
 } from '../../src/toolkit/geometry';
 import { BboxIndex } from '../../src/toolkit/geometry';
 import type { Bbox } from '../../src/toolkit/geometry';
@@ -57,6 +58,35 @@ describe('circleOverlapsRect', () => {
 describe('insetRect', () => {
   it('shrinks the rectangle by the same amount on every side', () => {
     expect(insetRect(BOX, 2)).toEqual({ x: 102, y: 102, width: 96, height: 76 });
+  });
+});
+
+describe('sideOutside', () => {
+  const rect = (x: number, y: number) => ({ x, y, width: 40, height: 10 });
+
+  it('names the side a rect lies beyond while sharing the box range along it', () => {
+    expect(sideOutside(rect(130, 80), BOX)).toBe('top');
+    expect(sideOutside(rect(130, 190), BOX)).toBe('bottom');
+    expect(sideOutside(rect(50, 135), BOX)).toBe('left');
+    expect(sideOutside(rect(210, 135), BOX)).toBe('right');
+  });
+
+  it('counts a rect far off centre as long as it shares some of the range', () => {
+    expect(sideOutside(rect(195, 190), BOX)).toBe('bottom');
+    expect(sideOutside(rect(210, 95), BOX)).toBe('right');
+  });
+
+  it('counts a rect that touches the side', () => {
+    expect(sideOutside(rect(130, 180), BOX)).toBe('bottom');
+    expect(sideOutside(rect(200, 135), BOX)).toBe('right');
+  });
+
+  it('names no side for a rect diagonally off a corner, touching it or overlapping the box', () => {
+    expect(sideOutside(rect(200, 180), BOX)).toBeUndefined();
+    expect(sideOutside(rect(60, 90), BOX)).toBeUndefined();
+    expect(sideOutside(rect(205, 190), BOX)).toBeUndefined();
+    expect(sideOutside(rect(55, 85), BOX)).toBeUndefined();
+    expect(sideOutside(rect(130, 175), BOX)).toBeUndefined();
   });
 });
 

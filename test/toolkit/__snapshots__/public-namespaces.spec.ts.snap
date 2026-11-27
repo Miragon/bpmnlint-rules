@@ -25,6 +25,7 @@ exports[`public toolkit namespaces > expose a stable set of names 1`] = `
     "segThroughRect",
     "segments",
     "segmentsCross",
+    "sideOutside",
     "stubLength",
   ],
   "naming": [

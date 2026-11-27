@@ -47,4 +47,38 @@ describe('ExternalLabelLayout', () => {
   it('is undefined for text it cannot measure', () => {
     expect(new ExternalLabelLayout('受注').brokenWord(5)).toBeUndefined();
   });
+
+  // The widths and heights below are what bpmn-js 18 itself wrote for these names.
+  describe('drawnBounds', () => {
+    it('rounds the stored position and width and sizes one line 14px tall', () => {
+      expect(
+        new ExternalLabelLayout('Order received').drawnBounds({
+          x: 10.4,
+          y: 20.6,
+          width: 73,
+          height: 40,
+        }),
+      ).toEqual({ x: 10, y: 21, width: 73, height: 14 });
+    });
+
+    it('sizes a label to the lines bpmn-js lays the text out in', () => {
+      const bounds = { x: 0, y: 0, width: 89, height: 14 };
+
+      expect(
+        new ExternalLabelLayout('Versicherungsbedingungen geprüft').drawnBounds(bounds),
+      ).toEqual({ ...bounds, height: 27 });
+      expect(
+        new ExternalLabelLayout('Versicherungs\u00ADbedingungen geprüft').drawnBounds({
+          ...bounds,
+          width: 74,
+        }),
+      ).toEqual({ ...bounds, width: 74, height: 40 });
+    });
+
+    it('is undefined for text it cannot measure', () => {
+      expect(
+        new ExternalLabelLayout('受注').drawnBounds({ x: 0, y: 0, width: 30, height: 14 }),
+      ).toBeUndefined();
+    });
+  });
 });

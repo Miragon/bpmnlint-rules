@@ -1,4 +1,4 @@
-import type { Bbox, Point, Rect } from '../types';
+import type { Bbox, Point, Rect, Side } from '../types';
 
 /** Axis-aligned bounding box of a point set. */
 export const bboxOfPoints = (points: Point[]): Bbox =>
@@ -40,3 +40,33 @@ const isFiniteSpan = (low: number, high: number): boolean =>
 /** Finite on both axes and not inverted. */
 export const isWellFormedBbox = (box: Bbox): boolean =>
   isFiniteSpan(box.minX, box.maxX) && isFiniteSpan(box.minY, box.maxY);
+
+/**
+ * The side of `outer` that `inner` lies entirely beyond while sharing part of `outer`'s extent along
+ * that side: `bottom` for a rect below `outer` that shares some of its x range, `right` for one
+ * beside it that shares some of its y range. A rect may touch the side; sharing only an end point
+ * of the range does not count. `undefined` for a rect diagonally off a corner or one that overlaps
+ * `outer`.
+ */
+export const sideOutside = (inner: Rect, outer: Rect): Side | undefined => {
+  const sharesX = inner.x < outer.x + outer.width && outer.x < inner.x + inner.width;
+  const sharesY = inner.y < outer.y + outer.height && outer.y < inner.y + inner.height;
+
+  if (sharesX && inner.y + inner.height <= outer.y) {
+    return 'top';
+  }
+
+  if (sharesX && inner.y >= outer.y + outer.height) {
+    return 'bottom';
+  }
+
+  if (sharesY && inner.x + inner.width <= outer.x) {
+    return 'left';
+  }
+
+  if (sharesY && inner.x >= outer.x + outer.width) {
+    return 'right';
+  }
+
+  return undefined;
+};

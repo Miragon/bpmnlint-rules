@@ -18,6 +18,7 @@ export const targetTimeMsAt5000Nodes: Record<MiragonRuleName, number> = {
   'boundary-event-marker-overlap': 50,
   'exclusive-gateway-marker-visible': 50,
   'async-continuations': 50,
+  'label-alignment': 50,
   'label-placement': 50,
   'text-annotation-fit': 50,
 };

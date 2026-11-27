@@ -25,6 +25,7 @@ import flowCrossing from './flow-crossing';
 import flowOrthogonal from './flow-orthogonal';
 import flowTargetAlignment from './flow-target-alignment';
 import flowThroughElement from './flow-through-element';
+import labelAlignment from './label-alignment';
 import labelPlacement from './label-placement';
 import messageNameNaming from './message-name-naming';
 import noGeneratedIds from './no-generated-ids';
@@ -43,6 +44,7 @@ const ruleFactoriesByName = {
   [workerTopicNaming.ruleName]: workerTopicNaming,
   [messageNameNaming.ruleName]: messageNameNaming,
   [flowThroughElement.ruleName]: flowThroughElement,
+  [labelAlignment.ruleName]: labelAlignment,
   [labelPlacement.ruleName]: labelPlacement,
   [flowConnectionSide.ruleName]: flowConnectionSide,
   [flowTargetAlignment.ruleName]: flowTargetAlignment,
@@ -129,6 +131,7 @@ export {
   flowOrthogonal,
   flowTargetAlignment,
   flowThroughElement,
+  labelAlignment,
   labelPlacement,
   messageNameNaming,
   noGeneratedIds,

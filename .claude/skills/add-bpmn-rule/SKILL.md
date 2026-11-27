@@ -75,7 +75,8 @@ The `kind` in the rule's `defineRule` declaration sets its severity in every lay
 `SEVERITY_BY_KIND` in `src/core/SeverityPolicy.ts`: `layout-hint` (warn/warn/error), `misdrawn`
 (error/warn/error), `convention` (off/warn/error), `scheme` (off/off/error), `engine-specific`
 (off/off/error — also declare `targetEngine: 'c7'` and skip diagrams for other engines), `cosmetic`
-(off/off/off — a presentation check users enable by name). Columns
+(off/off/off — an untidy detail rather than a problem, or a check built on a font estimate; users
+enable it by name). Columns
 are modeling/automation/all.
 
 ## 3. Spec — `test/rules/<name>.spec.ts`

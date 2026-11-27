@@ -47,6 +47,7 @@ export {
   flowOrthogonal,
   flowTargetAlignment,
   flowThroughElement,
+  labelAlignment,
   labelPlacement,
   messageNameNaming,
   noGeneratedIds,

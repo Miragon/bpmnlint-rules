@@ -1,3 +1,4 @@
+import type { Rect } from '../geometry';
 import { ArialFont } from './ArialFont';
 
 /**
@@ -5,6 +6,12 @@ import { ArialFont } from './ArialFont';
  * `lib/draw/TextRenderer.js`).
  */
 const LABEL_FONT = new ArialFont(11);
+
+/**
+ * The height of one line of an external label: its font size times bpmn-js's line height ratio of
+ * 1.2 (`LINE_HEIGHT_RATIO` in `lib/draw/TextRenderer.js`).
+ */
+const LINE_HEIGHT = 11 * 1.2;
 
 const SOFT_BREAK = '\u00AD';
 const WORD_SEPARATOR = /[\s\u00AD-]/;
@@ -72,6 +79,50 @@ export class ExternalLabelLayout {
   }
 
   /**
+   * The bounds bpmn-js draws the label at when its DI bounds are `bounds` (`addLabel` in
+   * `lib/import/BpmnImporter.js`): the stored position and width, rounded, and the height of the
+   * text laid out in that width, drawn from the top. `undefined` when the text holds a character
+   * without known font metrics, so its line count cannot be predicted.
+   */
+  drawnBounds(bounds: Rect): Rect | undefined {
+    const width = Math.round(bounds.width);
+    const lineCount = this.lineCount(width);
+
+    if (lineCount === undefined) {
+      return undefined;
+    }
+
+    return {
+      x: Math.round(bounds.x),
+      y: Math.round(bounds.y),
+      width,
+      height: Math.ceil(lineCount * LINE_HEIGHT),
+    };
+  }
+
+  private lineCount(maxWidth: number): number | undefined {
+    if (!this.lineWidths.every((width) => width !== undefined)) {
+      return undefined;
+    }
+
+    const lines = this.text.split(EXPLICIT_LINE_BREAK);
+    let lineCount = 0;
+
+    while (lines.length) {
+      const originalLine = lines.shift()!;
+      const fitLine = this.fitLine(originalLine, maxWidth);
+
+      lineCount += 1;
+
+      if (fitLine.length < originalLine.length) {
+        lines.unshift(originalLine.slice(fitLine.length).trim());
+      }
+    }
+
+    return lineCount;
+  }
+
+  /**
    * Lays the text out like `layoutText` and returns the first word it breaks inside, if any.
    */
   private firstBrokenWord(maxWidth: number): string | undefined {
@@ -79,13 +130,7 @@ export class ExternalLabelLayout {
 
     while (lines.length) {
       const originalLine = lines.shift()!;
-      let fitLine = originalLine;
-      let width = this.measure(fitLine)!;
-
-      while (fitLine !== ' ' && fitLine !== '' && width > maxWidth && fitLine.length >= 2) {
-        fitLine = this.shortenLine(fitLine, width, maxWidth);
-        width = this.measure(fitLine)!;
-      }
+      const fitLine = this.fitLine(originalLine, maxWidth);
 
       if (fitLine.length < originalLine.length) {
         if (this.isInsideWord(originalLine, fitLine.length)) {
@@ -97,6 +142,21 @@ export class ExternalLabelLayout {
     }
 
     return undefined;
+  }
+
+  /**
+   * Ports `layoutNext`: shortens the line until it fits `maxWidth` or cannot shrink further.
+   */
+  private fitLine(line: string, maxWidth: number): string {
+    let fitLine = line;
+    let width = this.measure(fitLine)!;
+
+    while (fitLine !== ' ' && fitLine !== '' && width > maxWidth && fitLine.length >= 2) {
+      fitLine = this.shortenLine(fitLine, width, maxWidth);
+      width = this.measure(fitLine)!;
+    }
+
+    return fitLine;
   }
 
   /**
