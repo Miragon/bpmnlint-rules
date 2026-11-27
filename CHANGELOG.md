@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.25.0](https://github.com/Miragon/bpmnlint-rules/compare/v0.24.1...v0.25.0) (2026-11-27)
+
+
+### ⚠ BREAKING CHANGES
+
+* **deps:** the bpmnlint peer range is now >=12.2.0. The bundled bpmnlint:recommended layer imports bpmnlint/rules/no-multi-instance-termination.js, which bpmnlint ships from 12.2.0 on; with an older bpmnlint the package fails to load.
+
+### Features
+
+* accept a label word break only a label wider than maxWidth avoids ([#181](https://github.com/Miragon/bpmnlint-rules/issues/181)) ([6b81fba](https://github.com/Miragon/bpmnlint-rules/commit/6b81fba72185211e6da6d988c00bf11c95b61e60))
+* add opt-in label-alignment rule for event and gateway labels off their centre line ([#183](https://github.com/Miragon/bpmnlint-rules/issues/183)) ([e3a3d50](https://github.com/Miragon/bpmnlint-rules/commit/e3a3d50c52f2b75f4f962c83c8c929e544b49679))
+* export the naming case names and keep the naming types usable ([#184](https://github.com/Miragon/bpmnlint-rules/issues/184)) ([96385ad](https://github.com/Miragon/bpmnlint-rules/commit/96385ad255b2c862d6e62956e1617cf040e462b5))
+
+
+### Bug Fixes
+
+* **deps:** bump the npm-minor-patch group with 9 updates ([#178](https://github.com/Miragon/bpmnlint-rules/issues/178)) ([9d81afe](https://github.com/Miragon/bpmnlint-rules/commit/9d81afe47cb5637bf736766595683ea585888fb4))
+* **deps:** require bpmnlint 12.2.0, the oldest version that has every rule we bundle ([#185](https://github.com/Miragon/bpmnlint-rules/issues/185)) ([fb3f0fb](https://github.com/Miragon/bpmnlint-rules/commit/fb3f0fbb918734140173cf25e1f213efa2d9a398))
+* stop rules from walking the parts of a model they never read ([#176](https://github.com/Miragon/bpmnlint-rules/issues/176)) ([3b2e997](https://github.com/Miragon/bpmnlint-rules/commit/3b2e9976dc8329e8a9ef3ab25b7f1a7066ceffd6))
+
 ## [0.24.1](https://github.com/Miragon/bpmnlint-rules/compare/v0.24.0...v0.24.1) (2026-11-26)
 
 
