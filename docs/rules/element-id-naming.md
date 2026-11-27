@@ -168,6 +168,9 @@ convention.case; // the case the name part must follow, e.g. { label: 'camelCase
 convention.qualifier; // 'off' | 'optional' | 'required'
 ```
 
+`naming.CASE_NAMES` lists every `case` name the rule knows, as a `readonly naming.CaseName[]`, so a
+generator can check that it writes each one and notice when a new case appears.
+
 ## Further reading
 
 - [Camunda: Naming technically relevant IDs](https://docs.camunda.io/docs/components/best-practices/modeling/naming-technically-relevant-ids/): "Define developer-friendly and business-relevant IDs" with a structured type-prefix convention (e.g. `Task_ReviewTweet`, `Gateway_TweetApproved`).

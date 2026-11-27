@@ -7,8 +7,15 @@ export interface CaseSpec {
   readonly label: string;
 }
 
-/** Accepted shapes for a name: the part of an ID after its prefix, or a segment of a value. */
-const CASES: Readonly<Record<string, CaseSpec>> = Object.freeze({
+/**
+ * The `case` names the naming rules accept.
+ */
+export type CaseName = 'PascalCase' | 'camelCase' | 'snake_case' | 'kebab-case' | 'any';
+
+/**
+ * Accepted shapes for a name: the part of an ID after its prefix, or a segment of a value.
+ */
+const CASES: Readonly<Record<CaseName, CaseSpec>> = Object.freeze({
   PascalCase: Object.freeze({ pattern: /^[A-Z][A-Za-z0-9]*$/, label: 'PascalCase' }),
   camelCase: Object.freeze({ pattern: /^[a-z][A-Za-z0-9]*$/, label: 'camelCase' }),
   snake_case: Object.freeze({ pattern: /^[a-z0-9]+(_[a-z0-9]+)*$/, label: 'snake_case' }),
@@ -16,7 +23,10 @@ const CASES: Readonly<Record<string, CaseSpec>> = Object.freeze({
   any: Object.freeze({ pattern: /^.+$/, label: 'any' }),
 });
 
-const PASCAL_CASE: CaseSpec = CASES.PascalCase!;
+/**
+ * Every case name `resolveCase` knows, for a tool that writes names in the configured case.
+ */
+export const CASE_NAMES: readonly CaseName[] = Object.freeze(Object.keys(CASES) as CaseName[]);
 
 /**
  * The case spec for a configured `case` name; an unknown name falls back to PascalCase. The lookup
@@ -24,7 +34,5 @@ const PASCAL_CASE: CaseSpec = CASES.PascalCase!;
  * returning an `Object.prototype` member.
  */
 export function resolveCase(caseName: string): CaseSpec {
-  const known = Object.prototype.hasOwnProperty.call(CASES, caseName);
-
-  return (known ? CASES[caseName] : undefined) ?? PASCAL_CASE;
+  return Object.hasOwn(CASES, caseName) ? CASES[caseName as CaseName] : CASES.PascalCase;
 }

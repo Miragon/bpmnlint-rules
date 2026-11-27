@@ -14,6 +14,9 @@
  *   3. Programmatic, `import` — `esm-consumer.mjs` loads the ESM build through Node's own loader
  *      and lints both fixtures through the bundled resolver. A bundler accepts an extension-less
  *      deep import or a bare JSON import; Node does not, so only this path catches them.
+ *   4. Types — `types.mts` uses every type member of `naming` as a type, checked by the repo's
+ *      `tsc` against the ESM and the CJS declarations. A type the build re-exports as a value
+ *      only fails here with TS2749.
  *
  * Run: `npm run test:distro` (after `npm run build`).
  */
@@ -33,14 +36,18 @@ const npm = (args, cwd) =>
 
 const step = (message) => console.log(`  -> ${message}`);
 
-/** `npm pack --json` is an array (npm <= 11) or an object keyed by package name (npm >= 12). */
+/**
+ * `npm pack --json` is an array (npm <= 11) or an object keyed by package name (npm >= 12).
+ */
 function packedFilename(packOutput) {
   const parsed = JSON.parse(packOutput);
   const [entry] = Array.isArray(parsed) ? parsed : Object.values(parsed);
   return entry.filename;
 }
 
-/** Runs the installed bpmnlint CLI over a fixture and returns its combined output + status. */
+/**
+ * Runs the installed bpmnlint CLI over a fixture and returns its combined output + status.
+ */
 function lint(project, fixture) {
   try {
     const output = execFileSync(path.join(project, 'node_modules', '.bin', 'bpmnlint'), [fixture], {
@@ -148,6 +155,30 @@ function main() {
       path.join(project, 'esm-consumer.mjs'),
     );
     execFileSync(process.execPath, ['esm-consumer.mjs'], { cwd: project, stdio: 'inherit' });
+
+    // (4) Types: the repo's `tsc` checks `types.mts` against both declaration builds.
+    const typeChecks = ['types.mts', 'types.cts'];
+    for (const file of typeChecks) {
+      fs.copyFileSync(path.join(__dirname, 'types.mts'), path.join(project, file));
+    }
+    fs.writeFileSync(
+      path.join(project, 'tsconfig.json'),
+      JSON.stringify(
+        {
+          compilerOptions: { module: 'nodenext', strict: true, noEmit: true, skipLibCheck: false },
+          files: typeChecks,
+        },
+        null,
+        2,
+      ),
+    );
+    execFileSync(path.join(REPO_ROOT, 'node_modules', '.bin', 'tsc'), ['-p', project], {
+      cwd: project,
+      stdio: 'inherit',
+    });
+    step(
+      'types: every type member of naming is usable as a type, through ESM and CJS declarations',
+    );
 
     console.log('distro smoke OK');
   } finally {
