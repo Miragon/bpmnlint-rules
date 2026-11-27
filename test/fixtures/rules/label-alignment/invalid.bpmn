@@ -39,7 +39,7 @@
       <bpmndi:BPMNShape id="startEvent_orderReceived_di" bpmnElement="startEvent_orderReceived">
         <dc:Bounds x="160" y="182" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="149" y="225" width="74" height="14" />
+          <dc:Bounds x="157" y="225" width="74" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="userTask_checkOrder_di" bpmnElement="userTask_checkOrder">

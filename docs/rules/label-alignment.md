@@ -55,7 +55,7 @@ It deliberately leaves alone:
 
 ## Examples
 
-👎 Invalid: the label of `Order received` sits 8px right of the start event's centre
+👎 Invalid: the label of `Order received` sits 16px right of the start event's centre
 
 ![Invalid model: a start event label shifted to the right](./assets/label-alignment-invalid.svg)
 
