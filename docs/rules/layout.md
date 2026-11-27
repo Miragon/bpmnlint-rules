@@ -36,11 +36,15 @@ and bounds, never on guesswork.
 
 <RulePair rule="label-placement" />
 
+## An event or gateway label off its centre line
+
+<RulePair rule="label-alignment" />
+
 ## A text annotation too small for its text
 
 <RulePair rule="text-annotation-fit" />
 
 The first eight are non-blocking layout hints at `warn` in both recommended presets, except the gateway
-marker, which is an `error` in `recommended-for-modeling`. `text-annotation-fit` is off in every
-preset and enabled by name. See
+marker, which is an `error` in `recommended-for-modeling`. `label-alignment` and `text-annotation-fit` are off in
+every preset and enabled by name. See
 [Presets](../presets.md).

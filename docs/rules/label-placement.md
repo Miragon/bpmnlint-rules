@@ -102,4 +102,5 @@ It deliberately leaves alone:
 
 ## Related
 
+- [`@miragon/rules/label-alignment`](./label-alignment.md): reports a label that sits a few pixels off its element's centre line.
 - [`@miragon/rules/flow-through-element`](./flow-through-element.md): the same check for a flow drawn through a shape instead of a label.

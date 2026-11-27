@@ -8,8 +8,8 @@ import type { RuleSet, RuleSeverity } from './bpmnlint-config';
  *  - `convention` — an execution-only convention a modeler shouldn't be blocked on;
  *  - `scheme` — needs a project-chosen scheme before it can say anything useful;
  *  - `engine-specific` — applies to one engine only (the rule also sets `targetEngine`);
- *  - `cosmetic` — a presentation check built on a font estimate, so it is off in every layer and
- *    enabled by name.
+ *  - `cosmetic` — an untidy detail rather than a problem (an off-centre label), or a presentation
+ *    check built on a font estimate, so it is off in every layer and enabled by name.
  */
 export type MiragonRuleKind =
   'layout-hint' | 'misdrawn' | 'convention' | 'scheme' | 'engine-specific' | 'cosmetic';

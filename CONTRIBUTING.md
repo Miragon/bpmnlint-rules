@@ -145,8 +145,10 @@ after every edit, so a slow rule is a visible lag. A Miragon rule fails the benc
 
 - **has no target time** in `test/bench/targets.ts`,
 - **exceeds its target time** at 5,000 flow nodes, or
-- **scales worse than linear**: the 5,000-node time divided by the 2,000-node time must stay
-  below 4. A linear rule lands near 2.5, a quadratic one near 6.25, whatever the machine.
+- **scales worse than linear**: the 5,000-node time divided by the 500-node time must stay
+  below 30. A linear rule lands near 10, a quadratic one near 100. The spread is wide on purpose:
+  some CI runners make every rule up to 1.8× slower per element on the largest model, which a
+  narrower step could not tell apart from a quadratic rule.
 
 The target times are loose because shared CI runners are slow and noisy; the ratio is the check that
 does not depend on the machine. The bundled upstream rules (`common`, `camunda-7`, `camunda-8`) are

@@ -89,7 +89,7 @@ describe('getDefaultLintConfig preset selection', () => {
     }
   });
 
-  it('keeps text-annotation-fit as the only Miragon rule off in every preset, strict included', () => {
+  it('keeps only the cosmetic rules off in every preset, strict included', () => {
     const offEverywhere = Object.keys(miragonRuleFactories)
       .map((name) => `@miragon/rules/${name}`)
       .filter((ruleName) =>
@@ -98,7 +98,10 @@ describe('getDefaultLintConfig preset selection', () => {
         ),
       );
 
-    expect(offEverywhere).toEqual(['@miragon/rules/text-annotation-fit']);
+    expect(offEverywhere).toEqual([
+      '@miragon/rules/label-alignment',
+      '@miragon/rules/text-annotation-fit',
+    ]);
   });
 
   it('marks exactly the rules with a target engine as engine-specific', () => {

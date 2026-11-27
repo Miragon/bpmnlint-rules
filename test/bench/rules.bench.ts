@@ -14,7 +14,7 @@ import * as camunda8 from '../../src/rules/camunda-8';
 import { MIRAGON_NAME, miragonRuleFactories } from '../../src/rules/miragon';
 
 import { generateLargeC7Model, largeModelPresets } from './large-model';
-import { MAX_TIME_RATIO_5000_TO_2000_NODES, targetTimeMsAt5000Nodes } from './targets';
+import { MAX_TIME_RATIO_5000_TO_500_NODES, targetTimeMsAt5000Nodes } from './targets';
 
 /**
  * The rules are timed as they ship: from the built bundle, loaded by Node itself. Vitest's module
@@ -49,7 +49,7 @@ interface RuleUnderTest {
 
 interface Measurement {
   medianMs: Record<NodeCount, number>;
-  timeRatio5000To2000Nodes: number;
+  timeRatio5000To500Nodes: number;
   ruleThrew: boolean;
 }
 
@@ -151,7 +151,7 @@ function renderTable(rows: string[][]): string {
 describe('rule benchmark', () => {
   const largeModels = new Map<NodeCount, LargeModel>();
   const tableRows: string[][] = [
-    ['layer', 'rule', '500', '2,000', '5,000', '5k / 2k', 'target', 'status'],
+    ['layer', 'rule', '500', '2,000', '5,000', '5k / 500', 'target', 'status'],
   ];
 
   function largeModel(nodeCount: NodeCount): LargeModel {
@@ -182,13 +182,13 @@ describe('rule benchmark', () => {
       5000: median(durations[5000]),
     };
 
-    return { medianMs, timeRatio5000To2000Nodes: medianMs[5000] / medianMs[2000], ruleThrew };
+    return { medianMs, timeRatio5000To500Nodes: medianMs[5000] / medianMs[500], ruleThrew };
   }
 
   function addTableRow(
     layer: string,
     ruleName: string,
-    { medianMs, timeRatio5000To2000Nodes }: Measurement,
+    { medianMs, timeRatio5000To500Nodes }: Measurement,
     target: string,
     status: string,
   ) {
@@ -198,7 +198,7 @@ describe('rule benchmark', () => {
       formatMs(medianMs[500]),
       formatMs(medianMs[2000]),
       formatMs(medianMs[5000]),
-      timeRatio5000To2000Nodes.toFixed(1),
+      timeRatio5000To500Nodes.toFixed(1),
       target,
       status,
     ]);
@@ -245,20 +245,20 @@ describe('rule benchmark', () => {
         { configKey: `${MIRAGON_NAME}/${ruleName}` },
         ENFORCED_RUNS,
       );
-      const { medianMs, timeRatio5000To2000Nodes, ruleThrew } = measurement;
+      const { medianMs, timeRatio5000To500Nodes, ruleThrew } = measurement;
 
       const failures = [
         ...(ruleThrew ? ['rule threw'] : []),
         ...(medianMs[5000] < targetMs ? [] : ['over target']),
-        ...(timeRatio5000To2000Nodes < MAX_TIME_RATIO_5000_TO_2000_NODES ? [] : ['not linear']),
+        ...(timeRatio5000To500Nodes < MAX_TIME_RATIO_5000_TO_500_NODES ? [] : ['not linear']),
       ];
       addTableRow('miragon', ruleName, measurement, `${targetMs} ms`, failures.join(', ') || 'ok');
 
       expect(
         failures,
         `${formatMs(medianMs[5000])} at 5,000 nodes (target ${targetMs} ms), ` +
-          `5k / 2k time ratio ${timeRatio5000To2000Nodes.toFixed(1)} ` +
-          `(must stay below ${MAX_TIME_RATIO_5000_TO_2000_NODES}: linear is about 2.5, quadratic about 6.25)`,
+          `5k / 500 time ratio ${timeRatio5000To500Nodes.toFixed(1)} ` +
+          `(must stay below ${MAX_TIME_RATIO_5000_TO_500_NODES}: linear is about 10, quadratic about 100)`,
       ).toEqual([]);
     });
   }

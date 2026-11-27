@@ -24,7 +24,7 @@ export const inst = (el: ModdleElement, type: string): boolean =>
  * groups always, and an EXPANDED sub-process. A collapsed sub-process is a task-sized box and
  * therefore a real obstacle.
  */
-function isEnclosingContainer(el: ModdleElement, isExpanded: boolean): boolean {
+export function isEnclosingContainer(el: ModdleElement, isExpanded: boolean): boolean {
   if (inst(el, 'bpmn:Participant') || inst(el, 'bpmn:Lane') || inst(el, 'bpmn:Group')) {
     return true;
   }
