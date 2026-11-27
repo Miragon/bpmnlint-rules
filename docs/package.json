@@ -10,8 +10,8 @@
   },
   "devDependencies": {
     "@braintree/sanitize-url": "7.1.2",
-    "@miragon/docs-starter": "1.0.0",
-    "bpmn-js": "18.31.1",
+    "@miragon/docs-starter": "1.1.0",
+    "bpmn-js": "18.33.1",
     "camunda-transaction-boundaries": "2.0.0",
     "cytoscape": "3.35.0",
     "cytoscape-cose-bilkent": "4.1.0",
@@ -23,6 +23,6 @@
     "vitepress": "1.6.4",
     "vitepress-plugin-llms": "1.15.0",
     "vitepress-plugin-mermaid": "2.0.17",
-    "vue": "3.5.45"
+    "vue": "3.5.46"
   }
 }

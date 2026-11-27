@@ -34,6 +34,7 @@ import noImplicitEnd from 'bpmnlint/rules/no-implicit-end.js';
 import noImplicitSplit from 'bpmnlint/rules/no-implicit-split.js';
 import noImplicitStart from 'bpmnlint/rules/no-implicit-start.js';
 import noInclusiveGateway from 'bpmnlint/rules/no-inclusive-gateway.js';
+import noMultiInstanceTermination from 'bpmnlint/rules/no-multi-instance-termination.js';
 import noOverlappingElements from 'bpmnlint/rules/no-overlapping-elements.js';
 import singleBlankStartEvent from 'bpmnlint/rules/single-blank-start-event.js';
 import singleEventDefinition from 'bpmnlint/rules/single-event-definition.js';
@@ -73,6 +74,7 @@ export const resolverEntries: ResolverEntries = {
   'rule:bpmnlint/no-implicit-split': noImplicitSplit,
   'rule:bpmnlint/no-implicit-start': noImplicitStart,
   'rule:bpmnlint/no-inclusive-gateway': noInclusiveGateway,
+  'rule:bpmnlint/no-multi-instance-termination': noMultiInstanceTermination,
   'rule:bpmnlint/no-overlapping-elements': noOverlappingElements,
   'rule:bpmnlint/single-blank-start-event': singleBlankStartEvent,
   'rule:bpmnlint/single-event-definition': singleEventDefinition,
